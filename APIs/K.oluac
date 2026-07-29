@@ -253,7 +253,7 @@ local KeyProcessor = function(script_key)
 end; KeyProcessor = newcclosure(KeyProcessor);
 
 return {
-    Version = "KAuth3.75",
+    Version = "KAuth3.76",
     Function = function(version, KeyPackage, ...)
         local ToGo = {...}; GG.InKey = function()
             local GlobCrLoad = KeyPackage();
