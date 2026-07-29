@@ -48,7 +48,7 @@ Config.Ticket = Config.Ticket or {};
 Config.Game = Config.Game or {};
 
 return {
-    Version = "Evade_V3.47";
+    Version = "Evade_V3.48";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
