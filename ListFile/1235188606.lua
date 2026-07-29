@@ -88,7 +88,7 @@ Config.BoneMeal = Config.BoneMeal or {};
 Config.Treasure = Config.Treasure or {};
 
 return {
-    Version = "DA_V3.51";
+    Version = "DA_V3.52";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
