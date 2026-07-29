@@ -1078,7 +1078,7 @@ AssetStorage.QueuePack = function()
             src ..= "getgenv().Configs = " .. serialize(GG.Configs);
             src ..= "getgenv().LoaderSettings = " .. serialize(GG.LoaderSettings);
 
-            src ..= 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Yumiara/SSL-TTJY/refs/heads/main/APIs/M.lua"))()';
+            src ..= 'loadstring(game:HttpGet("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/APIs/M.lua"))()';
             queueonteleport(src);
         end;
     };
@@ -2464,11 +2464,11 @@ AssetStorage.LoadUILib = function()
                 local IconModule = {  
                     IconsType = "lucide", New = nil, IconThemeTag = nil,
                     Icons = (LoaderSettings.BadNetwork and {}) or {  
-                        ["lucide"] = LoadFromVControl("https://raw.githubusercontent.com/Yumiara/SSL-TTJY/refs/heads/main/Assets/lucide.lua", "lucide.lua", "1")(),
+                        ["lucide"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/Assets/lucide.lua", "lucide.lua", "2")(),
                         --["solar"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua"))(),  
                         --["craft"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/craft/dist/Icons.lua"))(),  
                         --["geist"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/geist/dist/Icons.lua"))(),  
-                        ["sfsymbols"] = LoadFromVControl("https://raw.githubusercontent.com/Yumiara/SSL-TTJY/refs/heads/main/Assets/sfsymbols.lua", "sfsymbols.lua", "1")(),  
+                        ["sfsymbols"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/Assets/sfsymbols.lua", "sfsymbols.lua", "2")(),  
                     },
                 };
                 local function parseIconString(iconString)  
@@ -12062,18 +12062,18 @@ end;
 local FreeLoad, KeyLoad = {
     [7597195391] = {
         File = "7597195391";
-        Version = "RealUNISnapshot4";
+        Version = "RealUNISnapshot5";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "PromptPackage", "CoruTask"};
     };
 }, {
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.51";
+        Version = "DA_V3.52";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
         File = "3647333358";
-        Version = "Evade_V3.47";
+        Version = "Evade_V3.48";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [2294168059] = {
@@ -12087,7 +12087,7 @@ GG.LoadFromVControl = LoadFromVControl;
 GG.LoaderSettings = LoaderSettings;
 GG.ScriptCache = ScriptCache;
 
-if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/Yumiara/SSL-TTJY/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_Revert")(selff, selc) then
+if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_Revert")(selff, selc) then
     return selff:Kick("TTJY_IDAC");
 end;
 
@@ -12108,9 +12108,9 @@ local AutoInclude = function(Included)
 end;
 
 if FreeLoad[GameId] then
-    return LoadFromVControl("https://raw.githubusercontent.com/Yumiara/SSL-TTJY/refs/heads/main/ListFile/" .. Resolve, Resolve, GG.CustomVersion or FreeLoad[GameId].Version)(AutoInclude(FreeLoad[GameId].Included))();
+    return LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/ListFile/" .. Resolve, Resolve, GG.CustomVersion or FreeLoad[GameId].Version)(AutoInclude(FreeLoad[GameId].Included))();
 elseif KeyLoad[GameId] then
-    return LoadFromVControl("https://raw.githubusercontent.com/Yumiara/SSL-TTJY/refs/heads/main/APIs/K.oluac", "K.lua", "KAuth3.75")(GG.CustomVersion or KeyLoad[GameId].Version, AssetStorage.KeyPackage, AutoInclude(KeyLoad[GameId].Included))();
+    return LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/APIs/K.oluac", "K.lua", "KAuth3.76")(GG.CustomVersion or KeyLoad[GameId].Version, AssetStorage.KeyPackage, AutoInclude(KeyLoad[GameId].Included))();
 else
-    return LoadFromVControl("https://raw.githubusercontent.com/Yumiara/SSL-TTJY/refs/heads/main/ListFile/7597195391.lua", "7597195391.lua", GG.CustomVersion or FreeLoad[7597195391].Version)(AutoInclude(FreeLoad[7597195391].Included))();
+    return LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/ListFile/7597195391.lua", "7597195391.lua", GG.CustomVersion or FreeLoad[7597195391].Version)(AutoInclude(FreeLoad[7597195391].Included))();
 end;
