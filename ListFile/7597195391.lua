@@ -28,7 +28,7 @@ Config.Client = Config.Client or {};
 Config.Client.Client = Config.Client.Client or {};
 
 return {
-    Version = "RealUNISnapshot4";
+    Version = "RealUNISnapshot5";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, PromptPackage, CoruTask)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
