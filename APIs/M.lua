@@ -278,7 +278,6 @@ local LoadFromVControl = nil; LoadFromVControl = function(srcName, fileName, sel
         end;
     end;
     
-    warn(srcName)
     local source = HttpGet(game, srcName);    
     local loadc = loadstring(source)();
 
@@ -2465,11 +2464,11 @@ AssetStorage.LoadUILib = function()
                 local IconModule = {  
                     IconsType = "lucide", New = nil, IconThemeTag = nil,
                     Icons = (LoaderSettings.BadNetwork and {}) or {  
-                        ["lucide"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/Assets/lucide.lua", "lucide.lua", "2")(),
+                        ["lucide"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/Assets/lucide.lua", "lucide.lua", "2")(),
                         --["solar"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua"))(),  
                         --["craft"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/craft/dist/Icons.lua"))(),  
                         --["geist"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/geist/dist/Icons.lua"))(),  
-                        ["sfsymbols"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/Assets/sfsymbols.lua", "sfsymbols.lua", "2")(),  
+                        ["sfsymbols"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/Assets/sfsymbols.lua", "sfsymbols.lua", "2")(),  
                     },
                 };
                 local function parseIconString(iconString)  
