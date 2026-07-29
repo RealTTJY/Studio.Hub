@@ -11929,7 +11929,7 @@ AssetStorage.Windy = function()
             local Tabs = data.Tabs; for i=1, #Tabs do
                 local TabInfo = Tabs[i]; if TabInfo.Tab then
                     local TComponent = TabInfo.Tab;
-                    tabs[TComponent.at] = 
+                    tabs[TComponent.at] = nil;
                 end;
             end;
         end;
