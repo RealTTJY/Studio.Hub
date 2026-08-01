@@ -534,8 +534,8 @@ AssetStorage.CommonF = function()
             ); Tween:Play();
             return Tween, Tween.Completed:Wait();
         end;
-        Anchored = function(BasePart, bool)
-            if not HumRSelf then return; end;
+        Anchored = function(HumRSelf, bool)
+            if not HumRSelf.Parent then return; end;
             HumRSelf.Anchored = bool;
         end;
         GetSeat = function(HumSelf)
@@ -666,25 +666,38 @@ AssetStorage.PromptPackage = function()
         end;
     end);
 
+    local W, H = GetService(game, "Workspace"), GetService(game, "RunService");
     local AttachP = FindFirstChild(Workspace, "LuaUNCPackage_Prompt") or Instancen("Part", Workspace);
     AttachP.Anchored = true; AttachP.CanTouch = false;
     AttachP.CanCollide = false; AttachP.CanQuery = false;
     AttachP.CastShadow = false; AttachP.Size = Vec3(0.01, 0.01, 0.01);
     AttachP.Name = "LuaUNCPackage_Prompt"; AttachP.Transparency = 1;
     local fireprompt = function(prompt, skip)
+        local Cam = W.CurrentCamera;
         prompt.MaxActivationDistance = 250;
         prompt.Enabled = true;
         prompt.RequiresLineOfSight = false;
         prompt.Parent = AttachP;
         local spam = tk.spawn(function()
-            while true do 
-                twait(0.000001/9);
-                AttachP.CFrame = Cam.CFrame * CFR004;
-                prompt.HoldDuration = skip;
-                prompt:InputHoldBegin();      
-                H.RenderStepped:Wait();
-                AttachP.CFrame = Cam.CFrame * CFR004;
-                prompt:InputHoldEnd();
+            if skip <= 0 then
+                while true do 
+                    twait(0.2);
+                    AttachP.CFrame = Cam.CFrame * CFR004;
+                    prompt.HoldDuration = skip;
+                    prompt:InputHoldBegin();      
+                    H.RenderStepped:Wait();
+                    AttachP.CFrame = Cam.CFrame * CFR004;
+                    prompt:InputHoldEnd();
+                end;
+            else
+                while true do
+                    AttachP.CFrame = Cam.CFrame * CFR004;
+                    prompt.HoldDuration = skip;
+                    prompt:InputHoldBegin();      
+                    twait(skip);
+                    AttachP.CFrame = Cam.CFrame * CFR004;
+                    prompt:InputHoldEnd(); twait(0.5);
+                end;
             end;
         end); prompt.Triggered:Wait();
         local suc = false; repeat
@@ -720,6 +733,7 @@ AssetStorage.PromptPackage = function()
                 GG.fireproximityprompt = originalUNC;
             end;
         end;
+        SimpleFire = LuaUNC;
     };
 end;
 AssetStorage.ESPPackage = function()
@@ -852,6 +866,10 @@ AssetStorage.ESPPackage = function()
                 Data.Label = nil;
             end;
         end;
+        Data.UpdateColor = function(color)
+            Box.Color3 = color;
+            Label.TextColor3 = color;
+        end;
     end;
     local function CreateHighlight(parent, config, Data)
         local Highlight = Instancen("Highlight", parent);
@@ -893,6 +911,10 @@ AssetStorage.ESPPackage = function()
             Highlight.Parent = if bool then parent else nil;
             Billboard.Parent = if bool and allowBill then parent else nil;
             Highlight.Enabled = bool;
+        end;
+        Data.UpdateColor = function(color)
+            Highlight.FillColor = color;
+            Label.TextColor3 = color;
         end;
     end;
     local function Create2D(parent, config, Data)
@@ -945,6 +967,10 @@ AssetStorage.ESPPackage = function()
 
             Fill.Size = Size;
             Fill.Position = Position;
+        end;
+        Data.UpdateColor = function(color)
+            Outline.Color = color;
+            Fill.Color = color;
         end;
     end;
 
@@ -11917,21 +11943,23 @@ AssetStorage.Windy = function()
                     ScriptCache[v.Global or "nil"] = tab:Keybind(v);
                 else
                     ScriptCache[v.Global or "nil"] = tab[v.type](tab, v);
-                end; if type(v.Value) ~= 'table' then
-                    v.Value = nil;
-                else
+                end; if type(v.Value) == 'table' then
                     v.Value.Default = nil;
+                else
+                    v.Value = nil;
                 end;
             end;
         end;
-        CreateDynamic = function(self, tabs, data, path)
-            if not tab or not data then return; end;
+        CreateDynamic = function(self, wind, tabs, data)
+            if not tabs or not data then return; end;
             local Tabs = data.Tabs; for i=1, #Tabs do
                 local TabInfo = Tabs[i]; if TabInfo.Tab then
                     local TComponent = TabInfo.Tab;
-                    tabs[TComponent.at] = nil;
+                    local Tab = wind:Tab(TComponent)
+                    tabs[TComponent.at] = Tab;
+                    self:CreateComponent(Tab, TabInfo.Data, TComponent.Path);
                 end;
-            end;
+            end; return tabs;
         end;
     };
 end;
@@ -12078,8 +12106,8 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.B3";
-        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
+        Version = "TheMimicV3.B4";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage"};
     };
 };
 
