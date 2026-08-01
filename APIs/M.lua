@@ -176,7 +176,7 @@ end;
 
 local FOLBASE = "TTJYStudio";
 local EULBASE = "TJYsEula.txt";
-local GITBASE = "https://github.com/Yumiara/SSL-TTJY/raw/refs/heads/main";
+local GITBASE = "https://github.com/RealTTJY/Studio.Hub/raw/refs/heads/main";
 
 local versionstorage, AssetStorage = {}, {};
 local emptyfunction = function() return; end;
