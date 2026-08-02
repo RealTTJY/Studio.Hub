@@ -57,6 +57,7 @@ local Config = GG.Configs or {};
 
 Config.Client = Config.Client or {};
 Config.Client.Client = Config.Client.Client or {};
+Config.Yen = Config.Yen or {};
 Config.B1C4 = Config.B1C4 or {};
 Config.B1C4.Map4 = Config.B1C4.Map4 or {};
 Config.B2C1 = Config.B2C1 or {};
@@ -88,13 +89,15 @@ Config.B3C1.City = Config.B3C1.City or {};
 Config.B3C1.City.ESP = Config.B3C1.City.ESP or {};
 Config.B3C1.School = Config.B3C1.School or {};
 Config.B3C1.School.ESP = Config.B3C1.School.ESP or {};
+Config.B3C1.Forest = Config.B3C1.Forest or {};
+Config.B3C1.Forest.ESP = Config.B3C1.Forest.ESP or {};
 Config.B3C1.IJO = Config.B3C1.IJO or {};
 Config.B3C1.IJO.ESP = Config.B3C1.IJO.ESP or {};
 Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 
 return {
-    Version = "TheMimicV3.B5";
+    Version = "TheMimicV3.B6";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -113,6 +116,7 @@ return {
 
         local cmdm              = selff:GetMouse();
         local ClientCon         = Config.Client.Client;
+        local YenCon            = Config.Yen;
         local B1C4Con           = Config.B1C4;
         local B2C1Con           = Config.B2C1;
         local B2C2Con           = Config.B2C2;
@@ -1529,6 +1533,8 @@ return {
                 Tp(HumRSelf, Prompt.Parent.CFrame, 0.3);
                 return fireproximityprompt(Prompt);
             elseif where == "School/Hideo" then
+                Tp(HumRSelf, CFr(175, 8, 338));
+            elseif where == "School/Heal" then
                 local sRE = R.modules.Packet.Reliable;
                 sRE:FireServer("Section2/HideoMinigameStarted");
                 sRE:FireServer("Section2/HideoHealed");
@@ -1728,7 +1734,8 @@ return {
                     Text = Akari.Name;
                 });
             elseif where == "Mizuno" then
-                ESPF.ESP(where, W.Section3.Monster.Mizuno, {
+                local Mizuno = FindFirstChild(W.Section3.Monster, "Mizuno") or FindFirstChild(W.Section3.Monster, "MizunoNM");
+                if not Mizuno then return; end; ESPF.ESP(where, Mizuno, {
                     Color = RED;
                     Size = VEC10;
                     Text = "Mizuno";
@@ -1780,6 +1787,11 @@ return {
             });
             EgaoTab = (Chapter == "Lobby" and {
                 
+            });
+            YenTab = ((strfind(Chapter, "B2") or strfind(Chapter, "B3")) and {
+                {type="Toggle", EN="Collect All Yen", EN2="Teleport & collect spawned yen", TH1="เก็บเงินทั้งหมด", TH2="วาปไปเก็บเงินทั้งหมดที่เกิดอยู่", Path="Auto"},
+                {type="Toggle", EN="Yen Aura", EN2="Auto collect nearby Yen.", TH1="ออโต้เก็บเงิน", TH2="ออโต้เก็บเงินในระยะ", Path="Aura"},
+                {type="Toggle", EN="ESP Yen", EN2="Show Yen boxes.", TH1="ESP เงิน", TH2="มองเห็นเงิน", Path="ESP"},
             });
             PackB1C1 = (Chapter == "B1C1" and {
                 Tabs={
@@ -2219,7 +2231,7 @@ return {
                         {type="Button", EN="Auto Fix Generators", EN2="Teleport & fix generators.", TH1="ซ่อม Generator", TH2="วาปไปซ่อม Generator", Callback=function()
                             return Functions:B3C1Func("Forest/Generator");
                         end}; {type="Space"}; {type="Space"};
-                        {type="Toggle", EN="ESP Mizuno", EN2="Show Mizuno's hitbox.", TH1="ESP Mizuno", TH2="มองเห็น Mizuno", Locked=true, Path="Forest/ESP/Mizuno", Callback=function(state)
+                        {type="Toggle", EN="ESP Mizuno", EN2="Show Mizuno's hitbox.", TH1="ESP Mizuno", TH2="มองเห็น Mizuno", Path="Forest/ESP/Mizuno", Callback=function(state)
                             B3C1Con.Forest.ESP.Mizuno = state;
                             return Functions:B3C1ESP("Mizuno", state);
                         end};
@@ -2266,8 +2278,6 @@ return {
                 };
             });
         };
-
-        GG.FuckYOUUUUUUUUUUUUUUUUU = Functions;
 
         CoruTask.New("B1C4@Sama", function()
             if PlaceId ~= 7251867574 and PlaceId ~= 7265397848 then
@@ -2542,8 +2552,9 @@ return {
             while true do
                 if not B2C3Con.Boss["AutoKillYurei"] or CoreDestroyed then
                     Functions:FreeCam(false);
-                    Tp(HumRSelf, CFr(BZONE), 0.3);
-                    CoruTask.Close("B2C3@Yurei");
+                    if dist(BZONE) < 600 then
+                        Tp(HumRSelf, CFr(BZONE), 0.3);
+                    end; CoruTask.Close("B2C3@Yurei");
                 end;
 
                 if PSG.BossFight.Enabled then
@@ -2565,6 +2576,46 @@ return {
                 else
                     Tp(HumRSelf, CFr(BZONE), 0.3);
                 end; twait(0.1);
+            end;
+        end);
+        CoruTask.New("UNIFIED-Yen", function()
+            local SpawnFolder = nil;
+            
+            if Chapter == "B2C2" or Chapter == "B2C3" or Chapter == "B2C4" then
+                local MimicCurrencySpawns = WaitForChild(W, "MimicCurrencySpawns", 9e9);
+                SpawnFolder = WaitForChild(MimicCurrencySpawns, "Yen", 9e9);
+            elseif Chapter == "B3C1" then
+                SpawnFolder = WaitForChild(W, "Yen", 9e9);
+            else return; end;
+
+            while true do
+                if not (YenCon.ESP or YenCon.Aura or YenCon.Auto) or CoreDestroyed then
+                    ESPF.Visible("Yen", false);
+                    CoruTask.Close("UNIFIED-Yen");
+                end; 
+
+                local SAVEDPOS, WAS = HumRSelf.Parent and HumRSelf.CFrame, YenCon.Auto;
+                local CHs = GetChildren(SpawnFolder); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local Prox = FindFirstChildOfClass(v, "ProximityPrompt");
+                        if not Prox then continue; end;
+
+                        if YenCon.Auto and Prox.Enabled then
+                            Tp(HumRSelf, v.CFrame, 0.3); fireproximityprompt(Prox);
+                        elseif YenCon.Aura and dist(v.Position) <= 20 then
+                            fireproximityprompt(Prox);
+                        end; if YenCon.ESP then
+                            local ESPObject = ESPF.ESP("Yen", v, {
+                                Color = BLUE;
+                                Size = VEC2;
+                                Text = "Yen";
+                            });
+                        end;
+                    end;
+                end; if WAS then Tp(HumRSelf, SAVEDPOS); end;
+                if YenCon.ESP then ESPF.Visible("Yen", true, true); end;
+
+                twait(0.1);
             end;
         end);
 
@@ -2595,10 +2646,11 @@ return {
             local Tabs = {}; Tabs = {
                 Welcome = Window:Tab({ Title = "Welcome", Icon = "smile" }),
                 Client = LoaderSettings.AllowClientTab and Window:Tab({ Title = "Client", Icon = "user" }),
+                Yen = if ScriptData.AutoData.YenTab then Window:Tab({ Title = "Yen", Icon = "coins" }) else false,
                 
                 Div1 = Window:Divider(),
-                PlaceholderTab = if ScriptData.AutoData.PlaceholderTab then Window:Tab({ Title = "Information", Icon = "star" }) else false,
-                EgaoTab = Window:Tab({ Title = "Egao", Icon = "smile", Locked=true }),
+                Placeholder = if ScriptData.AutoData.PlaceholderTab then Window:Tab({ Title = "Information", Icon = "star" }) else false,
+                Egao = if ScriptData.AutoData.EgaoTab then Window:Tab({ Title = "Egao", Icon = "smile", Locked=true }) else false,
                 B1C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C1),
                 B1C2 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C2),
                 B1C3 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C3),
@@ -2615,7 +2667,8 @@ return {
             }; IntroLib.Init(WindUI, Tabs.Welcome); IntroLib:Tutorial(WindUI);
             Windy:CreateComponent(Tabs.Client, ScriptData.AutoData.ClientTab, "Client");
 
-            Windy:CreateComponent(Tabs.PlaceholderTab, ScriptData.AutoData.PlaceholderTab, "IGNORE");
+            Windy:CreateComponent(Tabs.Placeholder, ScriptData.AutoData.PlaceholderTab, "IGNORE");
+            Windy:CreateComponent(Tabs.Yen, ScriptData.AutoData.YenTab, "Yen");
 
             Windy:CreateComponent(Tabs.Core, CorePackage());
 
@@ -2658,6 +2711,9 @@ return {
                             if B2C3Con.Boss["AutoKillYurei"] then
                                 CoruTask.Handle("B2C3@Yurei");
                             end;
+                        end;
+                        if YenCon.ESP or YenCon.Aura or YenCon.Auto then
+                            CoruTask.Handle("UNIFIED-Yen");
                         end;
                         twait(0.1);
                     end;
