@@ -94,7 +94,7 @@ Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 
 return {
-    Version = "TheMimicV3.B4";
+    Version = "TheMimicV3.B5";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -114,6 +114,7 @@ return {
         local cmdm              = selff:GetMouse();
         local ClientCon         = Config.Client.Client;
         local B1C4Con           = Config.B1C4;
+        local B2C1Con           = Config.B2C1;
         local B2C2Con           = Config.B2C2;
         local B2C3Con           = Config.B2C3;
         local B3C1Con           = Config.B3C1;
