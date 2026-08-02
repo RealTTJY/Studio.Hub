@@ -12106,7 +12106,7 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.B5";
+        Version = "TheMimicV3.B6";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage"};
     };
 };
