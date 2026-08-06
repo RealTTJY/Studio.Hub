@@ -7,6 +7,7 @@ local LowerC = hookfunction or hookfunc;
 local GetService = game.GetService;
 local Instancen = Instance.new;
 local Vec3 = Vector3.new;
+local str = string;
 local tble = table;
 local Col3 = Color3;
 local tk = task;
@@ -20,6 +21,8 @@ local S = GetService(game, "Stats");
 local twait = tk.wait;
 local CFr = CFrame.new;
 local Vec3 = Vector3.new;
+local strfind = str.find;
+local tdefer = tk.defer;
 local PivotTo = W.PivotTo;
 local tblein = tble.insert;
 local TwInfo = TweenInfo.new;
@@ -88,7 +91,7 @@ Config.BoneMeal = Config.BoneMeal or {};
 Config.Treasure = Config.Treasure or {};
 
 return {
-    Version = "DA_V3.52";
+    Version = "DA_V3.53";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -647,6 +650,7 @@ return {
             FishTab = {
                 {type="Button", EN="Teleport To Zone", EN2="Teleport to a fishing zone", TH1="วาปไปโซนตกปลา", TH2="วาปไปที่โซนสำหรับตกปลา", Callback=Functions.FishingZone},
                 {type="Toggle", EN="Auto Fish", EN2="Auto fishing", TH1="ออโต้ตกปลา", TH2="ออโต้ตกปลา", Bindable="+", Path="AutoFish"}, {type="Space"}, {type="Space"},
+                {type="Toggle", EN="Legendary Potion Only", EN2="Only fish legendary potions", TH1="ตกเฉพาะโพชั่นในตำนาน", TH2="ตกเฉพาะโพชั่นในตำนาน", Path="LegendPotionOnly"}, {type="Space"}, {type="Space"},
                 (Analytics3 and {} or NonAnalytics3),
             };
             EggTab = {
@@ -964,7 +968,7 @@ return {
                     if not isSyncedF() then
                         WindUI:Notify({
                             Title = "<font color='rgb(255, 255, 0)'>Syncing</font>",
-                            Content = "Script is waiting for game data to be synced. If the data is already synced; head to main tab and toggle 'Force Sync' to continue with this script.",
+                            Content = "Script is waiting for game data to be synced.",
                             Icon = "circle-alert",
                             Duration = 20,
                         }); GG.LoadingSignal:Fire("Waiting for Data to be synced.");
@@ -1011,6 +1015,20 @@ return {
                     end;
 
                     if FishingClient then
+                        local o;o=LowerC(FishingClient.StartFishing, function(self, p2, p3)
+                            if not FishCon.LegendPotionOnly then return o(self, p2, p3); end;
+                            local FishData = p3 and p3.FishData; if FishData then
+                                if not strfind(FishData.Name, "Potion") or FishData.Rarity ~= "Legendary" then
+                                    tdefer(function()
+                                       while FishingClient.Fishing do
+                                            twait(1); FishingClient:EndFishing();
+                                        end
+                                    end);
+                                end;
+                            end;
+                            return o(self, p2, p3);
+                        end);
+
                         local o;o=LowerC(FishingClient.Click, function(self, ...)
                             if not FishCon.AutoFish or CoreDestroyed then return o(self, ...); end;
                             local gui = FindFirstChild(PSG, "FishingGui");
