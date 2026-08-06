@@ -12044,8 +12044,12 @@ AssetStorage.CorePackage = function()
         Data[#Data+1] = {type="Toggle", EN="Load Sections", EN2="Load all teleport locations instead of just an auto complete.", TH1="โหลดส่วนขยาย", TH2="จากปกติที่จะโหลดแค่ออโต้เล่น โหลดส่วนขยายจะโหลดจุดวาปด้วย", P="TheMimicLoader", P2="Load_Sections", Callback=function(state)
             LoaderSettings.TheMimicLoader.Load_Sections = state;
         end};
-        Data[#Data+1] = {type="Toggle", EN="Check PlaceId", EN2="Prevent UI from loading all tabs; Only load the one you use for current chapter.", TH1="เช็คเกมไอดี", TH2="โหลดเฉพาะด่านที่เล่น", P="TheMimicLoader", P2="Load_WithPlaceID_Check", Callback=function(state)
-            LoaderSettings.TheMimicLoader.Load_WithPlaceID_Check = state;
+        Data[#Data+1] = {type="Space"}; Data[#Data+1] = {type="Divider"}; Data[#Data+1] = {type="Space"};
+        Data[#Data+1] = {type="Dropdown", EN="Installer", EN2="Select a package.", TH1="โหลดส่วนเสริม", TH2="เลือกสิ่งที่จะโหลด", Values={"Paintings", "MapComputing"}, P="TheMimicLoader", P2="Installer", Callback=function(value)
+            LoaderSettings.TheMimicLoader.Installer = value;
+        end};
+        Data[#Data+1] = {type="Button", EN="Install", EN2="Download the package.", TH1="โหลด", TH2="โหลดส่วนเสริม", Callback=function(value)
+            
         end};
     elseif GameId == 1235188606 then
         Data[#Data+1] = {type="Space"}; Data[#Data+1] = {type="Divider"}; Data[#Data+1] = {type="Space"};
@@ -12096,7 +12100,7 @@ local FreeLoad, KeyLoad = {
 }, {
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.52";
+        Version = "DA_V3.53";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
