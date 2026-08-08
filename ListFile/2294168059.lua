@@ -18,6 +18,7 @@ local W = GetService(game, "Workspace");
 local P = GetService(game, "Players");
 local S = GetService(game, "Stats");
 
+local IsA = game.IsA;
 local twait = tk.wait;
 local CFr = CFrame.new;
 local Vec3 = Vector3.new;
@@ -47,6 +48,8 @@ local BLUE = Col3.fromRGB(0, 0, 255);
 local GREEN = Col3.fromRGB(0, 255, 0);
 local YELLOW = Col3.fromRGB(255, 255, 0);
 local WHITE = Col3.fromRGB(255, 255, 255);
+local PURPLE = Col3.fromRGB(77, 23, 129);
+local DIM0010 = UDim2.new(0,0,1,0);
 local EMPTY_OBJECT = {Parent=nil, SeatPart=nil};
 local PERSISTENT = Enum.ModelStreamingMode.Persistent;
 
@@ -84,6 +87,16 @@ Config.B2C3.Maze.ESP = Config.B2C3.Maze.ESP or {};
 Config.B2C3.Larves = Config.B2C3.Larves or {};
 Config.B2C3.Larves.ESP = Config.B2C3.Larves.ESP or {};
 Config.B2C3.Boss = Config.B2C3.Boss or {};
+Config.B2C4 = Config.B2C4 or {};
+Config.B2C4.City = Config.B2C4.City or {};
+Config.B2C4.City.ESP = Config.B2C4.City.ESP or {};
+Config.B2C4.Mall = Config.B2C4.Mall or {};
+Config.B2C4.Mall.ESP = Config.B2C4.Mall.ESP or {};
+Config.B2C4.Draw = Config.B2C4.Draw or {};
+Config.B2C4.Draw.ESP = Config.B2C4.Draw.ESP or {};
+Config.B2C4.Enzukai = Config.B2C4.Enzukai or {};
+Config.B2C4.Enzukai.ESP = Config.B2C4.Enzukai.ESP or {};
+Config.B2C4.Final = Config.B2C4.Final or {};
 Config.B3C1 = Config.B3C1 or {};
 Config.B3C1.City = Config.B3C1.City or {};
 Config.B3C1.City.ESP = Config.B3C1.City.ESP or {};
@@ -97,8 +110,8 @@ Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 
 return {
-    Version = "TheMimicV3.B6";
-    Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage)
+    Version = "TheMimicV3.B7";
+    Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
         local ForceFloat        = "None";
@@ -121,6 +134,7 @@ return {
         local B2C1Con           = Config.B2C1;
         local B2C2Con           = Config.B2C2;
         local B2C3Con           = Config.B2C3;
+        local B2C4Con           = Config.B2C4;
         local B3C1Con           = Config.B3C1;
         local NonAnalytics3     = {type="Button", EN="Analytics 3", EN2="Please enable 'Analytics 3' module to track game data, inventory, and player statistics for reports and webhook integrations.", TH1="Analytics 3", TH2="กรุณาเปิดใช้งานโมดูล 'Analytics 3' เพื่อติดตามข้อมูลเกม สินค้าคงคลัง และสถิติผู้เล่นสำหรับรายงานและเว็บฮุก"};
         local ArgsCraft         = {[1] = 0;[2] = {["__args"] = {};["__tree"] = {[1] = "CraftingService";[2] = "Interact"};["__callType"] = 0}};
@@ -173,6 +187,11 @@ return {
                 if not BoneSword then
                     tk.defer(function() self.BoneSword = WaitForChild(BP, "Bone Sword", 9e9); end);
                 else self.BoneSword = BoneSword; end;
+            end; if Chapter == "B2C4" then
+                local Bow = FindFirstChild(BP, "SpiritBow") or FindFirstChild(selc, "SpiritBow");
+                if not Bow then
+                    tk.defer(function() self.Bow = WaitForChild(BP, "SpiritBow", 9e9); end);
+                else self.Bow = Bow; end;
             end; if Chapter == "B3C1" then
                 local Gun = FindFirstChild(BP, "Gun") or FindFirstChild(selc, "Gun");
                 if not Gun then
@@ -210,6 +229,30 @@ return {
                     end);
                 end; self.GameMode = GamemodeMode;
                 self.OneRunHouseClicked = {};
+            elseif Chapter == "B2C4" then
+                self.AnsweredMother = {
+                    ["cult name?"] = "Kiiroibara Cult";
+                    ["I bloom"] = "Cherry Blossom";
+                    ["Four I shaped in shadows dire—"] = "Evil God";
+                    ["pink"] = " Hiachi Masashige";
+                    ["quietly"] = "Torii Gate";
+                    ["pathetic"] = "Me";
+                    ["in ink"] = "A brush";
+                    ["Flames"] = "Enzukai";
+                    ["guard"] = "A komainu";
+                };
+
+                tk.spawn(function()
+                    local Section4 = WaitForChild(W, "Section4", 9e9);
+
+                    tk.spawn(function()
+                        self.Tsukiya2 = WaitForChild(WaitForChild(Section4, "Monster4", 9e9), "Tsukiya2", 9e9);
+                    end); tk.spawn(function()
+                        self.Tenome2 = WaitForChild(WaitForChild(Section4, "Monster3", 9e9), "Tenome2", 9e9);
+                    end); tk.spawn(function()
+                        self.Rin2 = WaitForChild(WaitForChild(Section4, "Monster2", 9e9), "Rin2", 9e9);
+                    end);
+                end);
             end;
         end;
         Functions.FreeCam = function(self, isFree)
@@ -513,16 +556,12 @@ return {
                     current = W;
                     startIdx = 2;
                 end;
-                warn("Start current: " .. tostring(current))
                 for i = startIdx, #parts do
                     local name = parts[i];
                     local scrambled = self.u18 and self.u18[name] or name;
-                    warn(string.format("Step %d: looking for %q (scrambled: %q)", i, name, scrambled))
                     current = current and FindFirstChild(current, scrambled);
-                    warn(string.format("Found at step %d: %s", i, tostring(current)))
                     if not current then break; end;
                 end; B2C1Cache[obj] = current;
-                warn("Final cache result: " .. tostring(current))
             end; return B2C1Cache[obj];
         end;
         Functions.B2C1Func = function(self, where)
@@ -820,7 +859,7 @@ return {
         end;
         Functions.B2C2Func = function(self, where)
             if where == "Statue" then
-                local Object = self:B2C1Get("Workspace.Section1.UmiBozuSeeking_Intro_02"); warn(Object)
+                local Object = self:B2C1Get("Workspace.Section1.UmiBozuSeeking_Intro_02");
                 if not Object then return; end; local Hitbox = FindFirstChild(Object, "Hitbox_Entrance");
                 if FindFirstChild(Hitbox, "TouchInterest") then
                     firetouchinterest(HumRSelf, Hitbox, 0);
@@ -854,7 +893,7 @@ return {
                     Content = "If you just collected meats, wait 11 seconds before talk to this NPC",
                     Icon = "circle-alert",
                     Duration = 11,
-                })
+                });
             elseif where == "Meat/TpMeat" then
                 local MeatRF = self:B2C1Get("Workspace.Section2.Rooms");
                 if not MeatRF then return; end;
@@ -1069,6 +1108,10 @@ return {
                 end;
             end; ESPF.Visible(where, true, true)
         end;
+        Functions.INVBP = function()
+            PSG.Inventory.LocalScript.Enabled = false;
+            PSG.Inventory.LocalScript.Enabled = true;
+        end;
         Functions.B2C3CanCraft = function(CHs)
             local Count=0; for i=1, #CHs do
                 local v=CHs[i]; if v.Parent then
@@ -1272,7 +1315,7 @@ return {
                                 AllCompleted = false; while GetAttribute(HandMinions, "Health") > 0 and v.Parent do
                                     if DodoMeki.CFrame.Position.Y <= 60 then return; end;
                                     if not GetAttribute(HandMinions, "CanDamage") then
-                                        Tp(HumRSelf, Obj2.CFrame, 0.5);
+                                        Tp(HumRSelf, Base.CFrame, 0.5);
                                         if Prompt.Enabled then
                                             fireproximityprompt(Prompt);
                                             twait(5.3);
@@ -1490,6 +1533,753 @@ return {
                     Size = VEC10;
                     Text = "Boogeyman";
                 });
+            end; ESPF.Visible(where, true, true);
+        end;
+        Functions.B2C4BP1 = function()
+            local ScreenGui = FindFirstChild(PSG, "ScreenGui");
+            if ScreenGui then
+                ScreenGui.Enabled = false;
+                
+                local Frame = FindFirstChild(ScreenGui, "Frame");
+                if Frame then Frame.Visible = false; end;
+            end;
+
+            local Remote = FindFirstChild(W.Section1.PlayerObjective, "Remote");
+            if Remote then Remote:FireServer(1); end;
+        end;
+        Functions.B2C4BP2 = function()
+            -- Services
+            local RunService = game:GetService("RunService")
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+            -- Dependencies
+            local spr = require(ReplicatedStorage._Libraries.spr)
+            local Controllers = require(ReplicatedStorage.Client.Controllers)
+
+            local script = game:GetService("Players").LocalPlayer.PlayerGui["S2.5"].LocalScript;
+            local Section = workspace:WaitForChild("Section2.5")
+            local TriviaGame = Section:WaitForChild("ChihiroMinigame"):WaitForChild("Trivia")
+            local MonsterMother = TriviaGame:WaitForChild("Monster", math.huge):WaitForChild("Mother", math.huge)
+            local SignalRemote = TriviaGame:WaitForChild("Signal")
+            local TriviaUI = script.Parent
+
+            -- Creates a corner element for the trivia UI with animated frames
+            local function CreateCornerElement(isTop, isLeft)
+                local canvasGroup = Instance.new("CanvasGroup")
+                canvasGroup.BackgroundTransparency = 1
+                canvasGroup.BorderSizePixel = 0
+                canvasGroup.ZIndex = 2
+                canvasGroup.Size = UDim2.fromScale(0.5, 0.5)
+                canvasGroup.Position = UDim2.fromScale(isLeft and 0 or 1, isTop and 0 or 1)
+                canvasGroup.Name = ""
+
+                local aspectRatio = Instance.new("UIAspectRatioConstraint")
+                aspectRatio.AspectRatio = 1
+                aspectRatio.Parent = canvasGroup
+
+                local function CreateFrame(isHorizontal)
+                    local frame = Instance.new("Frame")
+                    frame.Size = UDim2.fromScale(isHorizontal and 1 or 0.1, isHorizontal and 0.1 or 1)
+                    frame.BorderSizePixel = 0
+                    frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    frame.Name = ""
+
+                    local corner = Instance.new("UICorner")
+                    corner.CornerRadius = UDim.new(0.5, 0)
+                    corner.Parent = frame
+                    return frame
+                end
+
+                local horizontalFrame = CreateFrame(false)
+                horizontalFrame.Position = UDim2.fromScale(isLeft and 0 or 1, 0)
+                horizontalFrame.AnchorPoint = Vector2.new(isLeft and 0 or 1, 0)
+                horizontalFrame.Parent = canvasGroup
+
+                local verticalFrame = CreateFrame(true)
+                verticalFrame.Position = UDim2.fromScale(0, isTop and 0 or 1)
+                verticalFrame.AnchorPoint = Vector2.new(0, isTop and 0 or 1)
+                verticalFrame.Parent = canvasGroup
+
+                return {
+                    group = canvasGroup,
+                    x = horizontalFrame,
+                    y = verticalFrame,
+                    top = isTop,
+                    left = isLeft
+                }
+            end
+
+            -- Creates a folder with animated corner elements
+            local function CreateCornerFolder(parent)
+                local folder = Instance.new("Folder")
+                folder.Name = ""
+
+                local cornerData = { corners = {} }
+
+                for i = 1, 4 do
+                    local corner = CreateCornerElement(i < 3, i % 2 ~= 0)
+                    local group = corner.group
+                    local offset = Vector2.new(0, 0)
+                    group.AnchorPoint = Vector2.new(corner.left and 0 or 1, corner.top and 0 or 1) +
+                        offset * Vector2.new(corner.left and 1 or -1, corner.top and 1 or -1)
+                    group.GroupTransparency = 1
+                    group.Parent = folder
+                    table.insert(cornerData.corners, corner)
+                end
+
+                function cornerData:animatePop()
+                    for _, corner in self.corners do
+                        local animOffset = Vector2.new(0.2, 0.2)
+                        spr.target(corner.group, 0.5, 2, {
+                            AnchorPoint = Vector2.new(corner.left and 0 or 1, corner.top and 0 or 1) +
+                                animOffset * Vector2.new(corner.left and 1 or -1, corner.top and 1 or -1)
+                        })
+                        task.delay(0.25, function()
+                            local nextOffset = Vector2.new(0.25, 0.25)
+                            spr.target(corner.group, 0.5, 3, {
+                                AnchorPoint = Vector2.new(corner.left and 0 or 1, corner.top and 0 or 1) +
+                                    nextOffset * Vector2.new(corner.left and 1 or -1, corner.top and 1 or -1)
+                            })
+                        end)
+                    end
+                end
+
+                function cornerData:animateIn()
+                    for _, corner in self.corners do
+                        local animOffset = Vector2.new(0, 0)
+                        spr.target(corner.group, 1, 2, {
+                            AnchorPoint = Vector2.new(corner.left and 0 or 1, corner.top and 0 or 1) +
+                                animOffset * Vector2.new(corner.left and 1 or -1, corner.top and 1 or -1),
+                            GroupTransparency = 1
+                        })
+                    end
+                end
+
+                function cornerData:animateOut()
+                    for _, corner in self.corners do
+                        local animOffset = Vector2.new(0.25, 0.25)
+                        spr.target(corner.group, 0.9, 2, {
+                            AnchorPoint = Vector2.new(corner.left and 0 or 1, corner.top and 0 or 1) +
+                                animOffset * Vector2.new(corner.left and 1 or -1, corner.top and 1 or -1),
+                            GroupTransparency = 0
+                        })
+                    end
+                end
+
+                function cornerData:animateOutDrag()
+                    for _, corner in self.corners do
+                        local animOffset = Vector2.new(0.4, 0.4)
+                        spr.target(corner.group, 1, 2, {
+                            AnchorPoint = Vector2.new(corner.left and 0 or 1, corner.top and 0 or 1) +
+                                animOffset * Vector2.new(corner.left and 1 or -1, corner.top and 1 or -1),
+                            GroupTransparency = 0
+                        })
+                        task.delay(0.1, function()
+                            spr.target(corner.group, 1, 3, {
+                                GroupTransparency = 1
+                            })
+                        end)
+                    end
+                end
+
+                folder.Parent = parent
+                return cornerData
+            end
+
+            -- Initialize corner animations
+            local cornerAnimation1 = CreateCornerFolder(TriviaUI.Questions)
+            local cornerAnimation2 = CreateCornerFolder(TriviaUI.Questions)
+            local cornerAnimation3 = CreateCornerFolder(TriviaUI.Questions)
+
+            -- Button and animation management
+            local buttons = {}
+            local buttonCallbacks = {}
+            local isInteractionEnabled = true
+
+            -- Reset button states
+            local function ResetButtons()
+                for _, callback in buttonCallbacks do
+                    callback()
+                end
+                for _, buttonData in buttons do
+                    spr.stop(buttonData.Button)
+                    spr.stop(buttonData.Button.UIStroke)
+                    buttonData.Button.BackgroundTransparency = 0.1
+                    buttonData.Button.UIStroke.Transparency = 0.3
+                    buttonData.Button.UIStroke.Color = Color3.fromRGB(255, 255, 255)
+                    buttonData.Button.Size = UDim2.fromScale(1, 1)
+                    spr.target(buttonData.Button.UIStroke, 1, 3, {
+                        Color = Color3.fromRGB(0, 0, 0)
+                    })
+                    spr.target(buttonData.Button, 1, 3, {
+                        Size = UDim2.fromScale(0.8, 0.8)
+                    })
+                    buttonData:SetAttribute("Selected", false)
+                end
+            end
+
+            -- Set up button interactions
+            for index, buttonFrame in TriviaUI.Selectors:GetChildren() do
+                if buttonFrame:IsA("Frame") then
+                    local function UpdateButtonState()
+                        local isSelected = buttonFrame:GetAttribute("Selected")
+                        spr.target(buttonFrame.Button.UIStroke, 1, 3, {
+                            Color = isSelected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(0, 0, 0)
+                        })
+                        spr.target(buttonFrame.Button, 1, 3, {
+                            Size = isSelected and UDim2.fromScale(0.9, 0.9) or UDim2.fromScale(0.8, 0.8)
+                        })
+                    end
+
+                    table.insert(buttonCallbacks, UpdateButtonState)
+                    buttonFrame:GetAttributeChangedSignal("Selected"):Connect(UpdateButtonState)
+
+                    buttonFrame.Button.Activated:Connect(function()
+                        if not isInteractionEnabled then
+                            isInteractionEnabled = true
+                            SignalRemote:FireServer(1, index)
+                            buttonFrame:SetAttribute("Selected", true)
+                            cornerAnimation1:animatePop()
+                            task.wait(0.4)
+                            cornerAnimation1:animateIn()
+                        end
+                    end)
+
+                    table.insert(buttons, buttonFrame)
+                end
+            end
+
+            -- Store initial button positions
+            local buttonPositions = {}
+            for index, button in buttons do
+                buttonPositions[index] = {
+                    Position = button.Position,
+                    AnchorPoint = button.AnchorPoint,
+                    From = button
+                }
+            end
+
+            -- Trivia game state
+            local timerValue = 0
+            local isGlitchActive = false
+
+            -- Main trivia game function
+            local function StartTriviaGame(questionText, answers, glitchEnabled)
+                if isInteractionEnabled then
+                    task.delay(0.1, function()
+                        cornerAnimation2:animateOutDrag()
+                        task.wait(0.1)
+                        cornerAnimation3:animateOutDrag()
+                        task.wait(0.6)
+                        cornerAnimation2:animateIn()
+                        cornerAnimation3:animateIn()
+                    end)
+                end
+
+                TriviaUI.Questions.Visible = true
+                TriviaUI.Selectors.Visible = true
+                isInteractionEnabled = false
+                ResetButtons()
+                isGlitchActive = glitchEnabled or false
+
+                for _, buttonData in buttonPositions do
+                    buttonData.From.Position = buttonData.Position
+                    buttonData.From.AnchorPoint = buttonData.AnchorPoint
+                end
+
+                if timerValue == 0 then
+                    task.defer(function()
+                        while timerValue > 0 do
+                            task.wait(1)
+                            TriviaUI.Questions.Timer.Text = tostring(timerValue)
+                            if isGlitchActive and (timerValue % 5 == 0 and #buttonPositions > 1) then
+                                script.GlitchSFX:Play()
+                                local index1 = math.random(1, #buttonPositions)
+                                local index2
+                                repeat
+                                    index2 = math.random(1, #buttonPositions)
+                                until index2 and index2 ~= index1
+
+                                local button1 = buttonPositions[index1]
+                                local button2 = buttonPositions[index2]
+                                local tempPos = button2.From.Position
+                                local tempAnchor = button2.From.AnchorPoint
+                                button2.From.Position = button1.From.Position
+                                button2.From.AnchorPoint = button1.From.AnchorPoint
+                                button1.From.Position = tempPos
+                                button1.From.AnchorPoint = tempAnchor
+                                button1.From.Button.Label.TextColor3 = Color3.fromRGB(0, 123, 255)
+                                button2.From.Button.Label.TextColor3 = Color3.fromRGB(0, 123, 255)
+                                task.delay(0.08333333333333333, function()
+                                    button1.From.Button.Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+                                    button2.From.Button.Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+                                end)
+                            end
+                            timerValue = timerValue - 1
+                        end
+                    end)
+                end
+
+                timerValue = 20
+                TriviaUI.Questions.Timer.Text = tostring(timerValue)
+                cornerAnimation1:animateOut()
+                cornerAnimation1:animatePop()
+                spr.target(TriviaUI.Questions, 1, 3, {
+                    BackgroundTransparency = 0.2
+                })
+                spr.target(TriviaUI.Questions.UIStroke, 1, 3, {
+                    Transparency = 0.3
+                })
+                spr.target(TriviaUI.Questions.Question, 1, 3, {
+                    TextTransparency = 0
+                })
+                spr.target(TriviaUI.Questions.Question.UIStroke, 1, 3, {
+                    Transparency = 0
+                })
+                TriviaUI.Questions.Question.Text = questionText
+
+                for index, answer in answers do
+                    buttons[index].Button.Label.Text = answer
+                end
+            end
+
+            -- Camera control
+            local CurrentCamera = workspace.CurrentCamera
+            local cameraConnection = nil
+
+            local function UpdateCamera()
+                if TriviaGame:GetAttribute("Game") then
+                    if not (cameraConnection and cameraConnection.Connected) then
+                        cameraConnection = RunService.Heartbeat:Connect(function()
+                            local cameraCFrame = CFrame.new(CurrentCamera.CFrame.Position, MonsterMother:GetPivot().Position + Vector3.new(0, 3, 0))
+                            local x, y, _ = cameraCFrame:ToOrientation()
+                            Controllers.camera:Enforce(Vector2.new(math.deg(x), math.deg(y)))
+                        end)
+                    end
+                else
+                    if cameraConnection then
+                        cameraConnection:Disconnect()
+                        cameraConnection = nil
+                    end
+                    return
+                end
+            end
+
+            -- Initialize
+            TriviaGame:GetAttributeChangedSignal("Game"):Connect(UpdateCamera)
+            UpdateCamera()
+
+            -- Set initial UI transparency
+            TriviaUI.Questions.BackgroundTransparency = 1
+            TriviaUI.Questions.UIStroke.Transparency = 1
+            TriviaUI.Questions.Question.TextTransparency = 1
+            TriviaUI.Questions.Question.UIStroke.Transparency = 1
+
+            -- Handle remote events
+            SignalRemote.OnClientEvent:Connect(function(eventType, ...)
+                if eventType == 0 then
+                    StartTriviaGame(...)
+                elseif eventType == 1 then
+                    spr.target(TriviaUI.Questions, 1, 3, {
+                        BackgroundTransparency = 1
+                    })
+                    spr.target(TriviaUI.Questions.UIStroke, 1, 3, {
+                        Transparency = 1
+                    })
+                    spr.target(TriviaUI.Questions.Question, 1, 3, {
+                        TextTransparency = 1
+                    })
+                    spr.target(TriviaUI.Questions.Question.UIStroke, 1, 3, {
+                        Transparency = 1
+                    })
+                    TriviaUI.Selectors.Visible = false
+                elseif eventType == 2 then
+                    TriviaUI:Destroy()
+                elseif eventType == 3 then
+                    local isCorrect = ...
+                    if isCorrect then
+                        TriviaGame.Correct:Play()
+                    else
+                        TriviaGame.Wrong:Play()
+                    end
+                end
+            end)
+        end;
+        Functions.GetBowLook = function(pos, spr)
+            if not spr then return; end;
+            local eye = spr.Handle.MagicArrow.CFrame.Position;
+            return CFr(eye, pos).LookVector;
+        end;
+        Functions.MagicArrowHit = function(self, Bow, Pos, cd)
+            if not Bow or self.OnGoingArrow then return; end;
+            self.OnGoingArrow = true;
+            Bow.RemoteEvent:FireServer(0, true);
+            twait(cd or 1);
+            Bow.RemoteEvent:FireServer(0, false, self.GetBowLook(Pos, Bow));
+            self.OnGoingArrow = false;
+        end;
+        Functions.B2C4Func = function(self, where)
+            if where == "Cave" then
+                Tp(HumRSelf, W.Section0.Cutscene.Trigger.CFrame);
+            elseif where == "City/Auto" then
+                Tp(HumRSelf, W.Section1.EnzukaiSneakSequence.GameStart.CFrame, 0.3);
+                Tp(HumRSelf, W.Section1.OfficeTeleA.CFrame);
+            elseif where == "City/Glass" then
+                local CHs = GetChildren(W.Section1.EnzukaiSneakSequence.Activators); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        v:Destroy();
+                    end;
+                end;
+            elseif where == "Office/Talk" then
+                Tp(HumRSelf, CFr(4449, 44, 1660));
+            elseif where == "Office/Auto" then
+                local Numbs = W.Section1.PlayerObjective.CodeNumbers;
+                local codextxt = {
+                    [6] = Numbs["1stFloor"].SurfaceGui.Random,
+                    [5] = Numbs["2ndFloor"].SurfaceGui.Random,
+                    [4] = Numbs["3rdFloor"].SurfaceGui.Random,
+                    [3] = Numbs["4thFloor"].SurfaceGui.Random,
+                    [2] = Numbs["5thFloor"].SurfaceGui.Random,
+                    [1] = Numbs["6thFloor"].SurfaceGui.Random,
+                }; W.Section1.PlayerObjective.CodeDoor.Remote:FireServer(1, {});
+                local c = {}; for i=1, 6 do
+                    tblein(c, tonumber(codextxt[i].Text));
+                end; return W.Section1.PlayerObjective.CodeDoor.Remote:FireServer(1, c);
+            elseif where == "Office/Top" then
+                local CHs = GetChildren(W.Section1.Map.Barriers); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        v:Destroy();
+                    end;
+                end;
+
+                local PieceA = W.WHITE_FLAME_LANTERN.PieceA;
+                local Ladder = W.Section1.PlayerObjective.LADDERPROMPT;
+
+                Tp(HumRSelf, PieceA.CFrame, 0.3); fireproximityprompt(PieceA.ProximityPrompt);
+                Tp(HumRSelf, Ladder.CFrame, 0.3); fireproximityprompt(Ladder.ProximityPrompt);
+            elseif where == "Mall/Talk" then
+                local CHs = GetChildren(W.Section2.WalkieTalkis); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.Name == "WalkieTalkie" then
+                        Tp(HumRSelf, v.CFrame, 0.3);
+                        fireproximityprompt(v.ProximityPrompt);
+                    end;
+                end;
+            elseif where == "Mall/Trigger" then
+                Tp(HumRSelf, W.Section2.Floor1.TRIGGER.CFrame);
+            elseif where == "Mall/Eyes" then
+                local folders = GetChildren(W.Section2.Floor1.TimedTrial); for i=1, #folders do
+                    local folder=folders[i]; if not folder.Parent or folder.ClassName ~= "Folder" then
+                        continue; 
+                    end; local CHs = GetChildren(folder); for ir=1, #CHs do
+                        local v=CHs[ir]; if v.Parent and v.Name == "EyePunch" then
+                            local Root = FindFirstChild(v, "RootPart"); if not Root then continue; end;
+                            local Prox = FindFirstChild(Root, "ProximityPrompt"); if not Prox then continue; end;
+                            Tp(HumRSelf, Root.CFrame, 0.3); fireproximityprompt(Prox);
+                        end;
+                    end;
+                end;
+            elseif where == "Mall/Grab" then
+                local Base = W.Section2.Speaker.SPEAKER;
+                Tp(HumRSelf, Base.CFrame, 0.3);
+                fireproximityprompt(Base["Pick Up"]);
+            elseif where == "Mall/Place" then
+                Tp(HumRSelf, CFr(-1351, -120, -942), 0.3);
+                W.Section2.Speaker.Signal:FireServer();
+            elseif where == "Mall/Chase1" then
+                local CHs = {
+                    CFr(-2925, -154, -117);
+                    CFr(-2925, -152, 20);
+                    CFr(-2971, -153, 90);
+                    CFr(-3010, -156, 58);
+                    CFr(-3010, -157, 1);
+                    CFr(-3075, -161, 0);
+                    CFr(-3078, -156, 44);
+                    CFr(-3147, -163, 67);
+                    CFr(-3156, -165, 6);
+                    CFr(-3231, -169, 8);
+                    CFr(-3325, -174, 8);
+                    CFr(-3373, -177, -8);
+                    CFr(-3452, -182, -41);
+                    CFr(-3444, -182, -88);
+                    CFr(-3424, -182, -148);
+                    CFr(-3393, -181, -212);
+                    CFr(-3353, -181, -297);
+                    CFr(-3319, -180, -374);
+                    CFr(-3343, -183, -464);
+                    CFr(-3343, -183, -464);
+                    CFr(-3401, -186, -505);
+                    CFr(-3392, -187, -558);
+                    CFr(-3441, -191, -584);
+                    CFr(-3468, -190, -531);
+                    CFr(-3543, -195, -551);
+                    CFr(-3582, -197, -524);
+                    CFr(-3619, -200, -608);
+                    CFr(-3656, -203, -680);
+                    CFr(-3710, -208, -784);
+                    CFr(-3671, -207, -880);
+                    CFr(-3601, -206, -1059);
+                    CFr(-3449, -197, -999);
+                    CFr(-3449, -197, -999);
+                    CFr(-3241, -200, -902);
+                }; Tp(HumRSelf, W["Section2.5"].ChaseSequence.StartPoint.CFrame, 0.3);
+                local TWEENINFONOW, HumRSelfS = TweenInfo.new(1.3), HumRSelf; for i=1, #CHs do
+                    Tween({
+                        primary = HumRSelfS;
+                        goal = {CFrame=CHs[i]};
+                        info = TWEENINFONOW;
+                    });
+                end; Tween({primary = HumRSelfS, goal = {CFrame = W["Section2.5"].ChaseSequence.EndPoint.CFrame}});
+            elseif where == "Mall/Chase2" then
+                Tp(HumRSelf, W["Section2.5"].ChaseSequence.SecondChaseStuff.ElevatorHit.CFrame);
+            elseif where == "Car/Collect" then
+                local CHs, Count = GetChildren(W["Section2.5"].ChihiroMinigame.CarFixObjective.CarParts), 0; for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and IsA(v, "BasePart") then
+                        local Prox = FindFirstChild(v, "ProximityPrompt");
+                        if not Prox or not Prox.Enabled then continue; end;
+                        Count = Count + 1;
+                        Tp(HumRSelf, v.CFrame, 0.3);
+                        fireproximityprompt(Prox, 1);
+                        if Count > 2 then
+                            break;
+                        end;
+                    end;
+                end;
+                
+                local V8 = FindFirstChild(W["Section2.5"].ChihiroMinigame.CarFixObjective.CarParts, "V8 Engine");
+                local Base = if V8 then V8["Meshes/ls9_Cube (2)"] else nil; if V8 then
+                    Tp(HumRSelf, Base.CFrame, 0.3);
+                    fireproximityprompt(Base.ProximityPrompt);
+                end; Tp(HumRSelf, CFr(-1924, -96, 1597));
+            elseif where == "Car/Answer" then
+                if not self.MotherLabels then
+                    self.MotherLabels = {
+                        PSG["S2.5"].Selectors["3"].Button.Label,
+                        PSG["S2.5"].Selectors["2"].Button.Label,
+                        PSG["S2.5"].Selectors["1"].Button.Label,
+                    };
+                end;
+
+                local Answers = self.AnsweredMother;
+                local Labels = self.MotherLabels;
+
+                for i,v in pairs(Answers) do
+                    if strfind(PSG["S2.5"].Questions.Question.Text, i) then
+                        local answer = self.AnsweredMother[i];
+                        for ri=1, 3 do
+                            local rv=Labels[ri].Text;
+                            if rv == answer then
+                                return W["Section2.5"].ChihiroMinigame.Trivia.Signal:FireServer(1, tonumber(Labels[ri].Parent.Parent.Name));
+                            end;
+                        end;
+                    end;
+                end;
+            elseif where == "Draw/Draw" then
+                local Paints = self.Paints; if not Paints then
+                    return WindUI:Notify({
+                        Title = "<font color='rgb(255,255,0)'>Installer</font>",
+                        Content = "Please download 'Paintings' package from 'Core Settings' tab.",
+                        Icon = "circle-alert",
+                        Duration = 10,
+                    });
+                end;
+                local CHs = GetChildren(W.Section3.PaintPuzzle); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local Pad = FindFirstChild(v, "Pad");
+                        if not Pad then continue; end;
+                        if dist(Pad.Position) <= 10 then
+                            local obj = FindFirstChildWhichIsA(Pad, "Decal");
+                            local Text = obj.Texture;
+                            local tonn = Text:gsub("rbxassetid://", "");
+                            local target = tonumber(tonn);
+                            local Pos = self.PaintPoses[target];
+                            for _, v in pairs(Paints[target]) do
+                                Pad.Controls.Draw:FireServer(Pos, v[1], v[2]);
+                            end;
+                        end;
+                    end;
+                end;
+            elseif where == "Draw/Item" then
+                local CHs = GetChildren(W.WHITE_FLAME_LANTERN.PieceDnE); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        if v.Name == "PieceD" or v.Name == "PieceE" then
+                            local Prox = FindFirstChild(v, "ProximityPrompt");
+                            if not Prox then continue; end;
+                            Tp(HumRSelf, v.CFrame, 0.3);
+                            fireproximityprompt(Prox);
+                        end;
+                    end;
+                end;
+            elseif where == "Godmode" then
+                sethiddenproperty(selff, "MaxSimulationRadius", 10000);
+                sethiddenproperty(selff, "SimulationRadius", 10000);
+
+                local CHs = {self.Tsukiya2, self.Rin2, self.Tenome2}; for i=1, #CHs do
+                    local v=CHs[i]; if v and v.Parent then
+                        local Root = FindFirstChild(v, "HumanoidRootPart");
+                        local Hitbox = FindFirstChild(v, "Hitbox");
+
+                        if Root then Root.CanTouch = false; end;
+                        if Hitbox then Hitbox.CanTouch = false; end;
+                    end;
+                end;
+
+                local EnzukaiRyu = FindFirstChild(W.Section4.BossMonster, "EnzukaiRyu");
+                EnzukaiRyu = EnzukaiRyu and FindFirstChild(EnzukaiRyu, "Hitbox");
+
+                local Enzukai2 = FindFirstChild(W.Section4.Monster, "Enzukai2");
+                Enzukai2 = Enzukai2 and FindFirstChild(Enzukai2, "Hitbox");
+
+                if EnzukaiRyu then EnzukaiRyu.CanTouch = false; end;
+                if Enzukai2 then Enzukai2.CanTouch = false; end;
+            elseif where == "Survivors" then
+                local CHs = GetChildren(W.Section4.Rescue.NPCs); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.Name == "Pose" then
+                        local Base = FindFirstChild(v, "HumanoidRootPart");
+                        local Prox = Base and FindFirstChild(Base, "ProximityPrompt");
+                        Tp(HumRSelf, Base.CFrame, 0.3); fireproximityprompt(Prox);
+                        if i>4 then break; end;
+                    end;
+                end; Tp(HumRSelf, CFr(-98, 3, -2338));
+            end;
+        end;
+        Functions.B2C4ESP = function(self, where, state)
+            if not state then
+                return ESPF.Visible(where, false);
+            elseif where == "City/Glass" then
+                local CHs = GetChildren(W.Section1.EnzukaiSneakSequence.Activators); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        ESPF.ESP(where, v, {
+                            Color = RED;
+                            Size = VEC2;
+                            Text = "Glass";
+                        });
+                    end;
+                end;
+            elseif where == "City/Enzukai" then
+                ESPF.ESP(where, W.Section1.EnzukaiSneakSequence.Monster.Enzukai, {
+                    Color = RED;
+                    Size = VEC2;
+                    Text = "Enzukai";
+                });
+            elseif where == "Mall/Coins" then
+                local CHs = GetChildren(W.Section2.Floor2.Coins); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local Prox = FindFirstChild(v, "ProximityPrompt");
+                        if not Prox then continue; end;
+                        local ESPObject = ESPF.ESP(where, v, {
+                            Color = if not Prox.Enabled then GREEN else YELLOW;
+                            Size = VEC2;
+                            Text = "Coin";
+                        }); if not ESPObject.ChangeSignal then
+                            ESPObject.ChangeSignal = PropChangeSignal(Prox, "Enabled"):Connect(function()
+                                ESPObject.UpdateColor(if not Prox.Enabled then GREEN else YELLOW);
+                            end);
+                        end;
+                    end;
+                end;
+            elseif where == "Mall/Talk" then
+                local CHs = GetChildren(W.Section2.WalkieTalkis); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.Name == "WalkieTalkie" then
+                        local Prox = FindFirstChild(v, "ProximityPrompt");
+                        if not Prox then continue; end;
+                        ESPF.ESP(where, v, {
+                            Color = WHITE;
+                            Size = VEC2;
+                            Text = v.Name;
+                        });
+                    end;
+                end;
+            elseif where == "Mall/Monsters" then
+                local CHs = {
+                    W.Section2.Floor3.Monster.Tsukiya;
+                    W.Section2.Floor1.Monster.Tenome;
+                    W.Section2.Floor2.Monster.Rin;
+                }; for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        ESPF.ESP(where, v, {
+                            Color = RED;
+                            Size = VEC10;
+                            Text = v.Name;
+                        });
+                    end;
+                end;
+            elseif where == "Draw/Senzai" then
+                local Senzai = FindFirstChild(W.Section3.Monster, "Senzai");
+                if not Senzai then return; end; ESPF.ESP(where, Senzai, {
+                    Color = RED;
+                    Size = VEC10;
+                    Text = "Senzai";
+                });
+            elseif where == "Draw/Ingredients" then
+                local CHs = GetChildren(W.Section3.PaintPuzzle.Ingredients); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local ESPObject, Prox = nil, FindFirstChild(v, "ProximityPrompt");
+                        if not Prox then continue; end; if v.Name == "Orchid" then
+                            ESPObject = ESPF.ESP(where, v, {
+                                Color = if Prox.Enabled then PURPLE else WHITE;
+                                Size = VEC2;
+                                Text = v.Name;
+                            });
+                        elseif v.Name == "Water" then
+                            ESPObject = ESPF.ESP(where, v, {
+                                Color = if Prox.Enabled then BLUE else WHITE;
+                                Size = VEC2;
+                                Text = v.Name;
+                            });
+                        end; if ESPObject and not ESPObject.ChangeSignal then
+                            ESPObject.ChangeSignal = PropChangeSignal(Prox, "Enabled"):Connect(function()
+                                if not Prox.Enabled then return ESPObject.UpdateColor(WHITE); end;
+                                if v.Name == "Orchid" then
+                                    ESPObject.UpdateColor(PURPLE);
+                                else
+                                    ESPObject.UpdateColor(BLUE);
+                                end;
+                            end);
+                        end;
+                    end;
+                end;
+            elseif where == "Draw/Drawings" then
+                local PaintStations=W.Section3.PaintPuzzle;
+                local CHs = {
+                    PaintStations.PaintStation_A.Pad;
+                    PaintStations.PaintStation_B.Pad;
+                    PaintStations.PaintStation_C.Pad;
+                    PaintStations.PaintStation_D.Pad;
+                }; for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local Prox = FindFirstChild(v, "Draw");
+                        if not Prox then continue; end;
+                        local ESPObject = ESPF.ESP(where, v, {
+                            Color = if Prox.Enabled then YELLOW else GREEN;
+                            Size = VEC2;
+                            Text = v.Name;
+                        }); if not ESPObject.ChangeSignal then
+                            ESPObject.ChangeSignal = PropChangeSignal(Prox, "Enabled"):Connect(function()
+                                ESPObject.UpdateColor(if Prox.Enabled then YELLOW else GREEN);
+                            end);
+                        end;
+                    end;
+                end;
+            elseif where == "Survivors" then
+                local CHs = GetChildren(W.Section4.Rescue.NPCs); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.Name == "Pose" then
+                        ESPF.ESP(where, v, {
+                            Color = GREEN;
+                            Size = VEC2;
+                            Text = v.Name;
+                        });
+                    end;
+                end;
+            elseif where == "Followers" then
+                local CHs = {self.Tsukiya2, self.Rin2, self.Tenome2}; for i=1, #CHs do
+                    local v=CHs[i]; if v and v.Parent then
+                        ESPF.ESP(where, v, {
+                            Color = RED;
+                            Size = VEC10;
+                            Text = v.Name;
+                        });
+                    end;
+                end;
             end; ESPF.Visible(where, true, true);
         end;
         Functions.B3C1Func = function(self, where)
@@ -2176,6 +2966,132 @@ return {
                     }};
                 };
             });
+            PackB2C4 = (Chapter == "B2C4" and {
+                Tabs = {
+                    {Tab={at="B2C4", Title="Bypass", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Patched Inventory", EN2="Sometimes your inventory just stuck on your screen and you can't do anything except rejoin BUT this button will fix it.", TH1="แก้บัคกระเป๋า", TH2="บางทีกระเป๋ามันค้างอยู่กลางจอละมันต้องออกเข้าใหม่ แต่กดปุ่มนี้แก้ได้", Callback=Functions.INVBP};
+                        {type="Button", EN="Patched Reporter Cutscene", EN2="In the 6 floor building, there is an NPC for you to talk with but sometime the anti cheat can break your cutscene.", TH1="แก้บัคอัคซีนของนักข่าว", TH2="ในด่านตึก 6 ชั้นจะมี NPC ให้เราไปคุยแล้วในบางตัวรันมันโดนกันโปรทำบัค ให้กดปุ่มนี้เวลาบัค", Callback=Functions.B2C4BP1};
+                        {type="Button", EN="Patched Mother's Game", EN2="In the minigame where mother will be asking you questions and you have to answer, the anti cheat will stop the answer from appearing, use this to fix it.", TH1="แก้บัคคำถามของแม่", TH2="ในด่านมินิเกมที่แม่จะถามคำถามแล้วเราต้องตอบ ในบางตัวรันมันโดนกันโปรทำบัค ให้กดปุ่มนี้เวลาบัค", Callback=Functions.B2C4BP2};
+                    }};
+                    {Tab={at="B2C4", Title="Cave", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Auto Complete", EN2="Teleport to the exit of this cave.", TH1="ออโต้ผ่านด่าน", TH2="วาปไปที่ทางออกถ้ำ", Callback=function()
+                            return Functions:B2C4Func("Cave");
+                        end};
+                    }};
+                    {Tab={at="B2C4", Title="City", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Auto Complete", EN2="Teleport to the white door.", TH1="ออโต้ผ่านด่าน", TH2="วาปไปที่ประตูสีขาว", Callback=function()
+                            return Functions:B2C4Func("City/Auto");
+                        end}; {type="Space"};
+                        {type="Button", EN="Destroy Glass", EN2="Remove glasses from the floor.", TH1="ลบกระจกออก", TH2="ลบกระจกที่อยู่บนพื้นออก", Callback=function()
+                            return Functions:B2C4Func("City/Glass");
+                        end};
+                        {type="Toggle", EN="ESP Glass", EN2="Show glass's hitbox.", TH1="ESP กระจก", TH2="มองเห็นกระจก", Path="City/ESP/Glass", Callback=function(state)
+                            B2C4Con.City.ESP.Glass = state;
+                            return Functions:B2C4ESP("City/Glass", state);
+                        end};
+                        {type="Toggle", EN="ESP Enzukai", EN2="Show Enzukai's hitbox.", TH1="ESP ผี", TH2="มองเห็นผี", Path="City/ESP/Enzukai", Callback=function(state)
+                            B2C4Con.City.ESP.Enzukai = state;
+                            return Functions:B2C4ESP("City/Enzukai", state);
+                        end};
+                    }};
+                    {Tab={at="B2C4", Title="Office", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Talk", EN2="Teleport to NPC.", TH1="คุย", TH2="วาปไปหา NPC", Callback=function()
+                            return Functions:B2C4Func("Office/Talk");
+                        end};
+                        {type="Button", EN="Auto Codes", EN2="You have to interact with the keypad first.", TH1="ออโต้ใส่โค้ด", TH2="ต้องกดปุ่มที่ประตูก่อน", Callback=function()
+                            return Functions:B2C4Func("Office/Auto");
+                        end}; {type="Space"};
+                        {type="Button", EN="Collect Item", EN2="Teleport, collect item, and escape. (Rooftop)", TH1="ออโต้ผ่านด่าน", TH2="วาปเก็บไอเทมและออก (ชั้นดาดฟ้า)", Callback=function()
+                            return Functions:B2C4Func("Office/Top");
+                        end};
+                    }};
+                    {Tab={at="B2C4", Title="Mall", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Paragraph", Title="Tutorial", Desc=[[<font color="#ff0000">You don't need auto coins</font>, <font color="#ffffff">All you have to do is punch & grab speaker then place it and escape. You can check YouTube video to understand more about it.</font>]]};
+                        {type="Button", EN="Auto Walkie Talkis", EN2="Teleport & interact with walkie talkie", TH1="ออโต้กดวอสื่อสาร", TH2="วาปและกดใช้งาน", Callback=function()
+                            return Functions:B2C4Func("Mall/Talk");
+                        end};
+                        {type="Button", EN="Auto Trigger Escape", EN2="Teleport to the entrance to trigger the game event.", TH1="ออโต้หลบหนี", TH2="วาปไปที่ทางเข้าเพื่อเริ่คัตซีน", Callback=function()
+                            return Functions:B2C4Func("Mall/Trigger");
+                        end};
+                        {type="Button", EN="Auto Punch Eyes", EN2="Teleport & punch eyes.", TH1="ออโต้ต่อยดวงตา", TH2="วาปและต่อยดวงตา", Callback=function()
+                            return Functions:B2C4Func("Mall/Eyes");
+                        end};
+                        {type="Button", EN="Grab Speaker", EN2="Teleport & grab the speaker.", TH1="เก็บลำโพง", TH2="วาปและเก็บลำโพง", Callback=function()
+                            return Functions:B2C4Func("Mall/Grab");
+                        end};
+                        {type="Button", EN="Place Speaker", EN2="Teleport & place the speaker.", TH1="วางลำโพลง", TH2="วาปและวางลำโพง", Callback=function()
+                            return Functions:B2C4Func("Mall/Place");
+                        end}; {type="Space"};
+                        {type="Toggle", EN="ESP Coins", EN2="Show coin's box.", TH1="ESP เหรียญ", TH2="มองเห็นเหรียญ", Path="Mall/ESP/Coins", Callback=function(state)
+                            B2C4Con.Mall.ESP.Coins = state;
+                            return Functions:B2C4ESP("Mall/Coins", state);
+                        end};
+                        {type="Toggle", EN="ESP Walkie Talkies", EN2="Show walkie talkie's box.", TH1="ESP วอสื่อสาร", TH2="มองเห็นวอสื่อสาร", Path="Mall/ESP/Glass", Callback=function(state)
+                            B2C4Con.Mall.ESP.Walkie = state;
+                            return Functions:B2C4ESP("Mall/Talk", state);
+                        end};
+                        {type="Toggle", EN="ESP Monsters", EN2="Show monster's hitbox.", TH1="ESP ผี", TH2="มองเห็นผี", Path="Mall/ESP/Monsters", Callback=function(state)
+                            B2C4Con.Mall.ESP.Monsters = state;
+                            return Functions:B2C4ESP("Mall/Monsters", state);
+                        end}; {type="Space"}; {type="Divider"}; {type="Space"};
+                        {type="Button", EN="Auto Chase 1", EN2="The floor at the end of the chase must fall so that mean everything must be loaded before you use this. You can watch my YouTube tutorial to use this one.", TH1="ออโต้วิ่ง 1", TH2="พื้นห้างในตอนท้ายพัง หมายความว่าก่อนกดใช้งานต้องมั่นใจก่อนว่าแมพโหลดเสร็จแล้ว หรือลองเปิด YouTube ดูก็ได้", Callback=function()
+                            return Functions:B2C4Func("Mall/Chase1");
+                        end};
+                        {type="Button", EN="Auto Chase 2", EN2="Teleport to the elevator.", TH1="ออโต้วิ่ง 2", TH2="วาปไปที่ลิฟ", Callback=function()
+                            return Functions:B2C4Func("Mall/Chase2");
+                        end};
+                    }};
+                    {Tab={at="B2C4", Title="Car", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Auto Collect Car Parts", EN2="Teleport & collect all car parts.", TH1="ออโต้เก็บชิ้นส่วนรถ", TH2="วาปแล้วเก็บชิ้นส่วนรถทั้งหมด", Callback=function()
+                            return Functions:B2C4Func("Car/Collect");
+                        end};
+                        {type="Button", EN="Answer", EN2="Give mother the correct answer.", TH1="ตอบคำถาม", TH2="แม่!!! ผมตอบถูกแล้ว", Callback=function()
+                            return Functions:B2C4Func("Car/Answer");
+                        end};
+                    }};
+                    {Tab={at="B2C4", Title="Drawing", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Draw", EN2="This only draw for you; Enter by yourself.", TH1="วาดรูป", TH2="วาดอย่างเดียว ไม่มีการวาปให้", Callback=function()
+                            return Functions:B2C4Func("Draw/Draw");
+                        end};
+                        {type="Button", EN="Collect Quest Items", EN2="Teleport & collect item dropped.", TH1="ออโต้เก็บไอเทมจากผี", TH2="วาปและเก็บไอเทมที่ดรอปจากผี", Callback=function()
+                            return Functions:B2C4Func("Draw/Item");
+                        end}; {type="Space"};
+                        {type="Toggle", EN="ESP Senzai", EN2="Show Senzai's hitbox.", TH1="ESP ผี", TH2="มองเห็นผี", Path="Draw/ESP/Senzai", Callback=function(state)
+                            B2C4Con.Draw.ESP.Senzai = state;
+                            return Functions:B2C4ESP("Draw/Senzai", state);
+                        end};
+                        {type="Toggle", EN="ESP Ingredients", EN2="Show ingredient's box.", TH1="ESP วัตถุดิบ", TH2="มองเห็นวัตถุดิบ", Path="Draw/ESP/Ingredients", Callback=function(state)
+                            B2C4Con.Draw.ESP.Ingredients = state;
+                            return Functions:B2C4ESP("Draw/Ingredients", state);
+                        end};
+                        {type="Toggle", EN="ESP Drawings", EN2="Show pad's box.", TH1="ESP แท่นวาดรูป", TH2="มองเห็นแท่นวาดรูป", Path="Draw/ESP/Pad", Callback=function(state)
+                            B2C4Con.Draw.ESP.Drawings = state;
+                            return Functions:B2C4ESP("Draw/Drawings", state);
+                        end};
+                    }};
+                    {Tab={at="B2C4", Title="Enzukai", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Godmode", EN2="Disable monsters from touching you.", TH1="อมตะ", TH2="กันไม่ให้ผีแตะตัวได้", Callback=function()
+                            return Functions:B2C4Func("Godmode");
+                        end}; {type="Space"}; {type="Divider"}; {type="Space"};
+                        {type="Button", EN="Auto Help Survivors", EN2="Teleport & interact with survivors.", TH1="ออโต้ช่วยคน", TH2="วาปและช่วยเหลือ", Callback=function()
+                            return Functions:B2C4Func("Survivors");
+                        end};
+                        {type="Toggle", EN="ESP Survivors", EN2="Show survivor's box.", TH1="ESP ผู้รอดชีวิต", TH2="มองเห็นผู้รอดชีวิต", Path="Enzukai/ESP/Survivors", Callback=function(state)
+                            B2C4Con.Enzukai.ESP.Survivors = state;
+                            return Functions:B2C4ESP("Survivors", state);
+                        end}; {type="Space"}; {type="Divider"}; {type="Space"};
+                        {type="Toggle", EN="Auto Kill Enzukai-Ryu", EN2="Auto get supercharge and kill Enzukai.", TH1="ออโต้ฆ่า Enzukai", TH2="ออโต้ชาจและฆ่า Enzukai", Path="Enzukai/Auto Kill Enzukai-Ryu"};
+                        {type="Toggle", EN="Auto Kill Monsters", EN2="Auto kill Enzukai's follower.", TH1="ออโต้ฆ่าผี", TH2="ออโต้ฆ่าลูกน้อง Enzukai", Path="Enzukai/Auto Kill Enzukai Followers"};
+                        {type="Toggle", EN="ESP Followers", EN2="Show follower's box.", TH1="ESP ผี3ตัว", TH2="มองเห็นผีลุกน้องEnzukai", Path="Enzukai/ESP/Followers", Callback=function(state)
+                            B2C4Con.Enzukai.ESP.Followers = state;
+                            return Functions:B2C4ESP("Followers", state);
+                        end};
+                    }};
+                    {Tab={at="B2C4", Title="Boss", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Toggle", EN="Auto Kill Final Boss", EN2="Auto kill EnzukaiRyu-Jin.", TH1="ออโต้ฆ่าบอส", TH2="ออโต้ฆ่า EnzukaiRyu-Jin", Path="Final/Auto Kill Final Boss"};
+                    }};
+                };
+            });
             PackB3C1 = (Chapter == "B3C1" and {
                 Tabs={
                     {Tab={at="B3C1", Title="City", Icon="book-open", Path="B3C1"}, Data={
@@ -2287,7 +3203,7 @@ return {
             local SAFESAMA = CFr(2823, 155, 2490); while true do
                 local CHs=GetChildren(W.GameHearts); for i=1, #CHs do
                     if not B1C4Con.Map4.AutoKillSama or CoreDestroyed then
-                        CoruTask.Close("Sama");
+                        CoruTask.Close("B1C4@Sama");
                     end; local v=CHs[i]; if v.Parent then
                         local Root = FindFirstChild(v, "Root");
                         if not Root then continue; end;
@@ -2335,7 +3251,7 @@ return {
                     if SaiConnection then
                         SaiConnection:Disconnect();
                         SaiConnection = nil;
-                    end; CoruTask.Close("Saigomo");
+                    end; CoruTask.Close("B1C4@Saigomo");
                 end; if not SaiConnection then
                     SaiConnection = H.Heartbeat:Connect(function()
                         if not selc.Parent or not HumRSelf.Parent then return; end;
@@ -2618,6 +3534,185 @@ return {
                 twait(0.1);
             end;
         end);
+        CoruTask.New("B2C4@EnzukaiRyu", function()
+            if Chapter ~= "B2C4" then return; end;
+
+            local EnzukaiRyu = WaitForChild(W.Section4.BossMonster, "EnzukaiRyu", 9e9);
+            local SAFEPOS = CFr(46, 140, -2854);
+
+            while true do
+                if not B2C4Con.Enzukai["Auto Kill Enzukai-Ryu"] or CoreDestroyed then
+                    ForceFloat = "None"; CoruTask.Close("B2C4@EnzukaiRyu");
+                end;
+
+                if not EnzukaiRyu or not EnzukaiRyu.Parent or PSG.S4.Health.Front.Size == DIM0010 then
+                    twait(0.1);
+                    continue;
+                end;
+
+                if GetAttribute(EnzukaiRyu, "State") == 0 then
+                    Tp(HumRSelf, SAFEPOS);
+                elseif GetAttribute(EnzukaiRyu, "Mover_StartPivot") == nil then
+                    Tp(HumRSelf, SAFEPOS);
+                else
+                    ForceFloat = true; if PSG.S4.Frame.Visible then
+                        local EnzukaiRyuPos = EnzukaiRyu.Hitbox.Position;
+                        local ENZLookVector = EnzukaiRyu.Hitbox.CFrame.LookVector;
+                        Tp(HumRSelf, CFr(Vec3(EnzukaiRyuPos.X, EnzukaiRyuPos.Y + 10, EnzukaiRyuPos.Z) - ENZLookVector * 100));
+                        Functions:MagicArrowHit(Functions:ToolNow("Bow"), EnzukaiRyuPos, 0.7);
+                    else
+                        local CHs = GetChildren(W.Section4.WeakPoints.Points); for i=1, #CHs do
+                            local v=CHs[i]; if v.Parent then
+                                local Root = FindFirstChild(v, "RootPart");
+                                local Icon = Root and FindFirstChild(Root, "Icon");
+                                if not Icon or not Icon.Enabled then continue; end;
+
+                                repeat
+                                    if v.Parent then
+                                        local Target, Focus = nil, nil;
+                                        
+                                        if v.EyeA.Transparency == 0 then Target = v.HitBoxA; Focus = v.EyeA; end;
+                                        if v.EyeB.Transparency == 0 then Target = v.HitBoxB; Focus = v.EyeB; end;
+                                        if v.EyeC.Transparency == 0 then Target = v.HitBoxC; Focus = v.EyeC; end;
+                                        if v.EyeD.Transparency == 0 then Target = v.HitBoxD; Focus = v.EyeD; end;
+                                        if v.EyeE.Transparency == 0 then Target = v.HitBoxE; Focus = v.EyeE; end;
+
+                                        if not Target then break; end;
+                                        local TargetPos, UpVector = nil, nil;
+
+                                        while Focus.Transparency == 0 and Target.Parent and B2C4Con.Enzukai["Auto Kill Enzukai-Ryu"] and not CoreDestroyed do
+                                            TargetPos = Target.Position;
+                                            UpVector = Target.CFrame.UpVector;
+                                            Tp(HumRSelf, CFr(Vec3(TargetPos.X, 50, TargetPos.Z) + UpVector * 20));
+                                            Functions:MagicArrowHit(Functions:ToolNow("Bow"), TargetPos, 0.7); twait(0.01);
+                                        end;
+                                    end; twait(0.1);
+                                until PSG.S4.Frame.Visible or not Root.Parent or not Icon.Parent or not Icon.Enabled or CoreDestroyed or not B2C4Con.Enzukai["Auto Kill Enzukai-Ryu"]; 
+                            end;
+                        end;
+                    end;
+                end; twait(0.1);
+            end;
+        end);
+        CoruTask.New("B2C4@Followers", function()
+            if Chapter ~= "B2C4" then return; end;
+
+            local self = Functions;
+            
+            while true do
+                if not B2C4Con.Enzukai["Auto Kill Enzukai Followers"] or CoreDestroyed then
+                    ForceFloat = "None"; CoruTask.Close("B2C4@EnzukaiFollowers");
+                end;
+
+                if not PSG.S4.Frame.Visible then
+                    ForceFloat = true; local CHs = GetChildren(W.Section4.WeakPoints.Points); for i=1, #CHs do
+                        local v=CHs[i]; if v.Parent then
+                            local Root = FindFirstChild(v, "RootPart");
+                            local Icon = Root and FindFirstChild(Root, "Icon");
+                            if not Icon or not Icon.Enabled then continue; end;
+
+                            repeat
+                                if v.Parent then
+                                    local Target, Focus = nil, nil;
+                                    
+                                    if v.EyeA.Transparency == 0 then Target = v.HitBoxA; Focus = v.EyeA; end;
+                                    if v.EyeB.Transparency == 0 then Target = v.HitBoxB; Focus = v.EyeB; end;
+                                    if v.EyeC.Transparency == 0 then Target = v.HitBoxC; Focus = v.EyeC; end;
+                                    if v.EyeD.Transparency == 0 then Target = v.HitBoxD; Focus = v.EyeD; end;
+                                    if v.EyeE.Transparency == 0 then Target = v.HitBoxE; Focus = v.EyeE; end;
+
+                                    if not Target then break; end;
+                                    local TargetPos, UpVector = nil, nil;
+
+                                    while Focus.Transparency == 0 and Target.Parent and B2C4Con.Enzukai["Auto Kill Enzukai Followers"] and not CoreDestroyed do
+                                        TargetPos = Target.Position;
+                                        UpVector = Target.CFrame.UpVector;
+                                        Tp(HumRSelf, CFr(Vec3(TargetPos.X, 50, TargetPos.Z) + UpVector * 20));
+                                        Functions:MagicArrowHit(Functions:ToolNow("Bow"), TargetPos, 0.7); twait(0.01);
+                                    end;
+                                end; twait(0.1);
+                            until PSG.S4.Frame.Visible or not Root.Parent or not Icon.Parent or not Icon.Enabled or CoreDestroyed or not B2C4Con.Enzukai["Auto Kill Enzukai Followers"]; 
+                        end;
+                    end; ForceFloat = "None";
+                else
+                    local CHs = {self.Rin2, self.Tenome2, self.Tsukiya2}; for i=1, #CHs do
+                        local v=CHs[i]; if v and v.Parent then
+                            local Root = FindFirstChild(v, "HumanoidRootPart");
+                            if not Root then continue; end;
+                            
+                            repeat
+                                if GetAttribute(v, "State") == 0 then
+                                    Tp(HumRSelf, Root.CFrame, 0.3);
+                                    fireproximityprompt(Root.ProximityPrompt, 1);
+                                else
+                                    local Pos = Root.Position;
+                                    Tp(HumRSelf, CFr(Vec3(Pos.X, Pos.Y, Pos.Z) + Root.CFrame.LookVector * 20));
+                                    tk.spawn(function() Functions:MagicArrowHit(Functions:ToolNow("Bow"), Pos, 0.7); end);
+                                end; twait(0.01);
+                            until not v.Parent or not Root.Parent or not B2C4Con.Enzukai["Auto Kill Enzukai Followers"] or CoreDestroyed;
+                        end;
+                    end;
+                end; twait(0.1);
+            end;
+        end);
+        CoruTask.New("B2C4@EnzukaiJin", function()
+            if Chapter ~= "B2C4" then return; end;
+
+            local EnzukaiRyujin = WaitForChild(W.Section5.FinalForm, "EnzukaiRyujin", 9e9);
+            local Moves = W.Section5.FinalForm.Moves;
+            local SAFEPOS = CFr(53.280338287353516, 5.957849025726318, -0.8933286666870117);
+            
+            while true do
+                if not B2C4Con.Final["Auto Kill Final Boss"] or CoreDestroyed then
+                    ForceFloat = "None";
+                    CoruTask.Close("B2C4@EnzukaiJin");
+                end;
+
+                if not EnzukaiRyujin.Parent then
+                    twait(0.1); continue;
+                end;
+
+                if GetAttribute(EnzukaiRyujin.VAnimator.Slam, "IsPlaying") == true then
+                    Tp(HumRSelf, SAFEPOS);
+                elseif PSG.S5.Frame.Visible then
+                    ForceFloat = true; local HeadCF = EnzukaiRyujin.HeadHitBox.CFrame;
+                    Tp(HumRSelf, HeadCF * CFr(-20, 0, 0));
+                    tk.spawn(function() Functions:MagicArrowHit(Functions:ToolNow("Bow"), HeadCF.Position, 0.5); end);
+                else
+                    ForceFloat = true; local CHs = GetChildren(W.Section5.WeakPoints.Points); for i=1, #CHs do
+                        local v=CHs[i]; if v.Parent then
+                            local animated = FindFirstChild(v, "animated");
+                            if not animated or animated.Value == -40 then continue; end;
+
+                            repeat
+                                if GetAttribute(EnzukaiRyujin.VAnimator.Slam, "IsPlaying") == true then
+                                    Tp(HumRSelf, SAFEPOS);
+                                elseif v.Parent then
+                                    local Target, Focus = nil, nil;
+                                    
+                                    if v.EyeA.Transparency == 0 then Target = v.HitBoxA; Focus = v.EyeA; end;
+                                    if v.EyeB.Transparency == 0 then Target = v.HitBoxB; Focus = v.EyeB; end;
+                                    if v.EyeC.Transparency == 0 then Target = v.HitBoxC; Focus = v.EyeC; end;
+                                    if v.EyeD.Transparency == 0 then Target = v.HitBoxD; Focus = v.EyeD; end;
+                                    if v.EyeE.Transparency == 0 then Target = v.HitBoxE; Focus = v.EyeE; end;
+
+                                    if not Target then break; end;
+                                    local TargetPos, UpVector, h = nil, nil, 50;
+
+                                    while Focus.Transparency == 0 and animated.Parent and animated.Value ~= -40 and Target.Parent and B2C4Con.Final["Auto Kill Final Boss"] and not CoreDestroyed and GetAttribute(EnzukaiRyujin.VAnimator.Slam, "IsPlaying") ~= true do
+                                        TargetPos = Target.Position;
+                                        UpVector = Target.CFrame.UpVector;
+                                        h = if GetAttribute(Moves.EyeballLaser.Eyeball, "Active") then 80 else 50;
+                                        Tp(HumRSelf, CFr(Vec3(TargetPos.X, TargetPos.Z + h, TargetPos.Z) + UpVector * 20));
+                                        Functions:MagicArrowHit(Functions:ToolNow("Bow"), TargetPos, 0.7); twait(0.01);
+                                    end;
+                                end; twait(0.1);
+                            until PSG.S5.Frame.Visible or not animated.Parent or animated.Value == -40 or CoreDestroyed or not B2C4Con.Final["Auto Kill Final Boss"]; 
+                        end;
+                    end; ForceFloat = "None";
+                end; twait(0.1);
+            end;
+        end);
 
         local LSecureUI = function()
             local WindUI = WindLib();
@@ -2658,6 +3753,7 @@ return {
                 B2C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB2C1),
                 B2C2 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB2C2),
                 B2C3 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB2C3),
+                B2C4 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB2C4),
                 B3C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB3C1),
 
                 ExtraDiv = Window:Divider(),
@@ -2710,6 +3806,17 @@ return {
                             end;
                             if B2C3Con.Boss["AutoKillYurei"] then
                                 CoruTask.Handle("B2C3@Yurei");
+                            end;
+                        end;
+                        if Chapter == "B2C4" then
+                            if B2C4Con.Enzukai["Auto Kill Enzukai-Ryu"] then
+                                CoruTask.Handle("B2C4@EnzukaiRyu");
+                            end;
+                            if B2C4Con.Enzukai["Auto Kill Enzukai Followers"] then
+                                CoruTask.Handle("B2C4@Followers");
+                            end;
+                            if B2C4Con.Final["Auto Kill Final Boss"] then
+                                CoruTask.Handle("B2C4@EnzukaiJin");
                             end;
                         end;
                         if YenCon.ESP or YenCon.Aura or YenCon.Auto then
@@ -2775,6 +3882,26 @@ return {
 
                     GameAI = FindFirstChild(W, "GameAI");
                     GameAI2 = FindFirstChild(W, "GameAI2");
+
+                    DownloadPackage.Signal:Connect(function(name, value)
+                        if name == "Paintings" then
+                            Functions.Paints = value.Paints;
+                            Functions.PaintPoses = value.Poses;
+                        end; WindUI:Notify({
+                            Title = "<font color='rgb(0,255,0)'>Installer [IMPORTANT]</font>",
+                            Content = "Download completed: "..name,
+                            Icon = "circle-alert",
+                            Duration = 11,
+                        });
+                    end);
+
+                    if Chapter == "B2C4" then
+                        if DownloadPackage.Download(true, "Paintings") then
+                            DownloadPackage.Download(false, "Paintings");
+                        end; 
+                    end;
+
+                    GG.DownloadHandler = DownloadPackage;
                 end;
             end); if OneRunCallMain then
                 return true, GG.LoadingSignal:Fire(100);
