@@ -177,6 +177,7 @@ end;
 local FOLBASE = "TTJYStudio";
 local EULBASE = "TJYsEula.txt";
 local GITBASE = "https://github.com/RealTTJY/Studio.Hub/raw/refs/heads/main";
+local ASSETBASE = "https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/Assets/";
 
 local versionstorage, AssetStorage = {}, {};
 local emptyfunction = function() return; end;
@@ -260,7 +261,7 @@ ScriptCache.userIdentify.unc_infos = {
     getgc = (getgc and getinfo(getgc).what) or false;
 };
 
-local LoadFromVControl = nil; LoadFromVControl = function(srcName, fileName, selectversion)
+local LoadFromVControl = nil; LoadFromVControl = function(srcName, fileName, selectversion, check)
     local cacheFile = "TTJYStudio/" .. tostring(fileName);
     if LoaderSettings.AllowCache then
         if isfile(cacheFile) then
@@ -269,8 +270,10 @@ local LoadFromVControl = nil; LoadFromVControl = function(srcName, fileName, sel
             end); if success then
                 if func and typeof(func) == 'table' then
                     if func.Version == selectversion then
+                        if check then return true; end;
                         return func.Function;
                     elseif versionstorage[selectversion] then
+                        if check then return false; end;
                         return LoadFromVControl(unpack(versionstorage[selectversion]));
                     end;
                 end;
@@ -278,6 +281,7 @@ local LoadFromVControl = nil; LoadFromVControl = function(srcName, fileName, sel
         end;
     end;
     
+    if check then return false; end;
     local source = HttpGet(game, srcName);    
     local loadc = loadstring(source)();
 
@@ -11988,6 +11992,14 @@ AssetStorage.CorePackage = function()
         return result;
     end;
 
+    local Version = {
+        ["Paintings"] = {
+            FileName = "Paintings.lua";
+            Version = "TheMimicV3.Extra.Paintings";
+            Target = "Paintings.lua";
+        };
+    };
+
     local Data = {
         {type="Toggle", EN="Thai Language", EN2="ใช้ภาษาไทย (ต้องรันอีกรอบ แต่ปิดหน้านี้ก่อนนะ)", P="ThaiLanguage", Callback=function(state)
             LoaderSettings.ThaiLanguage = state;
@@ -12049,7 +12061,21 @@ AssetStorage.CorePackage = function()
             LoaderSettings.TheMimicLoader.Installer = value;
         end};
         Data[#Data+1] = {type="Button", EN="Install", EN2="Download the package.", TH1="โหลด", TH2="โหลดส่วนเสริม", Callback=function(value)
-            
+            local DownloadHandler = GG.DownloadHandler; if DownloadHandler and not DownloadHandler.Download(true, LoaderSettings.TheMimicLoader.Installer) then
+                ScriptCache.WindUI:Notify({
+                    Title = "<font color='rgb(255,255,0)'>Installer [IMPORTANT]</font>",
+                    Content = "Downloading assets.",
+                    Icon = "circle-alert",
+                    Duration = 11,
+                }); DownloadHandler.Download(false, LoaderSettings.TheMimicLoader.Installer);
+            else
+                ScriptCache.WindUI:Notify({
+                    Title = "<font color='rgb(0,255,0)'>Installer [IMPORTANT]</font>",
+                    Content = "You already have the asset installed.",
+                    Icon = "circle-alert",
+                    Duration = 11,
+                });
+            end;
         end};
     elseif GameId == 1235188606 then
         Data[#Data+1] = {type="Space"}; Data[#Data+1] = {type="Divider"}; Data[#Data+1] = {type="Space"};
@@ -12085,8 +12111,49 @@ AssetStorage.CorePackage = function()
                     v.Value.Default = LoaderSettings[v.P];
                 end;
             end;
-        end; return Data;
+        end; return Data, Installer;
     end; return Init;
+end;
+
+AssetStorage.DownloadPackage = function()
+    local Registry = {
+        ["Paintings"] = {
+            FileName = "Paintings.lua";
+            Version = "TheMimicV3.Extra.Paintings";
+            Target = "Paintings.lua";
+        };
+    };
+
+    local DSignal = Signal.new();
+    local Download = function(check, name)
+        local TargetTBL = Registry[name]; if check then
+            if not LoadFromVControl(
+                ASSETBASE..TargetTBL.Target,
+                TargetTBL.FileName,
+                TargetTBL.Version,
+                check
+            ) then
+                return false, WindUI:Notify({
+                    Title = "<font color='rgb(255,255,0)'>Installer [IMPORTANT]</font>",
+                    Content = name.."asset is missing. If you want to download it now, you can download it at 'Core Settings' tab.",
+                    Icon = "circle-alert",
+                    Duration = 11,
+                });
+            end; return true;
+        end;
+        
+        DSignal:Fire(name, LoadFromVControl(
+            ASSETBASE..TargetTBL.Target,
+            TargetTBL.FileName,
+            TargetTBL.Version
+        )());
+    end;
+
+    return {
+        Versions = Registry;
+        Download = Download;
+        Signal = DSignal;
+    };
 end;
 
 ------------- Source Loader -------------
@@ -12110,8 +12177,8 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.B6";
-        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage"};
+        Version = "TheMimicV3.B7";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage"};
     };
 };
 
@@ -12119,7 +12186,7 @@ GG.LoadFromVControl = LoadFromVControl;
 GG.LoaderSettings = LoaderSettings;
 GG.ScriptCache = ScriptCache;
 
-if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_Skip")(selff, selc) then
+if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_B2C4")(selff, selc) then
     return selff:Kick("TTJY_IDAC");
 end;
 
