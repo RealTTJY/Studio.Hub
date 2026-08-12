@@ -110,7 +110,7 @@ Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 
 return {
-    Version = "TheMimicV3.B8";
+    Version = "TheMimicV3.B9";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -3709,7 +3709,7 @@ return {
                                 end; twait(0.1);
                             until PSG.S5.Frame.Visible or not animated.Parent or animated.Value == -40 or CoreDestroyed or not B2C4Con.Final["Auto Kill Final Boss"]; 
                         end;
-                    end; ForceFloat = "None";
+                    end; ForceFloat = "None"; Tp(HumRSelf, SAFEPOS);
                 end; twait(0.1);
             end;
         end);
