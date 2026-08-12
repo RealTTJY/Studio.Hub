@@ -110,7 +110,7 @@ Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 
 return {
-    Version = "TheMimicV3.B7";
+    Version = "TheMimicV3.B8";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -3601,7 +3601,7 @@ return {
             
             while true do
                 if not B2C4Con.Enzukai["Auto Kill Enzukai Followers"] or CoreDestroyed then
-                    ForceFloat = "None"; CoruTask.Close("B2C4@EnzukaiFollowers");
+                    ForceFloat = "None"; CoruTask.Close("B2C4@Followers");
                 end;
 
                 if not PSG.S4.Frame.Visible then
