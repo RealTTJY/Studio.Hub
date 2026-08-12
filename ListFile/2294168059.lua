@@ -110,7 +110,7 @@ Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 
 return {
-    Version = "TheMimicV3.B9";
+    Version = "TheMimicV3.C1";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -3682,7 +3682,7 @@ return {
                     ForceFloat = true; local CHs = GetChildren(W.Section5.WeakPoints.Points); for i=1, #CHs do
                         local v=CHs[i]; if v.Parent then
                             local animated = FindFirstChild(v, "animated");
-                            if not animated or animated.Value == -40 then continue; end;
+                            if not animated or animated.Value ~= 0 then continue; end;
 
                             repeat
                                 if GetAttribute(EnzukaiRyujin.VAnimator.Slam, "IsPlaying") == true then
@@ -3699,15 +3699,15 @@ return {
                                     if not Target then break; end;
                                     local TargetPos, UpVector, h = nil, nil, 50;
 
-                                    while Focus.Transparency == 0 and animated.Parent and animated.Value ~= -40 and Target.Parent and B2C4Con.Final["Auto Kill Final Boss"] and not CoreDestroyed and GetAttribute(EnzukaiRyujin.VAnimator.Slam, "IsPlaying") ~= true do
+                                    while Focus.Transparency == 0 and animated.Parent and animated.Value == 0 and Target.Parent and B2C4Con.Final["Auto Kill Final Boss"] and not CoreDestroyed and GetAttribute(EnzukaiRyujin.VAnimator.Slam, "IsPlaying") ~= true do
                                         TargetPos = Target.Position;
                                         UpVector = Target.CFrame.UpVector;
                                         h = if GetAttribute(Moves.EyeballLaser.Eyeball, "Active") then 80 else 50;
-                                        Tp(HumRSelf, CFr(Vec3(TargetPos.X, TargetPos.Z + h, TargetPos.Z) + UpVector * 20));
+                                        Tp(HumRSelf, CFr(Vec3(TargetPos.X, TargetPos.Y + h, TargetPos.Z) + UpVector * 20));
                                         Functions:MagicArrowHit(Functions:ToolNow("Bow"), TargetPos, 0.7); twait(0.01);
                                     end;
                                 end; twait(0.1);
-                            until PSG.S5.Frame.Visible or not animated.Parent or animated.Value == -40 or CoreDestroyed or not B2C4Con.Final["Auto Kill Final Boss"]; 
+                            until PSG.S5.Frame.Visible or not animated.Parent or animated.Value ~= 0 or CoreDestroyed or not B2C4Con.Final["Auto Kill Final Boss"]; 
                         end;
                     end; ForceFloat = "None"; Tp(HumRSelf, SAFEPOS);
                 end; twait(0.1);
