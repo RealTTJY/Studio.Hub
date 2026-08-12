@@ -91,7 +91,7 @@ Config.BoneMeal = Config.BoneMeal or {};
 Config.Treasure = Config.Treasure or {};
 
 return {
-    Version = "DA_V3.53";
+    Version = "DA_V3.54";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -202,6 +202,7 @@ return {
                         Tween({
                             primary = Seat.Parent and Seat.Parent.PrimaryPart;
                             goal = {CFrame = cf};
+                            info = TwInfo(dist(Position) / 400, Enum.EasingStyle.Linear);
                         });
                     else
                         self.Roaming = false;
@@ -217,6 +218,7 @@ return {
                         Tween({
                             primary = Seat.Parent and Seat.Parent.PrimaryPart;
                             goal = {CFrame = CFr(ExtraPoses[i])};
+                            info = TwInfo(dist(Position) / 400, Enum.EasingStyle.Linear);
                         });
                     else
                         self.Roaming = false;
