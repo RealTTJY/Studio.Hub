@@ -89,9 +89,11 @@ Config.Food = Config.Food or {};
 Config.Resource = Config.Resource or {};
 Config.BoneMeal = Config.BoneMeal or {};
 Config.Treasure = Config.Treasure or {};
+Config.Events = Config.Events or {};
+Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.55";
+    Version = "DA_V3.56";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -136,6 +138,7 @@ return {
         local BoneMealCon       = Config.BoneMeal;
         local TreasureCon       = Config.Treasure;
         local EcoCon            = Config.Economy;
+        local EventsCon         = Config.Events;
         local NodeColors        = {Food=ORANGE, Resources=BLUE};
         local Control           = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0};
         local NonAnalytics3     = {type="Button", EN="Analytics 3", EN2="Please enable 'Analytics 3' module to track game data, inventory, and player statistics for reports and webhook integrations.", TH1="Analytics 3", TH2="กรุณาเปิดใช้งานโมดูล 'Analytics 3' เพื่อติดตามข้อมูลเกม สินค้าคงคลัง และสถิติผู้เล่นสำหรับรายงานและเว็บฮุก"};
@@ -266,6 +269,19 @@ return {
             Items.SDResource = WaitForChild(SData, "Resources", 9e9);
             Items.IsMaxValue = function(varbase) return varbase.Value > 6000; end;
             Items.SRE = game.PlaceId == 3475397644 and WaitForChild(RRemotes, "SellItemRemote", 9e9); REQ.Items = Items;
+        end;
+        Functions.SolsticeInit = function(self)
+            if CurrentWorld ~= "Solstice2026" then return; end;
+            
+            local FlowerClass = require(RepFolder.FlowerClassClient);
+            local ItemClass = require(RepFolder.ItemClassClient);
+
+            local UPs = getupvalues(FlowerClass.Destroy)[1];
+            local UPs2 = getupvalues(ItemClass.Destroy)[1];
+
+            self.Flowers = UPs;
+            self.Waters = UPs2;
+            self.WaterINV = SData.SolsticeEvent2026.WaterEssence;
         end;
         Functions.AutoLevel = function(where)
             if not Seat.Parent then return; end;
@@ -540,6 +556,7 @@ return {
             end;
         end;
         Functions.ChestInit = function(ChestService)
+            if CurrentWorld == "Solstice2026" then return; end;
             ChestService.ChestWorldFolder = WaitForChild(WaitForChild(SData, "TreasureChests", 9e9), CurrentWorld, 9e9);
             ChestService.Seed = ChestService.GetSeedForWorld(ChestService.ChestWorldFolder);
             ChestService.ChestPoses = WaitForChild(GNodes, "Treasure"):GetAttributes();
@@ -603,6 +620,74 @@ return {
                 end;
             end; ESPF.Visible("Chest", true, TreasureCon.ShowText);
         end;
+        Functions.Solstice_GetEggDrop = function(self)
+            local CHs = GetChildren(Cam); for i=1, #CHs do
+                local v=CHs[i]; if v.Name == "SunEggEggsModel" then
+                    Tween({
+                        primary = Seat.Parent and Seat.Parent.PrimaryPart,
+                        goal = {CFrame = v.Egg.CFrame},
+                        info = TWEENINFO_2
+                    }); twait(math.max(1.7 + math.clamp(self.GetPing(), 0, 0.5)));
+                end;
+            end;
+        end;
+        Functions.Solstice_AutoWater = function(self, limit, least)
+            if not self.Waters then return; end;
+            
+            limit = limit or 1000;
+            least = least or 1000;
+            
+            local WaterINV = self.WaterINV;
+
+            if WaterINV.Value < least then
+                while WaterINV.Value < limit do
+                    for obj, data in pairs(self.Waters) do
+                        if least == 1000 and not EventsCon.Solstice.AutoCollectWater then return; end;
+                        if WaterINV.Value >= limit then return; end;
+
+                        local CanPickUp = data:_canPickUp();
+                        if not CanPickUp or CanPickUp == "MaxCapacity" then continue; end;
+                        if not data.Model or not data.Model.Parent then continue; end;
+
+                        if dist(obj.CFrame.Position) > 30 then
+                            Tween({
+                                primary = Seat.Parent and Seat.Parent.PrimaryPart,
+                                goal = {CFrame = obj.CFrame},
+                                info = TWEENINFO_2
+                            }); twait(math.max(0.3 + math.clamp(self.GetPing(), 0, 0.5)));
+                        end;
+
+                        data.VisualMaid._tasks[2].MainOption.Option.Run();
+                    end; twait(0.1);
+                end;
+            end;
+
+            return WaterINV.Value >= least;
+        end;
+        Functions.Solstice_AutoFlower = function(self)
+            for obj, data in pairs(self.Flowers) do
+                if data.CurrentProgress == 1 then continue; end;
+
+                local FlowerCF = obj.CFrame; while EventsCon.Solstice.AutoSunflower do
+                    if data.CurrentProgress < 1 then
+                        if dist(FlowerCF.Position) > 30 then
+                            Tween({
+                                primary = Seat.Parent and Seat.Parent.PrimaryPart,
+                                goal = {CFrame = FlowerCF * CFr(0, 20, 0)},
+                                info = TWEENINFO_2
+                            }); continue;
+                        end;
+                        
+                        if self:Solstice_AutoWater(200, 50) then
+                            data.Maid._tasks[10].MainOption.Option.Run();
+                        end;
+                    else
+                        twait(math.max(0.3 + math.clamp(self.GetPing(), 0, 0.5)));
+                        self:Solstice_GetEggDrop(); break;
+                    end; twait(0.1);
+                end;
+            end;
+        end;
 
         ScriptData.AutoData = {
             ClientTab = {
@@ -643,6 +728,10 @@ return {
                 {type="Toggle", EN="Allow World Teleport", EN2="Allow the script to teleport to selected world after selling.", TH1="อนุญาตให้วาปไปโลก", TH2="วาปไปโลกที่เลือกไว้หลังจากขายของเสร็จ", Path="AllowWorldTP"},
                 {type="Toggle", Title="Auto Sell", TH1="ออโต้ขาย", TH2="ขายของอัตโนมัติ", Path="AutoSell"},
             };
+            EventsTab = (CurrentWorld == "Solstice2026" and {
+                {type="Toggle", EN="Auto Sunflower", EN2="Automatically <font color=\"rgb(255, 51, 51)\">collect water essence</font> & water the sunflower.", TH1="ออโต้ดอกทานตะวัน", TH2="เก็บน้ำและรดดอกทานตะวันอัตโนมัติ", Path="Solstice/AutoSunflower"},
+                {type="Toggle", EN="Auto Collect Water Essencse", EN2="Automaticall collect water essence. <font color=\"rgb(255, 51, 51)\">Do not stack this with 'Auto Sunflower'.</font>", TH1="เก็บน้ำอัตโนมัติ", TH2="เก็บน้ำอัตโนมัติ อย่าใช้ร่วมกับออโต้ทานตะวัน", Path="Solstice/AutoCollectWater"},
+            }) or {};
             LevelTab = {
                 {type="Toggle", EN="Bond", EN2="You need to be in petting mode for it to work.", TH1="ความผูกพัน", TH2="ต้องอยู่ในโหมดลูบหัวมังกร", Path="Bond"}, {type="Space"},
                 {type="Toggle", EN="Tracking", EN2="You need to be near any egg.", TH1="ระดับการติดตาม", TH2="ต้องอยู่ใกล้ๆไข่", Path="Tracking"}, {type="Space"},
@@ -807,6 +896,25 @@ return {
                 twait(0.1);
             end;
         end);
+        CoruTask.New("Solstice-Main", function()
+            if CurrentWorld ~= "Solstice2026" then
+                return;
+            end; while true do
+                if not (EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower) or CoreDestroyed then
+                    CoruTask.Close("Solstice-Main");
+                end;
+                
+                if EventsCon.Solstice.AutoSunflower then
+                    Functions:Solstice_AutoFlower();
+                else
+                    if EventsCon.Solstice.AutoCollectWater then
+                        Functions:Solstice_AutoWater(1000, 1000);
+                    end;
+                end;
+
+                twait(0.1);
+            end;
+        end);
 
         local LSecureUI = function()
             local WindUI = WindLib();
@@ -838,7 +946,7 @@ return {
                 Dragon = Window:Tab({ Title = "Dragon", Icon = "flame" }),
                 Div1 = Window:Divider(),
                 Economy = Window:Tab({ Title = "Economy", Icon = "hand-coins" }),
-                Events = Window:Tab({ Title = "Events", Icon = "sparkles", Locked = true }),
+                Events = ScriptData.AutoData.EventsTab and Window:Tab({ Title = "Events", Icon = "sparkles" }),
                 
                 Div2 = Window:Divider(),
                 Level = Window:Tab({ Title = "Level", Icon = "star" }),
@@ -868,6 +976,8 @@ return {
             Windy:CreateComponent(Tabs.Resource, ScriptData.AutoData.ResourceTab, "Resource");
             Windy:CreateComponent(Tabs.BoneMeal, ScriptData.AutoData.BoneMealTab, "BoneMeal");
             Windy:CreateComponent(Tabs.Treasure, ScriptData.AutoData.TreasureTab, "Treasure");
+
+            if Tabs.Events then Windy:CreateComponent(Tabs.Events, ScriptData.AutoData.EventsTab, "Events"); end;
 
             Window:SelectTab(1); Window:OnDestroy(function()
                 CoreDestroyed = true;
@@ -907,6 +1017,9 @@ return {
                         end;
                         if EggCon.ESP or FoodCon.ESP or ResourceCon.ESP or BoneMealCon.ESP or TreasureCon.ESP then
                             CoruTask.Handle("Shared-ESP");
+                        end;
+                        if EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower then
+                            CoruTask.Handle("Solstice-Main");
                         end; twait(0.1);
                     end;
                 end);
@@ -1073,6 +1186,8 @@ return {
                             v:Disable();
                         end;
                     end;
+
+                    Functions:SolsticeInit(); 
                     
                     EggNodes = getupvalue(HarvestClass.getNodeFromModel, 1);
                     SmoothX = AccelTween.new(3000);
