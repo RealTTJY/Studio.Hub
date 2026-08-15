@@ -93,7 +93,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.56";
+    Version = "DA_V3.57";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -517,7 +517,7 @@ return {
             end; tble.sort(ToExport, function(a,b) return a.Dist < b.Dist end);
             return ToExport;
         end;
-        Functions.GetDrops = function()
+        Functions.GetDrops = function(self)
             twait(0.5); local CHs = GetChildren(Cam); for i=1, #CHs do
                 local v=CHs[i]; if FindFirstChild(v, "Handle") and dist(v.Handle.Position) < 60 then
                     if not self.SetDFly(true) then
@@ -549,7 +549,7 @@ return {
                         self:FireNode("Mobs", v.Part, 0.25);
                     else
                         repeat
-                            self.GetDrops(); twait(1);
+                            self:GetDrops(); twait(1);
                         until not FindFirstChildWhichIsA(Cam, "Model"); break;
                     end;
                 end;
@@ -644,6 +644,7 @@ return {
                     for obj, data in pairs(self.Waters) do
                         if least == 1000 and not EventsCon.Solstice.AutoCollectWater then return; end;
                         if WaterINV.Value >= limit then return; end;
+                        if not data.VisualMaid then continue; end;
 
                         local CanPickUp = data:_canPickUp();
                         if not CanPickUp or CanPickUp == "MaxCapacity" then continue; end;
@@ -656,7 +657,7 @@ return {
                                 info = TWEENINFO_2
                             }); twait(math.max(0.3 + math.clamp(self.GetPing(), 0, 0.5)));
                         end;
-
+                        
                         data.VisualMaid._tasks[2].MainOption.Option.Run();
                     end; twait(0.1);
                 end;
