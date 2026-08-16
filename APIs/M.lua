@@ -138,6 +138,7 @@ local LoaderSettings = GG.LoaderSettings or {
     AllowClientTab = true; 
     AllowAddOn = false; 
     AllowThemesTab = false;
+    AllowESPCustomization = true;
 
     SkipBypass = false;
     GAME_DEBUG_POSITION = "BottomLeft";
@@ -818,7 +819,7 @@ AssetStorage.ESPPackage = function()
         return Vec2(MaxX-MinX, MaxY-MinY), Vec2(MinX, MinY), Visible;
     end;
     local function CreateBox(parent, config, Data)
-        local Box = Instancen("BoxHandleAdornment", parent);
+        local Box = Instancen("BoxHandleAdornment", if config.NoStart then nil else parent);
         Box.Color3 = config.Color;
         Box.AlwaysOnTop = true;
         Box.Size = config.Size;
@@ -841,7 +842,7 @@ AssetStorage.ESPPackage = function()
         Label.Text = config.Text;
         Label.TextScaled = true;
 
-        if not config.BoxOnly then
+        if not config.BoxOnly and not config.NoStart then
             Billboard.Parent = parent;
         end;
 
@@ -876,7 +877,7 @@ AssetStorage.ESPPackage = function()
         end;
     end;
     local function CreateHighlight(parent, config, Data)
-        local Highlight = Instancen("Highlight", parent);
+        local Highlight = Instancen("Highlight", if config.NoStart then nil else parent);
         Highlight.Adornee = parent;
         Highlight.FillColor = config.Color;
         Highlight.OutlineColor = config.OutlineColor or Original.WHITE;
@@ -897,12 +898,13 @@ AssetStorage.ESPPackage = function()
         Label.Text = config.Text;
         Label.TextScaled = true;
 
-        if not config.BoxOnly then
+        if not config.BoxOnly and not config.NoStart then
             Billboard.Parent = parent;
         end;
 
         Data.Billboard = Billboard;
 
+        Data.Label = Label;
         Data.Highlight = Highlight;
         Data.Destroy = function()
             Highlight:Destroy();
@@ -978,6 +980,36 @@ AssetStorage.ESPPackage = function()
         end;
     end;
 
+    local CachedUData = nil;
+    local AttachedConfig = {};
+
+    local AttachConfig = function(pt,rp)
+        pt = (rp and rp ~= "") and (rp .. "/" .. pt) or pt;
+        if AttachedConfig[pt] then
+            return AttachedConfig[pt];
+        end; local Splited = str.split(pt,"/");
+        local FullPath = GG.Configs;
+        for i,v in pairs(Splited) do
+            FullPath = FullPath[v];
+            if FullPath == nil then
+                return nil;
+            end;
+        end; AttachedConfig[pt]=FullPath;
+        return FullPath;
+    end
+    
+    local UpdateConfig = function(pt, state, rp)
+        pt = (rp and rp ~= "") and (rp .. "/" .. pt) or pt;
+        AttachedConfig[pt] = state;
+        local Splited = str.split(pt,"/");
+        local lastKey = Splited[#Splited];
+        local len = #Splited - 1;
+        local t = GG.Configs;
+        for i = 1, len do
+            t = t[ Splited[i] ];
+        end; t[lastKey] = state;
+    end;
+
     return {
         ESP = function(Class, Object, config)
             if typeof(Object) ~= 'Instance' then return; end;
@@ -993,6 +1025,7 @@ AssetStorage.ESPPackage = function()
             config.Color = config.Color or Original.WHITE;
             config.Size = config.Size or Original.VEC5;
             config.Text = config.Text or "-";
+            config.NoStart = config.NoStart or false;
 
             local Method = config.Method or Original.Method;
             local NewData = {Object = Object, Mode=Method};
@@ -1024,8 +1057,63 @@ AssetStorage.ESPPackage = function()
                 end;
             end;
         end;
+        Scale = function(Class, bool)
+            local TargetClass = Classes[Class];
+            if not TargetClass then return; end;
+            for i,v in pairs(TargetClass) do
+                if i and i.Parent then
+                    if v.Label then
+                        v.Label.TextScaled = bool;
+                    end;
+                end;
+            end;
+        end;
+        Size = function(Class, size)
+            local TargetClass = Classes[Class];
+            if not TargetClass then return; end;
+            for i,v in pairs(TargetClass) do
+                if i and i.Parent then
+                    if v.Label then
+                        v.Label.TextSize = size;
+                    end;
+                end;
+            end;
+        end;
+        Color = function(Class, color)
+            local TargetClass = Classes[Class];
+            if not TargetClass then return; end;
+            for i,v in pairs(TargetClass) do
+                if i and i.Parent then
+                    if v.UpdateColor then
+                        v.UpdateColor(color);
+                    end;
+                end;
+            end;
+        end;
         Method = function(new)
             Original.Method = new;
+        end;
+        DynamicU = function(self, Windy, tab, data)
+            if not tab or not Windy then return; end;
+
+            if not CachedUData then
+                CachedUData = {}; for i=1, #data do
+                    local head=data[i]; if head.Title then
+                        CachedUData[i] = {
+                            {type="Group", dats={
+                                {dat={
+                                    {type="Toggle", EN="Show Text", EN2="Show object's text", TH1="แสดงข้อความ", TH2="แสดงข้อความบนวัตถุนั้นๆ", Bindable="+", Path=head.TextPath},
+                                    {type="Slider", EN="Text Size", EN2="Change object's text size", TH1="ขนาดข้อความ", TH2="แก้ไขขนาดข้อความที่อยู่บนวัตถุ", Value={Min=1, Max=20}, Path=head.SizePath},
+                                    {type="Toggle", EN="Text Scale", EN2="Automatic object's text size", TH1="สเกลข้อความ", TH2="อัพเดตขนาดข้อความอัตโนมัติ", Path=head.ScalePath},
+                                    {type="Colorpicker", EN="Text Color", EN2="Change object's text color", TH1="สีข้อความ", TH2="แก้ไขสีข้อความที่อยู่บนวัตถุ", Path=head.ColorPath},
+                                }, Title=head.Title};
+                            }}; {type="Space"}; {type="Space"};
+                        };
+
+                        Windy:CreateComponent(tab, CachedUData[i], head.Pointer);
+                    end;
+                end;
+            end;
         end;
     };
 end;
@@ -7765,15 +7853,15 @@ AssetStorage.LoadUILib = function()
                                 H.UserInputType == Enum.UserInputType.MouseButton1 or
                                     H.UserInputType == Enum.UserInputType.Touch
                             then
-                                while aj:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                                while UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                                     local J = B.AbsolutePosition.Y
                                     local L = J + B.AbsoluteSize.Y
-                                    local M = math.clamp(ao.Y, J, L)
+                                    local M = math.clamp(cmdm.Y, J, L)
 
                                     aw.Transparency = 1 - ((M - J) / (L - J))
                                     aw:Update()
 
-                                    am:Wait()
+                                    RunService.RenderStepped:Wait()
                                 end
                             end
                         end
@@ -11884,6 +11972,9 @@ AssetStorage.Windy = function()
                     elseif v.type == "Input" then
                         v.Value = v.Value or (v.Path and AttachedConfig[path.."/"..v.Path] or nil);
                         ScriptCache[v.Global or "nil"] = modu:Input(v);
+                    elseif v.type == "Colorpicker" then
+                        v.Default = v.Default or (v.Path and AttachedConfig[path.."/"..v.Path] or nil);
+                        ScriptCache[v.Global or "nil"] = modu:Colorpicker(v);
                     else
                         modu[v.type](v);
                     end; if type(v.Value) ~= 'table' then
@@ -12039,6 +12130,9 @@ AssetStorage.CorePackage = function()
         end};
         {type="Toggle", EN="Allow Themes Tab", EN2="Allow Themes Tab in the UI.", TH1="เปิดใช้งานแท็บ: Themes", TH2="แสดงแท็บ Themes บน UI", P="AllowThemesTab", Callback=function(state)
             LoaderSettings.AllowThemesTab = state;
+        end};
+        {type="Toggle", EN="Allow ESP BHV", EN2="Allow ESP Customization Tab in the UI.", TH1="เปิดใช้งานแท็บ: ESP BHV", TH2="แสดงแท็บ ESP BHV", P="AllowESPCustomization", Callback=function(state)
+            LoaderSettings.AllowESPCustomization = state;
         end}; {type="Space"};
         {type="Button", EN="Export Configs", EN2="Copy config to your clipboard", TH1="ส่งออก Config", TH2="คัดลอก Config", Callback=function()
             setc("getgenv().Configs = " .. serialize(GG.Configs));
@@ -12179,6 +12273,11 @@ local FreeLoad, KeyLoad = {
         File = "2294168059";
         Version = "TheMimicV3.C1";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage"};
+    };
+    [4760747038] = {
+        File = "4760747038";
+        Version = "WonderWhyV3.01";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage"};
     };
 };
 
