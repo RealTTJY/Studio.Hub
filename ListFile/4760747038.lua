@@ -37,6 +37,7 @@ local FindFirstChildOfClass = game.FindFirstChildOfClass;
 local VEC0 = Vector3.zero;
 local VEC2 = Vec3(2,2,2);
 local RED = Col3.new(1,0,0);
+local WHITE = Col3.new(1, 1, 1);
 local GREEN = Col3.new(0, 1, 0);
 local BLUE = Col3.new(0, 0, 1);
 local YELLOW = Col3.new(1, 1, 0);
@@ -72,7 +73,7 @@ Config.Rooms.TextColor = Config.Rooms.TextColor or {
 };
 
 return {
-    Version = "WonderWhyV3.01";
+    Version = "WonderWhyV3.02";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
