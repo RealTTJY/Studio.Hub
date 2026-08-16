@@ -12276,7 +12276,7 @@ local FreeLoad, KeyLoad = {
     };
     [4760747038] = {
         File = "4760747038";
-        Version = "WonderWhyV3.01";
+        Version = "WonderWhyV3.02";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage"};
     };
 };
