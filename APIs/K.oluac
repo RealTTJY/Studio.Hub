@@ -210,7 +210,7 @@ local KeyProcessor = function(script_key)
             elseif ValidData.Authenticated_Status == "Success" then
                 if GG.IsPremium and ValidData.Key_Premium then
                     local ValidData2 = Request({
-                        Url = "https://ttjy.vercel.app/apis/validate?key="..script_key.."&hwid="..gethwid();
+                        Url = "https://ttjy-script.vercel.app/apis/validate?key="..script_key.."&hwid="..gethwid();
                         Method = "GET",
                     }); if ValidData2 then
                         local dd2 = decrypt(ValidData2.Body, 2) == "true";
@@ -222,7 +222,7 @@ local KeyProcessor = function(script_key)
             else
                 if GG.IsPremium and ValidData.Key_Premium then
                     local ValidData2 = Request({
-                        Url = "https://ttjy.vercel.app/apis/validate?key="..script_key.."&hwid="..gethwid();
+                        Url = "https://ttjy-script.vercel.app/apis/validate?key="..script_key.."&hwid="..gethwid();
                         Method = "GET",
                     }); if ValidData2 then
                         local dd2 = decrypt(ValidData2.Body, 2) == "true";
@@ -249,7 +249,7 @@ local KeyProcessor = function(script_key)
 end; KeyProcessor = newcclosure(KeyProcessor);
 
 return {
-    Version = "KAuth3.78",
+    Version = "KAuth3.79",
     Function = function(version, KeyPackage, ...)
         local ToGo = {...}; GG.InKey = function()
             local GlobCrLoad = KeyPackage();
