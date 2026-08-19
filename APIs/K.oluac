@@ -216,11 +216,7 @@ local KeyProcessor = function(script_key)
                         local dd2 = decrypt(ValidData2.Body, 2) == "true";
                         if dd2 then
                             return 201;
-                        else
-                            return 222;
                         end;
-                    else
-                        return 223;
                     end;
                 end; return 200;
             else
@@ -253,7 +249,7 @@ local KeyProcessor = function(script_key)
 end; KeyProcessor = newcclosure(KeyProcessor);
 
 return {
-    Version = "KAuth3.77",
+    Version = "KAuth3.78",
     Function = function(version, KeyPackage, ...)
         local ToGo = {...}; GG.InKey = function()
             local GlobCrLoad = KeyPackage();
