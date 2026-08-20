@@ -12266,7 +12266,7 @@ local FreeLoad, KeyLoad = {
     };
     [3647333358] = {
         File = "3647333358";
-        Version = "Evade_V3.48";
+        Version = "Evade_V3.49";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [2294168059] = {
