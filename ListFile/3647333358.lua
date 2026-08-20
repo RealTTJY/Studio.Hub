@@ -7,6 +7,7 @@ local LowerC = hookfunction or hookfunc;
 local GetService = game.GetService;
 local Instancen = Instance.new;
 local Vec3 = Vector3.new;
+local str = string; 
 local tble = table;
 local Col3 = Color3;
 local tk = task;
@@ -48,7 +49,7 @@ Config.Ticket = Config.Ticket or {};
 Config.Game = Config.Game or {};
 
 return {
-    Version = "Evade_V3.48";
+    Version = "Evade_V3.49";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -61,6 +62,7 @@ return {
         local HumSelf           = selc.Parent and FindFirstChildOfClass(selc, "Humanoid") or EMPTY_OBJECT;
         local HumRSelf          = HumSelf.RootPart or EMPTY_OBJECT;
 
+        local GameTimeUI        = nil;
         local VOIDPART          = Instancen("Part");
 
         local cmdm              = selff:GetMouse();
@@ -99,7 +101,7 @@ return {
                     local v=GCs[i]; if type(v) == 'table' then
                         if rawget(v, 1) and type(v[1]) == 'table' and rawget(v[1], "CollectableIDs") then
                             REQ.Contexts = v;
-                        elseif rawget(v, "JumpReact") then
+                        elseif rawget(v, "JumpReact") and typeof(v.JumpReact.JumpReact) == 'function' then
                             REQ.JumpReact = v;
                         elseif rawget(v, "GetCharacters") then
                             REQ.CharService = v;
@@ -152,6 +154,35 @@ return {
         end;
         Functions.GetPing = function()
             return S.Network.ServerStatsItem["Data Ping"]:GetValue() / 1000;
+        end;
+        Functions.GetTimer = function(Timer)
+            local min, sec = Timer.Text:match("^(%d+):([0-5]?%d)$");
+            min = tonumber(min) or 0;
+            sec = tonumber(sec) or 0;
+            return min * 60 + sec;
+        end;
+        Functions.SetTimer = function(self, isCountUp)
+            local Timer = FindFirstChild(GameTimeUI, "Timer");
+            local Cloned = FindFirstChild(GameTimeUI, "Cloned");
+            if not Timer then return; end; if isCountUp then
+                if not Cloned or not Cloned.Parent then
+                    Cloned = Timer:Clone();
+                    Cloned.Name = "Cloned";
+                    Cloned.Parent = GameTimeUI;
+                    Cloned.TextColor3 = RED;
+                end;
+
+                local Time = self.GetTimer(Timer);
+                Cloned.Text = str.format("%d:%02d", math.floor(Time / 60), Time % 60);
+                Cloned.Visible = true;
+                Timer.Visible = false;
+            elseif GameTimeUI then
+                GameTimeUI.Visible = true;
+                Timer.Visible = true;
+                if Cloned then
+                    Cloned.Visible = false;
+                end;
+            end;
         end;
         Functions.AutoTicket = function(Contexts)
             for i=1, #Contexts do
@@ -265,6 +296,8 @@ return {
                 {type="Toggle", EN="Show Text", EN2="Show text on ticket boxes", TH1="แสดงข้อความ", TH2="เห็นข้อความบนตั๋ว", Bindable="+", Path="ShowText"},
             };
             GameTab = {
+                {type="Toggle", EN="Show Round Time", EN2="Show timer for how long you have to survive on top of the screen.", TH1="แสดงเวลารอบ", TH2="แสดงเวลาว่าต้องอยู่รอดอีกนานแค่ไหน", Bindable="+", Path="ShowRoundTimer"},
+                {type="Toggle", EN="Switch To Survive Time", EN2="Change the timer from countdown to countup.", TH1="เปลี่ยนเป็นเวลาที่เรารอดชีวิต", TH2="เปลี่ยนจากการนับถอยหลัง เป็นนับไปข้างหน้า", Bindable="+", Path="CountUpTimer"}, {type="Space"},
                 {type="Toggle", EN="Teleport To Safe Spot", EN2="Teleport out of the map.", TH1="วาปไปจุดปลอดภัย", TH2="วาปออกนอกแมพ", Bindable="+", Path="TeleportToSafeSpot"},
                 {type="Toggle", EN="Teleport To Downed Player", EN2="Teleport to a downed player.", TH1="วาปไปผู้เล่นที่ล้ม", TH2="วาปไปหาผู้เล่นที่ล้ม", Bindable="+", Path="TeleportToDownedPlayer"}, {type="Space"},
                 {type="Slider", EN="Revive Time", EN2="Set the time to revive.", TH1="ระยะเวลาในการชุบ", TH2="ตั้งระยะเวลาในการชุบ", Value={Min=1.2, Max=1.5}, Step=0.01, Path="ReviveTime"},
@@ -276,6 +309,19 @@ return {
             };
         };
 
+        CoruTask.New("Timer-Manipulation", function()
+            warn(pcall(function()
+                while true do
+                    if not GameCon.ShowRoundTimer or CoreDestroyed then
+                        if GameTimeUI and GameTimeUI.Parent then
+                            GameTimeUI.Visible = false;
+                        end; CoruTask.Close("Timer-Manipulation");
+                    end; if GameTimeUI then
+                        Functions:SetTimer(GameCon.CountUpTimer);
+                    end; twait(0.1);
+                end;
+            end));
+        end);
         CoruTask.New("Revive Aura", function()
             warn(pcall(function()
                 while true do
@@ -389,6 +435,9 @@ return {
                         if TicketCon.AutoCollect or GameCon.TeleportToDownedPlayer or GameCon.TeleportToSafeSpot then
                             CoruTask.Handle("Shared-Automation");
                         end;
+                        if GameCon.ShowRoundTimer then
+                            CoruTask.Handle("Timer-Manipulation");
+                        end;
                         if GameCon.ReviveAura then
                             CoruTask.Handle("Revive Aura");
                         end;
@@ -426,6 +475,12 @@ return {
                     selc = char;
                     HumSelf = WaitForChild(char, "Humanoid", 9e9);
                     HumRSelf = WaitForChild(char, "HumanoidRootPart", 9e9);
+                    GameTimeUI = WaitForChild(PSG, "Game", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "HUD", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "Overlay", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "RoundOverlay", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "RoundTimer", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "IngameRoundTimer", 9e9);
                     Functions:GameDataInit();
                 end);
                 CoreConnection[4] = H.RenderStepped:Connect(function()
@@ -442,6 +497,12 @@ return {
                     selc = selff.Character;
                     HumSelf = WaitForChild(selc, "Humanoid", 9e9);
                     HumRSelf = WaitForChild(selc, "HumanoidRootPart", 9e9);
+                    GameTimeUI = WaitForChild(PSG, "Game", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "HUD", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "Overlay", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "RoundOverlay", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "RoundTimer", 9e9);
+                    GameTimeUI = WaitForChild(GameTimeUI, "IngameRoundTimer", 9e9);
                     Functions:GameDataInit();
                 end;
 
