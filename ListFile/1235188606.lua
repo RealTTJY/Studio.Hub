@@ -96,7 +96,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.59";
+    Version = "DA_V3.60";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -178,9 +178,9 @@ return {
             return S.Network.ServerStatsItem["Data Ping"]:GetValue() / 1000;
         end;
         Functions.SetDFly = function()
-            if not Seat.Parent then return false; end;
+            if not Seat.Parent or not REQ.DragonClass then return false; end;
             if not Seat.Parent.Data.Flying.Value then
-                CommonF:CKey(Enum.KeyCode.Space);
+                REQ.DragonClass:SetFlying(true);
             end; return true;
         end;
         Functions.Tp = function(Pos)
@@ -1110,7 +1110,7 @@ return {
                             break;
                         end;
                     end; for i=1, #GCs do
-                        if BreathData and FishingClient and NodeClass and REQ.Riding then break; end;
+                        if BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass then break; end;
                         local v=GCs[i]; if type(v) == 'table' then
                             if rawget(v, "BreathFuelValue") and v.IsLocalPlayer then
                                 BreathData = v;
@@ -1121,6 +1121,8 @@ return {
                                 UPs = getupvalues(NodeClass.new);
                             elseif rawget(v, "GetClosest") and rawget(v, "_isMovementType") then
                                 REQ.Riding = v;
+                            elseif rawget(v, "_setFly") then
+                                REQ.DragonClass = v;
                             end;
                         end;
                     end; for i=1, #UPs do
