@@ -96,7 +96,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.58";
+    Version = "DA_V3.59";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -395,7 +395,7 @@ return {
                     if self.EggShouldBoost(CurrentBoosts.Value, RequiredBoosts) then
                         twait(1); CurrentBoosts.Value += 1; continue;
                     else
-                        twait(1); data.OnHa0rvest(); if not GetAttribute(RModel, "Hiding") then
+                        twait(1); data.OnHarvest(); if not GetAttribute(RModel, "Hiding") then
                             GetAttributeChangedSignal(RModel, "Hiding"):Wait();
                         end; break;
                     end;
