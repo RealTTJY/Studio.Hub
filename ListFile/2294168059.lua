@@ -108,9 +108,10 @@ Config.B3C1.IJO = Config.B3C1.IJO or {};
 Config.B3C1.IJO.ESP = Config.B3C1.IJO.ESP or {};
 Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
+Config.WitchTrial = Config.WitchTrial or {};
 
 return {
-    Version = "TheMimicV3.C1";
+    Version = "TheMimicV3.C2";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -148,7 +149,9 @@ return {
                                   elseif PlaceId == 15962819441 then "B2C3"
                                   elseif PlaceId == 96354063422506 then "B2C4"
                                   elseif PlaceId == 128715637193371 then "B3C1"
+                                  elseif PlaceId == 7068738088 or PlaceId == 7068951438 or PlaceId == 7068739000 or PlaceId == 7068951914 or PlaceId == 7068740106 or PlaceId == 7068952294 then "WitchTrial"
                                   elseif PlaceId == 6243699076 then "Lobby"
+                                  elseif PlaceId == 7068737459 then "GLobby"
                                   else nil;
 
         local GameAI, GameAI2   = nil, nil;
@@ -2544,6 +2547,27 @@ return {
                 });
             end; ESPF.Visible(where, true, true);
         end;
+        Functions.WitchTrialFunc = function(where)
+            if where == "Complete" then
+                local GameTPTWT = FindFirstChild(W, "Game Teleporter", true);
+                if not GameTPTWT then return; end;
+                ForceFloat = true;
+                return Tp(HumRSelf, GameTPTWT.CFrame);
+            elseif where == "Fire1" then
+                return Tp(HumRSelf, CFr(2621.90186, 111.203804, 1453.71765));
+            elseif where == "Fire2" then
+                return Tp(HumRSelf, CFr(2426.72583, 185.146057, 1457.37292));
+            elseif where == "Butterfly" then
+                local CHs = GetChildren(GameAI); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local TWTPRompt = FindFirstChildWhichIsA(v, "ProximityPrompt", true);
+                        if not TWTPRompt then return; end;
+                        Tp(HumRSelf, TWTPRompt.Parent.CFrame + (TWTPRompt.Parent.CFrame.LookVector * -9), 0.3);
+                        fireproximityprompt(TWTPRompt);
+                    end;
+                end;
+            end;
+        end;
 
         ScriptData.AutoData = {
             ClientTab = {
@@ -3193,6 +3217,24 @@ return {
                     }};
                 };
             });
+            PackWitchTrial = (Chapter == "WitchTrial" and {
+                Tabs={
+                    {Tab={at="WitchTrial", Title="Witch Trial", Icon="ghost", Path="WitchTrial"}, Data={
+                        {type="Button", EN="Auto Complete", EN2="Teleport to the end of the map.", TH1="ออโต้จบเกม", TH2="วาปไปที่จุดจบแมพ", Callback=function()
+                            Functions.WitchTrialFunc("Complete");
+                        end}; {type="Space"}, {type="Divider"}, {type="Space"},
+                        {type="Button", EN="Teleport To Fireplace 1", EN2="This is where you burn the butterfly A.", TH1="วาปไปที่เตาเผา 1", TH2="เผาผีเสื้ออันแรก", Callback=function()
+                            Functions.WitchTrialFunc("Fire1");
+                        end},
+                        {type="Button", EN="Teleport To Fireplace 2", EN2="This is where you burn the butterfly B.", TH1="วาปไปที่เตาเผา 2", TH2="เผาผีเสื้ออันที่สอง", Callback=function()
+                            Functions.WitchTrialFunc("Fire2");
+                        end}, {type="Space"},
+                        {type="Button", EN="Get Butterfly", EN2="Teleport to witches and grab butterflies.", TH1="เก็บผีเสื้อ", TH2="วาปไปเก็บผีเสื้อจากแม่มด", Callback=IB_NO_VIRTUALIZE(function()
+                            Functions.WitchTrialFunc("Butterfly");
+                        end)};
+                    }};
+                };
+            });
         };
 
         CoruTask.New("B1C4@Sama", function()
@@ -3559,7 +3601,7 @@ return {
                         local EnzukaiRyuPos = EnzukaiRyu.Hitbox.Position;
                         local ENZLookVector = EnzukaiRyu.Hitbox.CFrame.LookVector;
                         Tp(HumRSelf, CFr(Vec3(EnzukaiRyuPos.X, EnzukaiRyuPos.Y + 10, EnzukaiRyuPos.Z) - ENZLookVector * 100));
-                        Functions:MagicArrowHit(Functions:ToolNow("Bow"), EnzukaiRyuPos, 0.7);
+                        tk.spawn(function() Functions:MagicArrowHit(Functions:ToolNow("Bow"), EnzukaiRyuPos, 0.7); end);
                     else
                         local CHs = GetChildren(W.Section4.WeakPoints.Points); for i=1, #CHs do
                             local v=CHs[i]; if v.Parent then
@@ -3755,6 +3797,7 @@ return {
                 B2C3 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB2C3),
                 B2C4 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB2C4),
                 B3C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB3C1),
+                WitchTrial = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackWitchTrial),
 
                 ExtraDiv = Window:Divider(),
                 AddOn = LoaderSettings.AllowAddOn and Window:Tab({ Title = "AddOn", Icon = "box" }),
