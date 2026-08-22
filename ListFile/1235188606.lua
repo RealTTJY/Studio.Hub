@@ -21,11 +21,13 @@ local W = GetService(game, "Workspace");
 local P = GetService(game, "Players");
 local S = GetService(game, "Stats");
 
+local IsA = game.IsA;
 local twait = tk.wait;
 local CFr = CFrame.new;
 local Vec3 = Vector3.new;
 local strfind = str.find;
 local tdefer = tk.defer;
+local mclamp = math.clamp;
 local PivotTo = W.PivotTo;
 local tblein = tble.insert;
 local TwInfo = TweenInfo.new;
@@ -34,6 +36,7 @@ local GetAttribute = game.GetAttribute;
 local WaitForChild = game.WaitForChild;
 local GetDescendants = game.GetDescendants;
 local FindFirstChild = game.FindFirstChild;
+local GetServerTimeNow = W.GetServerTimeNow;
 local FindFirstChildOfClass = game.FindFirstChildOfClass;
 local FindFirstChildWhichIsA = game.FindFirstChildWhichIsA;
 local GetAttributeChangedSignal = game.GetAttributeChangedSignal;
@@ -96,7 +99,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.60";
+    Version = "DA_V3.61";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -212,7 +215,7 @@ return {
                         });
                     else
                         self.Roaming = false;
-                    end; twait(math.max(0.2 + math.clamp(self.GetPing(), 0, 0.5)));
+                    end; twait(math.max(0.2 + mclamp(self.GetPing(), 0, 0.5)));
                 end;
             end; 
             
@@ -228,7 +231,7 @@ return {
                         });
                     else
                         self.Roaming = false;
-                    end; twait(math.max(0.2 + math.clamp(self.GetPing(), 0, 0.5)));
+                    end; twait(math.max(0.2 + mclamp(self.GetPing(), 0, 0.5)));
                 end;
             end;
 
@@ -285,6 +288,35 @@ return {
             self.Flowers = UPs;
             self.Waters = UPs2;
             self.WaterINV = SData.SolsticeEvent2026.WaterEssence;
+
+            local WhackClass = require(RepFolder.WhackAMoleClassClient);
+            local CatchClass = require(RepFolder.CatchObjectClassClient);
+            local StarUPs = getupvalues(CatchClass.Init); for i=1, #StarUPs do
+                local v=StarUPs[i]; if type(v) == 'table' then
+                    if not rawget(v, "new") then
+                        REQ.Stars = v;
+                    else
+                        REQ.StarClass  = v;
+                    end;
+                end;
+            end;
+
+            local REs = WaitForChild(RRemotes, "ClientDestructibleHitRemote", 9e9);
+            local o;o=LowerC(WhackClass.new, function(...)
+                if not EventsCon.Solstice.AutoWhackAMole then
+                    return o(...);
+                end;
+
+                local R = o(...); if R then
+                    if R.PointsToGive ~= -1 then
+                        tdefer(function()
+                            REs:FireServer(
+                                R.Destructible.ClientDestructibleIdentifier
+                            ); WhackClass.Hit(R);
+                        end);
+                    end;
+                end;
+            end);
         end;
         Functions.AutoLevel = function(where)
             if not Seat.Parent then return; end;
@@ -462,7 +494,7 @@ return {
                 while TConfig.AutoCollect and Seat.Parent do
                     if dist(Position) > 50 then
                         if not self.SetDFly(true) then
-                            twait(math.max(0.3 + math.clamp(self.GetPing(), 0, 0.5))); continue;
+                            twait(math.max(0.3 + mclamp(self.GetPing(), 0, 0.5))); continue;
                         end; if TConfig.UseAxcel then
                             self.Tp(Position);
                         else
@@ -481,13 +513,13 @@ return {
 
                     for i,v in pairs(data.DropPositions) do
                         if not self.SetDFly(true) then
-                            twait(math.max(0.3 + math.clamp(self.GetPing(), 0, 0.5))); continue;
+                            twait(math.max(0.3 + mclamp(self.GetPing(), 0, 0.5))); continue;
                         end; Tween({
                             primary = Seat.Parent and Seat.Parent.PrimaryPart;
                             goal = {CFrame = CFr(v)};
                             info = TWEENINFO_1;
                         });
-                    end; twait(math.max(1.7 + math.clamp(self.GetPing(), 0, 0.5))); break;
+                    end; twait(math.max(1.7 + mclamp(self.GetPing(), 0, 0.5))); break;
                 end;
             end;
         end;
@@ -591,7 +623,7 @@ return {
 
                     twait(1.3); if dist(cf.Position) < 30 then
                         ChestService.OpenChestRemote:InvokeServer(i, false);
-                        twait(math.max(2.7 + math.clamp(self.GetPing(), 0, 0.5)));
+                        twait(math.max(2.7 + mclamp(self.GetPing(), 0, 0.5)));
                     end;
                 end;
             end;
@@ -625,12 +657,12 @@ return {
         end;
         Functions.Solstice_GetEggDrop = function(self)
             local CHs = GetChildren(Cam); for i=1, #CHs do
-                local v=CHs[i]; if v.Name == "SunEggEggsModel" then
+                local v=CHs[i]; if v.Name == "SunEggEggsModel" or v.Name == "SunChaosEggModel" then
                     Tween({
                         primary = Seat.Parent and Seat.Parent.PrimaryPart,
                         goal = {CFrame = v.Egg.CFrame},
                         info = TWEENINFO_2
-                    }); twait(math.max(1.7 + math.clamp(self.GetPing(), 0, 0.5)));
+                    }); twait(math.max(1.7 + mclamp(self.GetPing(), 0, 0.5)));
                 end;
             end;
         end;
@@ -658,7 +690,7 @@ return {
                                 primary = Seat.Parent and Seat.Parent.PrimaryPart,
                                 goal = {CFrame = obj.CFrame},
                                 info = TWEENINFO_2
-                            }); twait(math.max(0.3 + math.clamp(self.GetPing(), 0, 0.5)));
+                            }); twait(math.max(0.3 + mclamp(self.GetPing(), 0, 0.5)));
                         end;
                         
                         data.VisualMaid._tasks[2].MainOption.Option.Run();
@@ -686,9 +718,40 @@ return {
                             data.Maid._tasks[10].MainOption.Option.Run();
                         end;
                     else
-                        twait(math.max(0.3 + math.clamp(self.GetPing(), 0, 0.5)));
+                        twait(math.max(0.3 + mclamp(self.GetPing(), 0, 0.5)));
                         self:Solstice_GetEggDrop(); break;
                     end; twait(0.1);
+                end;
+            end;
+        end;
+        Functions.Solstice_GetStarsAboutToLand = function(star)
+            if not star or star.Claimed or not star.ImpactPos then
+                return false;
+            end;
+
+            local elapsed = GetServerTimeNow(W) - star.SpawnTime;
+            local timeUntilImpact = star.DespawnTime - elapsed;
+
+            return timeUntilImpact;
+        end;
+        Functions.Solstice_StarCatch = function(self)
+            if not REQ.Stars then return; end;
+            
+            for _, star in pairs(REQ.Stars) do
+                if not EventsCon.Solstice.AutoStarCatcher then
+                    return;
+                end;
+                
+                if star.Claimed or star.StarType == "Evil" then
+                    continue;
+                end;
+
+                local time = self.Solstice_GetStarsAboutToLand(star);
+
+                if time and time <= 1 then
+                    PivotTo(selc, CFr(star.ImpactPos)); repeat
+                        twait(0.01);
+                    until star.Claimed or not star.Model;
                 end;
             end;
         end;
@@ -697,6 +760,7 @@ return {
             ClientTab = {
                 {type="Group", dats={
                     {dat={
+                        {type="Toggle", EN="Auto Click Minigame", EN2="Automatically click the circle popup on your screen.", TH1="ออโต้คลิกมินิเกม", TH2="ออโต้กดวงกลมๆที่ขึ้้นตรงจอเวลาหาไข่หรือเล่นอีเว้น", Bindable="+", Path="Client/AutoClickMinigame"},
                         {type="Toggle", EN="No Render", EN2="Change camera subject & disable 3D rendering", TH1="ปิดการ Render", TH2="เปลี่ยนกล้องและปิดการ render 3D", Bindable="+", Path="Client/No Render", Callback=function(state)
                             ClientCon["No Render"] = state;
                             H:Set3dRenderingEnabled(not state);
@@ -734,7 +798,9 @@ return {
             };
             EventsTab = (CurrentWorld == "Solstice2026" and {
                 {type="Toggle", EN="Auto Sunflower", EN2="Automatically <font color=\"rgb(255, 51, 51)\">collect water essence</font> & water the sunflower.", TH1="ออโต้ดอกทานตะวัน", TH2="เก็บน้ำและรดดอกทานตะวันอัตโนมัติ", Path="Solstice/AutoSunflower"},
-                {type="Toggle", EN="Auto Collect Water Essencse", EN2="Automaticall collect water essence. <font color=\"rgb(255, 51, 51)\">Do not stack this with 'Auto Sunflower'.</font>", TH1="เก็บน้ำอัตโนมัติ", TH2="เก็บน้ำอัตโนมัติ อย่าใช้ร่วมกับออโต้ทานตะวัน", Path="Solstice/AutoCollectWater"},
+                {type="Toggle", EN="Auto Collect Water Essencse", EN2="Automaticall collect water essence. <font color=\"rgb(255, 51, 51)\">Do not stack this with 'Auto Sunflower'.</font>", TH1="เก็บน้ำอัตโนมัติ", TH2="เก็บน้ำอัตโนมัติ อย่าใช้ร่วมกับออโต้ทานตะวัน", Path="Solstice/AutoCollectWater"}, {type="Space"},
+                {type="Toggle", EN="Auto Whack A Mole", EN2="Automatically whack a mole.", TH1="ออโต้ทุบตัวตุ่น", TH2="ทุบตัวตุ่นอัตโนมัติ", Path="Solstice/AutoWhackAMole"},
+                {type="Toggle", EN="Auto Star Catcher", EN2="Automatically catch stars.", TH1="ออโต้เก็บดาว", TH2="เก็บดาวอัตโนมัติ", Path="Solstice/AutoStarCatcher"},
             }) or {};
             LevelTab = {
                 {type="Toggle", EN="Bond", EN2="You need to be in petting mode for it to work.", TH1="ความผูกพัน", TH2="ต้องอยู่ในโหมดลูบหัวมังกร", Path="Bond"}, {type="Space"},
@@ -750,7 +816,7 @@ return {
             };
             EggTab = {
                 {type="Toggle", EN="Use Axcel", EN2="Usage of acceleration module which required high FPS for the smoothness", TH1="ใช้ Axcel", TH2="การเร่งความเร็วที่ต้องใช้ FPS สูง", Path="UseAxcel"}, {type="Space"}, {type="Space"},
-                {type="Toggle", EN="Auto Collect", EN2="Teleport & collect eggs", TH1="ออโต้เก็บ", TH2="วาปเก็บไข่", Bindable="+", Path="AutoCollect"}, {type="Space"}, {type="Space"},
+                {type="Toggle", EN="Auto Collect", EN2="Teleport & collect eggs. <font color=\"rgb(255, 51, 51)\">Don't use this with 'Auto Click Minigame'</font>.", TH1="ออโต้เก็บ", TH2="วาปเก็บไข่", Bindable="+", Path="AutoCollect"}, {type="Space"}, {type="Space"},
                 {type="Toggle", EN="ESP", EN2="Show egg boxes.", TH1="ESP ไข่", TH2="มองเห็นไข่", Bindable="+", Path="ESP", Callback=function(state)
                     EggCon.ESP = state; if not state then
                         ESPF.Visible("Eggs", false);
@@ -903,8 +969,8 @@ return {
         CoruTask.New("Solstice-Main", function()
             if CurrentWorld ~= "Solstice2026" then
                 return;
-            end; while true do
-                if not (EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower) or CoreDestroyed then
+            end; warn(pcall(function() while true do
+                if not (EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower or EventsCon.Solstice.AutoStarCatcher) or CoreDestroyed then
                     CoruTask.Close("Solstice-Main");
                 end;
                 
@@ -915,9 +981,12 @@ return {
                         Functions:Solstice_AutoWater(1000, 1000);
                     end;
                 end;
+                if EventsCon.Solstice.AutoStarCatcher then
+                    Functions:Solstice_StarCatch();
+                end;
 
                 twait(0.1);
-            end;
+            end; end));
         end);
 
         local LSecureUI = function()
@@ -1022,7 +1091,7 @@ return {
                         if EggCon.ESP or FoodCon.ESP or ResourceCon.ESP or BoneMealCon.ESP or TreasureCon.ESP then
                             CoruTask.Handle("Shared-ESP");
                         end;
-                        if EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower then
+                        if EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower or EventsCon.Solstice.AutoStarCatcher then
                             CoruTask.Handle("Solstice-Main");
                         end; twait(0.1);
                     end;
@@ -1192,6 +1261,18 @@ return {
                             v:Disable();
                         end;
                     end;
+
+                    PSG.NodeGui.BoostFrame.ChildAdded:Connect(function(v)
+                        if CoreDestroyed or not ClientCon.AutoClickMinigame then return; end;
+                        if IsA(v, "Frame") and FindFirstChild(v, "ClickButton") then
+                            if getconnections then
+                                twait(math.max(0.3 + mclamp(Functions.GetPing(), 0, 0.1)));
+                                for i,v in next, getconnections(v.ClickShadowButton.MouseButton1Down) do
+                                    v.Function();
+                                end; return;
+                            end;
+                        end;
+                    end);
 
                     Functions:SolsticeInit(); 
                     
