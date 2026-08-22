@@ -99,7 +99,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.62";
+    Version = "DA_V3.63";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -1170,7 +1170,7 @@ return {
                     local EggsClient = require(WaitForChild(RepFolder, "EggsClient", 9e9));
                     local AccelTween = require(WaitForChild(RepFolder, "AccelTween", 9e9));
                     local AntiAFKClientHelper = FindFirstChild(PSS, "AntiAFKClientHelper");
-                    local GCs, UPs = getgc(true), nil;
+                    local GCs, UPs, NodeClass = getgc(true), nil, nil;
                     local UPs2 = getupvalues(ChestClient.SonarStart);
 
                     for i=1, #UPs2 do
@@ -1178,23 +1178,31 @@ return {
                             ChestService.TotalChest = v;
                             break;
                         end;
-                    end; for i=1, #GCs do
-                        if BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass then break; end;
-                        local v=GCs[i]; if type(v) == 'table' then
-                            if rawget(v, "BreathFuelValue") and v.IsLocalPlayer then
-                                BreathData = v;
-                            elseif rawget(v, "ReelSignal") and rawget(v, "SnaggedSignal") then
-                                FishingClient = v;
-                            elseif rawget(v, "new") and rawget(v, "_getPositionForPhase") then
-                                NodeClass = v;
-                                UPs = getupvalues(NodeClass.new);
-                            elseif rawget(v, "GetClosest") and rawget(v, "_isMovementType") then
-                                REQ.Riding = v;
-                            elseif rawget(v, "_setFly") then
-                                REQ.DragonClass = v;
+                    end;
+                    
+                    repeat
+                        for i=1, #GCs do
+                            if BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass and UPs ~= nil then break; end;
+                            local v=GCs[i]; if type(v) == 'table' then
+                                if rawget(v, "BreathFuelValue") and v.IsLocalPlayer then
+                                    BreathData = v;
+                                elseif rawget(v, "ReelSignal") and rawget(v, "SnaggedSignal") then
+                                    FishingClient = v;
+                                elseif rawget(v, "new") and rawget(v, "_getPositionForPhase") then
+                                    NodeClass = v;
+                                    UPs = getupvalues(NodeClass.new);
+                                elseif rawget(v, "GetClosest") and rawget(v, "_isMovementType") then
+                                    REQ.Riding = v;
+                                elseif rawget(v, "_setFly") then
+                                    REQ.DragonClass = v;
+                                end;
                             end;
-                        end;
-                    end; for i=1, #UPs do
+                        end; if not UPs then
+                            GCs = getgc(true);
+                        end; twait(0.1);
+                    until BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass and UPs ~= nil;
+                        
+                    for i=1, #UPs do
                         local v=UPs[i]; if type(v) == 'table' then
                             for Bill, data in pairs(v) do
                                 if typeof(Bill) ~= 'Instance' then
