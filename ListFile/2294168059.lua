@@ -111,7 +111,7 @@ Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 Config.WitchTrial = Config.WitchTrial or {};
 
 return {
-    Version = "TheMimicV3.C2";
+    Version = "TheMimicV3.C3";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -177,7 +177,7 @@ return {
         Functions.GameValidate = function(self)
             if PlaceId == 6243699076 then
                 WaitForChild(selc, "AntiFly", 9e9).Enabled = false;
-            end; if Chapter == "B1C4" then
+            end; if Chapter == "B1C4" or Chapter == "WitchTrial" then
                 WaitForChild(PSS, "Anti-Fly", 9e9).Enabled = false;
                 WaitForChild(PSS, "Anti-Speed", 9e9).Enabled = false;
             end; if PlaceId == 7251867574 or PlaceId == 7265397848 then
@@ -186,15 +186,19 @@ return {
                     Katana = WaitForChild(BP, "Katana", 9e9);
                 end; self.Katana = Katana;
             end; if Chapter == "B2C3" then
+                local GrabbedUI = FindFirstChild(PSG, "QuickTime");
                 local BoneSword = FindFirstChild(BP, "Bone Sword") or FindFirstChild(selc, "Bone Sword");
                 if not BoneSword then
                     tk.defer(function() self.BoneSword = WaitForChild(BP, "Bone Sword", 9e9); end);
                 else self.BoneSword = BoneSword; end;
+                self.GrabbedUI = FindFirstChild(GrabbedUI, "GrabbedUI");
             end; if Chapter == "B2C4" then
+                local GrabbedUI = FindFirstChild(PSG, "QuickTime");
                 local Bow = FindFirstChild(BP, "SpiritBow") or FindFirstChild(selc, "SpiritBow");
                 if not Bow then
                     tk.defer(function() self.Bow = WaitForChild(BP, "SpiritBow", 9e9); end);
                 else self.Bow = Bow; end;
+                self.GrabbedUI = FindFirstChild(GrabbedUI, "GrabbedUI");
             end; if Chapter == "B3C1" then
                 local Gun = FindFirstChild(BP, "Gun") or FindFirstChild(selc, "Gun");
                 if not Gun then
@@ -270,6 +274,10 @@ return {
                     Cam.CameraType = Enum.CameraType.Scriptable;
                 end;
             end;
+        end;
+        Functions.FreeYourself = function(self)
+            return if not self.GrabbedUI or not self.GrabbedUI.Visible then false
+                else CommonF:CKey(Enum.KeyCode.E, 0.03);
         end;
         Functions.FirePrompt = function(self, args)
             local Prompt = args.Prompt;
@@ -2573,6 +2581,7 @@ return {
             ClientTab = {
                 {type="Group", dats={
                     {dat={
+                        {type="Toggle", EN="Auto Free Yourself", EN2="Automatically press E when needed.", TH1="ปลดปล่อยตัวเองอัตโนมัติ", TH2="ออโต้กดEเมื่อจำเป็น", Bindable="+", Path="Client/AutoFreeYouself"},
                         {type="Toggle", EN="No Render", EN2="Change camera subject & disable 3D rendering", TH1="ปิดการ Render", TH2="เปลี่ยนกล้องและปิดการ render 3D", Bindable="+", Path="Client/No Render", Callback=function(state)
                             ClientCon["No Render"] = state;
                             H:Set3dRenderingEnabled(not state);
@@ -3881,6 +3890,10 @@ return {
                     ClientPackage.Noclip(ClientCon.Noclip, selc.Parent and GetDescendants(selc));
                     ClientPackage.Brightness(ClientCon["Full Bright"]);
                     ClientPackage.SetJumpPower(ClientCon["Enable JumpPower"], ClientCon.JumpPower, HumSelf);
+
+                    if ClientCon.AutoFreeYouself then
+                        Functions:FreeYourself();
+                    end;
                 end);
                 CoreConnection[2] = H.Heartbeat:Connect(function(delta)
                     if CoreDestroyed and CoreConnection[2] then
