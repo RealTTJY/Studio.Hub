@@ -905,9 +905,8 @@ AssetStorage.ESPPackage = function()
             Billboard.Parent = parent;
         end;
 
-        Data.Billboard = Billboard;
-
         Data.Label = Label;
+        Data.Billboard = Billboard;
         Data.Highlight = Highlight;
         Data.Destroy = function()
             Highlight:Destroy();
@@ -917,9 +916,19 @@ AssetStorage.ESPPackage = function()
             Data.Highlight = nil;
         end;
         Data.SetVisibility = function(bool, allowBill)
-            Highlight.Parent = if bool then parent else nil;
-            Billboard.Parent = if bool and allowBill then parent else nil;
-            Highlight.Enabled = bool;
+            if not parent.Parent then pcall(Data.Destroy); return; end;
+            
+            local ShouldEmergencyClear = pcall(function()
+                Highlight.Parent = if bool then parent else nil;
+                Billboard.Parent = if bool and allowBill then parent else nil;
+                Highlight.Enabled = bool;
+            end); 
+            
+            if not ShouldEmergencyClear then
+                Data.Highlight = nil;
+                Data.Billboard = nil;
+                Data.Label = nil;
+            end;
         end;
         Data.UpdateColor = function(color)
             Highlight.FillColor = color;
