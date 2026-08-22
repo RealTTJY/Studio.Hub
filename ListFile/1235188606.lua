@@ -99,7 +99,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.61";
+    Version = "DA_V3.62";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -751,7 +751,7 @@ return {
                 if time and time <= 1 then
                     PivotTo(selc, CFr(star.ImpactPos)); repeat
                         twait(0.01);
-                    until star.Claimed or not star.Model;
+                    until star.Claimed or not star.Model or not star.Model.Parent;
                 end;
             end;
         end;
