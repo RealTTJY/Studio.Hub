@@ -99,7 +99,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.63";
+    Version = "DA_V3.64";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -1198,7 +1198,11 @@ return {
                                 end;
                             end;
                         end; if not UPs then
-                            GCs = getgc(true);
+                            if CurrentWorld == "Solstice2026" then
+                                break;
+                            end; GCs = getgc(true);
+                        else
+                            break;
                         end; twait(0.1);
                     until BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass and UPs ~= nil;
                         
