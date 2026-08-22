@@ -111,7 +111,7 @@ Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 Config.WitchTrial = Config.WitchTrial or {};
 
 return {
-    Version = "TheMimicV3.C3";
+    Version = "TheMimicV3.C4";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -276,8 +276,9 @@ return {
             end;
         end;
         Functions.FreeYourself = function(self)
-            return if not self.GrabbedUI or not self.GrabbedUI.Visible then false
-                else CommonF:CKey(Enum.KeyCode.E, 0.03);
+            if not self.GrabbedUI or not self.GrabbedUI.Visible then
+                return;
+            end; CommonF:CKey(Enum.KeyCode.E, 0.03);
         end;
         Functions.FirePrompt = function(self, args)
             local Prompt = args.Prompt;
@@ -2581,7 +2582,7 @@ return {
             ClientTab = {
                 {type="Group", dats={
                     {dat={
-                        {type="Toggle", EN="Auto Free Yourself", EN2="Automatically press E when needed.", TH1="ปลดปล่อยตัวเองอัตโนมัติ", TH2="ออโต้กดEเมื่อจำเป็น", Bindable="+", Path="Client/AutoFreeYouself"},
+                        {type="Toggle", EN="Auto Free Yourself", EN2="Automatically press E when needed.", TH1="ปลดปล่อยตัวเองอัตโนมัติ", TH2="ออโต้กดEเมื่อจำเป็น", Bindable="+", Path="Client/AutoFreeYourself"},
                         {type="Toggle", EN="No Render", EN2="Change camera subject & disable 3D rendering", TH1="ปิดการ Render", TH2="เปลี่ยนกล้องและปิดการ render 3D", Bindable="+", Path="Client/No Render", Callback=function(state)
                             ClientCon["No Render"] = state;
                             H:Set3dRenderingEnabled(not state);
@@ -3238,9 +3239,9 @@ return {
                         {type="Button", EN="Teleport To Fireplace 2", EN2="This is where you burn the butterfly B.", TH1="วาปไปที่เตาเผา 2", TH2="เผาผีเสื้ออันที่สอง", Callback=function()
                             Functions.WitchTrialFunc("Fire2");
                         end}, {type="Space"},
-                        {type="Button", EN="Get Butterfly", EN2="Teleport to witches and grab butterflies.", TH1="เก็บผีเสื้อ", TH2="วาปไปเก็บผีเสื้อจากแม่มด", Callback=IB_NO_VIRTUALIZE(function()
+                        {type="Button", EN="Get Butterfly", EN2="Teleport to witches and grab butterflies.", TH1="เก็บผีเสื้อ", TH2="วาปไปเก็บผีเสื้อจากแม่มด", Callback=function()
                             Functions.WitchTrialFunc("Butterfly");
-                        end)};
+                        end};
                     }};
                 };
             });
@@ -3891,7 +3892,7 @@ return {
                     ClientPackage.Brightness(ClientCon["Full Bright"]);
                     ClientPackage.SetJumpPower(ClientCon["Enable JumpPower"], ClientCon.JumpPower, HumSelf);
 
-                    if ClientCon.AutoFreeYouself then
+                    if ClientCon.AutoFreeYourself then
                         Functions:FreeYourself();
                     end;
                 end);
@@ -3935,6 +3936,8 @@ return {
                 if not CoruTask.Intialized then
                     CoruTask.Init(WindUI);
                     CoruTask.Intialized = true;
+
+                    CommonF.Init(GetService(game, "VirtualInputManager"));
 
                     GameAI = FindFirstChild(W, "GameAI");
                     GameAI2 = FindFirstChild(W, "GameAI2");
