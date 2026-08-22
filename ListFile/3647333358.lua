@@ -49,7 +49,7 @@ Config.Ticket = Config.Ticket or {};
 Config.Game = Config.Game or {};
 
 return {
-    Version = "Evade_V3.49";
+    Version = "Evade_V3.50";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -101,7 +101,7 @@ return {
                     local v=GCs[i]; if type(v) == 'table' then
                         if rawget(v, 1) and type(v[1]) == 'table' and rawget(v[1], "CollectableIDs") then
                             REQ.Contexts = v;
-                        elseif rawget(v, "JumpReact") and typeof(v.JumpReact.JumpReact) == 'function' then
+                        elseif rawget(v, "JumpReact") and typeof(v.JumpReact) == 'function' then
                             REQ.JumpReact = v;
                         elseif rawget(v, "GetCharacters") then
                             REQ.CharService = v;
