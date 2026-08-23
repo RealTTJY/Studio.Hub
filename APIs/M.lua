@@ -11968,7 +11968,7 @@ AssetStorage.Windy = function()
                     elseif v.type == "Button" then
                         ScriptCache[v.Global or "nil"] = modu:Button(v);
                     elseif v.type == "Dropdown" then
-                        v.Value = v.Value or (v.Path and AttachedConfig[path.."/"..v.Path] or 1);
+                        v.Value = v.Value or (v.Path and AttachedConfig[path.."/"..v.Path] or nil);
                         if v.RECall then
                             local drp = modu:Dropdown(v);
                             v.RECall.Callback = function()
@@ -12035,7 +12035,7 @@ AssetStorage.Windy = function()
                 elseif v.type == "Button" then
                     ScriptCache[v.Global or "nil"] = tab:Button(v);
                 elseif v.type == "Dropdown" then
-                    v.Value = v.Value or (v.Path and AttachedConfig[path.."/"..v.Path] or 1);
+                    v.Value = v.Value or (v.Path and AttachedConfig[path.."/"..v.Path] or nil);
                     if v.RECall then
                         local drp = tab:Dropdown(v);
                         v.RECall.Callback = function()
@@ -12261,6 +12261,37 @@ AssetStorage.DownloadPackage = function()
         Signal = DSignal;
     };
 end;
+AssetStorage.MacroFileSys = function()
+    local MARCROBASE = FOLBASE.."/Macro";
+    if not isfolder(FOLBASE) then
+        makefolder(FOLBASE);
+    end; if not isfolder(MARCROBASE) then
+        makefolder(MARCROBASE);
+    end;
+
+    return {
+        Init = function(self, where)
+            if not isfolder(MARCROBASE.."/"..where) then
+                makefolder(MARCROBASE.."/"..where);
+            end; self.Branch = MARCROBASE.."/"..where.."/";
+        end;
+        Write = function(self, where, data)
+            data = HttpService:JSONEncode(data);
+            writefile(self.Branch .. where .. ".macro", data);
+        end;
+        List = function(self)
+            local Files = listfiles(self.Branch);
+            local Pures = {}; for i=1, #Files do
+                tblein(Pures, str.sub(Files[i], #self.Branch+1));
+            end; return Pures;
+        end;
+        Read = function(self, where)
+            if not isfile(self.Branch..where) then
+                return nil;
+            end; return readfile(self.Branch..where);
+        end;
+    };
+end;
 
 ------------- Source Loader -------------
 
@@ -12273,7 +12304,7 @@ local FreeLoad, KeyLoad = {
 }, {
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.64";
+        Version = "DA_V3.65";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
@@ -12290,6 +12321,11 @@ local FreeLoad, KeyLoad = {
         File = "4760747038";
         Version = "WonderWhyV3.02";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage"};
+    };
+    [1176784616] = {
+        File = "1176784616";
+        Version = "TDS_V3.01";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "MacroFileSys"};
     };
 };
 
