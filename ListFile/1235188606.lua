@@ -99,7 +99,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.64";
+    Version = "DA_V3.65";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -657,7 +657,7 @@ return {
         end;
         Functions.Solstice_GetEggDrop = function(self)
             local CHs = GetChildren(Cam); for i=1, #CHs do
-                local v=CHs[i]; if v.Name == "SunEggEggsModel" or v.Name == "SunChaosEggModel" then
+                local v=CHs[i]; if v.Name == "SunEggEggsModel" or v.Name == "SunChaosEggEggsModel" then
                     Tween({
                         primary = Seat.Parent and Seat.Parent.PrimaryPart,
                         goal = {CFrame = v.Egg.CFrame},
@@ -735,25 +735,25 @@ return {
             return timeUntilImpact;
         end;
         Functions.Solstice_StarCatch = function(self)
-            if not REQ.Stars then return; end;
-            
-            for _, star in pairs(REQ.Stars) do
-                if not EventsCon.Solstice.AutoStarCatcher then
-                    return;
-                end;
-                
-                if star.Claimed or star.StarType == "Evil" then
-                    continue;
-                end;
+            if not REQ.Stars then return; end; pcall(function()
+                for _, star in pairs(REQ.Stars) do
+                    if not EventsCon.Solstice.AutoStarCatcher then
+                        return;
+                    end;
+                    
+                    if star.Claimed or star.StarType == "Evil" then
+                        continue;
+                    end;
 
-                local time = self.Solstice_GetStarsAboutToLand(star);
+                    local time = self.Solstice_GetStarsAboutToLand(star);
 
-                if time and time <= 1 then
-                    PivotTo(selc, CFr(star.ImpactPos)); repeat
-                        twait(0.01);
-                    until star.Claimed or not star.Model or not star.Model.Parent;
+                    if time and time <= 1 then
+                        PivotTo(selc, CFr(star.ImpactPos)); repeat
+                            twait(0.01);
+                        until star.Claimed or not star.Model or not star.Model.Parent;
+                    end;
                 end;
-            end;
+            end);
         end;
 
         ScriptData.AutoData = {
@@ -1203,15 +1203,17 @@ return {
                             end; GCs = getgc(true);
                         else
                             break;
-                        end; twait(0.1);
+                        end; twait(5);
                     until BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass and UPs ~= nil;
-                        
-                    for i=1, #UPs do
-                        local v=UPs[i]; if type(v) == 'table' then
-                            for Bill, data in pairs(v) do
-                                if typeof(Bill) ~= 'Instance' then
-                                    break;
-                            end; ANodes = v; break;
+                    
+                    if UPs then
+                        for i=1, #UPs do
+                            local v=UPs[i]; if type(v) == 'table' then
+                                for Bill, data in pairs(v) do
+                                    if typeof(Bill) ~= 'Instance' then
+                                        break;
+                                    end; ANodes = v; break;
+                                end;
                             end;
                         end;
                     end;
