@@ -99,7 +99,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.65";
+    Version = "DA_V3.66";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -317,13 +317,25 @@ return {
                     end;
                 end;
             end);
+
+            local EventBoss = require(RepFolder.EventBossClassClient);
+            local EB_new, o;o=LowerC(EventBoss.new, function(...)
+                local Returned = o(...); tk.delay(10, function()
+                    local oRE = Returned.DamageSelfRemote;
+                    Returned.DamageSelfRemote = {
+                        FireServer = function(self,...)
+                            if DragonCon.Godmode then
+                                return;
+                            end; oRE:FireServer(...);
+                        end;
+                    };
+                end); return Returned;
+            end);
         end;
         Functions.AutoLevel = function(where)
             if not Seat.Parent then return; end;
-            warn(REQ.Riding)
             if where == "Ride" and REQ.Riding then
                 local Data = REQ.Riding.GetClosest(LevelCon.RidingMode);
-                warn(Data, Data and Data.Position)
                 if Data and Data.Position then
                     return Tween({
                         primary = Seat.Parent.PrimaryPart,
@@ -685,7 +697,7 @@ return {
                         if not CanPickUp or CanPickUp == "MaxCapacity" then continue; end;
                         if not data.Model or not data.Model.Parent then continue; end;
 
-                        if dist(obj.CFrame.Position) > 30 then
+                        if dist(obj.CFrame.Position) > 50 then
                             Tween({
                                 primary = Seat.Parent and Seat.Parent.PrimaryPart,
                                 goal = {CFrame = obj.CFrame},
@@ -1179,32 +1191,46 @@ return {
                             break;
                         end;
                     end;
-                    
+
                     repeat
                         for i=1, #GCs do
-                            if BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass and UPs ~= nil then break; end;
                             local v=GCs[i]; if type(v) == 'table' then
-                                if rawget(v, "BreathFuelValue") and v.IsLocalPlayer then
+                                if CurrentWorld == "Solstice2026" then
+                                    if rawget(v, "DamageSelfRemote") and not v.TTJYStudio then
+                                        local o = v.DamageSelfRemote;
+                                        v.DamageSelfRemote = {
+                                            FireServer = function(self,...)
+                                                if DragonCon.Godmode then
+                                                    return;
+                                                end; o:FireServer(...);
+                                            end;
+                                        }; v.TTJYStudio = true;
+                                    end;
+                                else
+                                    if not UPs and rawget(v, "new") and rawget(v, "_getPositionForPhase") then
+                                        NodeClass = v;
+                                        UPs = getupvalues(NodeClass.new);
+                                    elseif not FishingClient and rawget(v, "ReelSignal") and rawget(v, "SnaggedSignal") then
+                                        FishingClient = v;
+                                    end;
+                                end;
+
+                                if not BreathData and rawget(v, "BreathFuelValue") and v.IsLocalPlayer then
                                     BreathData = v;
-                                elseif rawget(v, "ReelSignal") and rawget(v, "SnaggedSignal") then
-                                    FishingClient = v;
-                                elseif rawget(v, "new") and rawget(v, "_getPositionForPhase") then
-                                    NodeClass = v;
-                                    UPs = getupvalues(NodeClass.new);
-                                elseif rawget(v, "GetClosest") and rawget(v, "_isMovementType") then
+                                elseif not REQ.Riding and rawget(v, "GetClosest") and rawget(v, "_isMovementType") then
                                     REQ.Riding = v;
-                                elseif rawget(v, "_setFly") then
+                                elseif not REQ.DragonClass and rawget(v, "_setFly") then
                                     REQ.DragonClass = v;
                                 end;
                             end;
-                        end; if not UPs then
-                            if CurrentWorld == "Solstice2026" then
-                                break;
-                            end; GCs = getgc(true);
-                        else
-                            break;
-                        end; twait(5);
-                    until BreathData and FishingClient and NodeClass and REQ.Riding and REQ.DragonClass and UPs ~= nil;
+                        end;
+
+                        local Common = BreathData and REQ.Riding and REQ.DragonClass;
+
+                        if CurrentWorld ~= "Solstice2026" then
+                            if Common and FishingClient and NodeClass and UPs then break; end;
+                        elseif Common then break; end; GCs = getgc(true); twait(3);
+                    until false;
                     
                     if UPs then
                         for i=1, #UPs do
