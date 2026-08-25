@@ -11869,6 +11869,7 @@ AssetStorage.IntroLib = function()
             }; StackPop(wind, tutorialList, 1);
         end,
         Init = function(wind, tab)
+            tab:Paragraph({Title="IMPORTANT", Desc="The Mimic Script will be take down soon for an update. Please use it now while you can because lots of features are being removed.", Color="Red"}); tab:Space();
             if not LoaderSettings.BadNetwork then
                 local DiscordAPI = "https://discord.com/api/v10/invites/" .. "qeDJUKBX4K" .. "?with_counts=true&with_expiration=true";
                 local Response = (function()
