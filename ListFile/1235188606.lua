@@ -99,7 +99,7 @@ Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 
 return {
-    Version = "DA_V3.66";
+    Version = "DA_V3.67";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -704,8 +704,14 @@ return {
                                 info = TWEENINFO_2
                             }); twait(math.max(0.3 + mclamp(self.GetPing(), 0, 0.5)));
                         end;
+
+                        local MainOption = data.VisualMaid._tasks;
+                        MainOption = MainOption and MainOption[2];
+                        MainOption = MainOption and MainOption.MainOption;
+
+                        if not MainOption then continue; end;
                         
-                        data.VisualMaid._tasks[2].MainOption.Option.Run();
+                        MainOption.Option.Run();
                     end; twait(0.1);
                 end;
             end;
@@ -727,7 +733,11 @@ return {
                         end;
                         
                         if self:Solstice_AutoWater(200, 50) then
-                            data.Maid._tasks[10].MainOption.Option.Run();
+                            local MainOption = data.Maid._tasks;
+                            MainOption = MainOption and MainOption[10];
+                            MainOption = MainOption and MainOption.MainOption;
+                            if not MainOption then continue; end;
+                            MainOption.Option.Run();
                         end;
                     else
                         twait(math.max(0.3 + mclamp(self.GetPing(), 0, 0.5)));
