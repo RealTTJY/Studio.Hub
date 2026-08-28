@@ -100,7 +100,7 @@ Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.68";
+    Version = "DA_V3.69";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -781,7 +781,7 @@ return {
             end);
         end;
         Functions.Solstice_Join = function(self, target)
-            if self.IsMinigame.Value then
+            if self.IsMinigame.Value or (self.RewardFrame and self.RewardFrame.Visible) then
                 return;
             elseif target == "Whack" then
                 return Tween({
@@ -1354,7 +1354,7 @@ return {
                                 firesignal(RewardFrame.CloseButton.UpperLabel.MouseButton1Click);
                             end);
                         end);
-                    end);
+                    end); Functions.RewardFrame = RewardFrame;
 
                     PSG.NodeGui.BoostFrame.ChildAdded:Connect(function(v)
                         if CoreDestroyed or not ClientCon.AutoClickMinigame then return; end;
