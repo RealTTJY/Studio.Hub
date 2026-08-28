@@ -100,7 +100,7 @@ Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.72";
+    Version = "DA_V3.73";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -337,6 +337,20 @@ return {
                 local Returned = o(...); tk.delay(10, function()
                     local oRE = Returned.DamageSelfRemote;
                     Returned.DamageSelfRemote = {
+                        FireServer = function(self,...)
+                            if DragonCon.Godmode then
+                                return;
+                            end; oRE:FireServer(...);
+                        end;
+                    };
+                end); return Returned;
+            end);
+
+            local LunarBoss = require(RepFolder.CorruptedLunaesolBossClassClient);
+            local LB_new, o;o=LowerC(LunarBoss.new, function(...)
+                local Returned = o(...); tk.delay(10, function()
+                    local oRE = Returned.StarfallCatchRemote;
+                    Returned.StarfallCatchRemote = {
                         FireServer = function(self,...)
                             if DragonCon.Godmode then
                                 return;
@@ -1251,6 +1265,15 @@ return {
                                                 end; o:FireServer(...);
                                             end;
                                         }; v.TTJYStudio = true;
+                                    elseif rawget(v, "StarfallCatchRemote") and not v.TTJYStudio2 then
+                                        local o = v.StarfallCatchRemote;
+                                        v.StarfallCatchRemote = {
+                                            FireServer = function(self,...)
+                                                if DragonCon.Godmode then
+                                                    return;
+                                                end; o:FireServer(...);
+                                            end;
+                                        }; v.TTJYStudio2 = true;
                                     end;
                                 else
                                     if not UPs and rawget(v, "new") and rawget(v, "_getPositionForPhase") then
