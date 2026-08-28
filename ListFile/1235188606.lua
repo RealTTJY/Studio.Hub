@@ -97,9 +97,10 @@ Config.BoneMeal = Config.BoneMeal or {};
 Config.Treasure = Config.Treasure or {};
 Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
+Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.67";
+    Version = "DA_V3.68";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -207,8 +208,7 @@ return {
             for _, cf in pairs(ChestPoses) do
                 if typeof(cf) == "CFrame" then
                     if Seat.Parent then
-                        self.SetDFly(true);
-                        Tween({
+                        self.SetDFly(true); Tween({
                             primary = Seat.Parent and Seat.Parent.PrimaryPart;
                             goal = {CFrame = cf};
                             info = TwInfo(dist(cf.Position) / 400, Enum.EasingStyle.Linear);
@@ -223,8 +223,7 @@ return {
             if ExtraPoses then
                 for i=1, #ExtraPoses do
                     if Seat.Parent then
-                        self.SetDFly(true);
-                        Tween({
+                        self.SetDFly(true); Tween({
                             primary = Seat.Parent and Seat.Parent.PrimaryPart;
                             goal = {CFrame = CFr(ExtraPoses[i])};
                             info = TwInfo(dist(ExtraPoses[i]) / 400, Enum.EasingStyle.Linear);
@@ -278,6 +277,10 @@ return {
         end;
         Functions.SolsticeInit = function(self)
             if CurrentWorld ~= "Solstice2026" then return; end;
+
+            self.WhackCFr = CFr(611, 280, -370);
+            self.StarsCFr = CFr(814, 285, 41);
+            self.IsMinigame = selff.Settings.Minigame;
             
             local FlowerClass = require(RepFolder.FlowerClassClient);
             local ItemClass = require(RepFolder.ItemClassClient);
@@ -777,6 +780,23 @@ return {
                 end;
             end);
         end;
+        Functions.Solstice_Join = function(self, target)
+            if self.IsMinigame.Value then
+                return;
+            elseif target == "Whack" then
+                return Tween({
+                    primary = Seat.Parent and Seat.Parent.PrimaryPart;
+                    goal = {CFrame = self.WhackCFr};
+                    info = TWEENINFO_2;
+                });
+            elseif target == "Stars" then
+                return Tween({
+                    primary = Seat.Parent and Seat.Parent.PrimaryPart;
+                    goal = {CFrame = self.StarsCFr};
+                    info = TWEENINFO_2;
+                });
+            end;
+        end;
 
         ScriptData.AutoData = {
             ClientTab = {
@@ -822,7 +842,9 @@ return {
                 {type="Toggle", EN="Auto Sunflower", EN2="Automatically <font color=\"rgb(255, 51, 51)\">collect water essence</font> & water the sunflower.", TH1="ออโต้ดอกทานตะวัน", TH2="เก็บน้ำและรดดอกทานตะวันอัตโนมัติ", Path="Solstice/AutoSunflower"},
                 {type="Toggle", EN="Auto Collect Water Essencse", EN2="Automaticall collect water essence. <font color=\"rgb(255, 51, 51)\">Do not stack this with 'Auto Sunflower'.</font>", TH1="เก็บน้ำอัตโนมัติ", TH2="เก็บน้ำอัตโนมัติ อย่าใช้ร่วมกับออโต้ทานตะวัน", Path="Solstice/AutoCollectWater"}, {type="Space"},
                 {type="Toggle", EN="Auto Whack A Mole", EN2="Automatically whack a mole.", TH1="ออโต้ทุบตัวตุ่น", TH2="ทุบตัวตุ่นอัตโนมัติ", Path="Solstice/AutoWhackAMole"},
-                {type="Toggle", EN="Auto Star Catcher", EN2="Automatically catch stars.", TH1="ออโต้เก็บดาว", TH2="เก็บดาวอัตโนมัติ", Path="Solstice/AutoStarCatcher"},
+                {type="Toggle", EN="Auto Star Catcher", EN2="Automatically catch stars.", TH1="ออโต้เก็บดาว", TH2="เก็บดาวอัตโนมัติ", Path="Solstice/AutoStarCatcher"}, {type="Space"},
+                {type="Dropdown", EN="Select Minigame", EN2="Select the minigame to join.", TH1="เลือกมินิเกม", TH2="เลือกมินิเกม", Values={"Whack", "Stars"}, Path="Solstice/Minigame"},
+                {type="Toggle", EN="Auto Join Minigame", EN2="Automatically join the selected minigame.", TH1="เข้าร่วมมินิเกมอัตโนมัติ", TH2="เข้าร่วมมินิเกมอัตโนมัติ", Path="Solstice/AutoJoinMinigame"},
             }) or {};
             LevelTab = {
                 {type="Toggle", EN="Bond", EN2="You need to be in petting mode for it to work.", TH1="ความผูกพัน", TH2="ต้องอยู่ในโหมดลูบหัวมังกร", Path="Bond"}, {type="Space"},
@@ -992,7 +1014,7 @@ return {
             if CurrentWorld ~= "Solstice2026" then
                 return;
             end; warn(pcall(function() while true do
-                if not (EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower or EventsCon.Solstice.AutoStarCatcher) or CoreDestroyed then
+                if not (EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower or EventsCon.Solstice.AutoStarCatcher or EventsCon.Solstice.AutoJoinMinigame or EventsCon.Solstice.AutoWhackAMole) or CoreDestroyed then
                     CoruTask.Close("Solstice-Main");
                 end;
                 
@@ -1002,6 +1024,9 @@ return {
                     if EventsCon.Solstice.AutoCollectWater then
                         Functions:Solstice_AutoWater(1000, 1000);
                     end;
+                end;
+                if EventsCon.Solstice.AutoJoinMinigame then
+                    Functions:Solstice_Join(EventsCon.Solstice.Minigame);
                 end;
                 if EventsCon.Solstice.AutoStarCatcher then
                     Functions:Solstice_StarCatch();
@@ -1113,7 +1138,7 @@ return {
                         if EggCon.ESP or FoodCon.ESP or ResourceCon.ESP or BoneMealCon.ESP or TreasureCon.ESP then
                             CoruTask.Handle("Shared-ESP");
                         end;
-                        if EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower or EventsCon.Solstice.AutoStarCatcher then
+                        if EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower or EventsCon.Solstice.AutoStarCatcher or EventsCon.Solstice.AutoJoinMinigame or EventsCon.Solstice.AutoWhackAMole then
                             CoruTask.Handle("Solstice-Main");
                         end; twait(0.1);
                     end;
@@ -1311,6 +1336,25 @@ return {
                             v:Disable();
                         end;
                     end;
+
+                    local RewardFrame = PSG.MinigamesGui.RewardFrame;
+                    RewardFrame.RewardsFrame.ChildAdded:Connect(function(v)
+                        if not (EventsCon.Solstice.AutoJoinMinigame) then
+                            return;
+                        end; tk.delay(1, function()
+                            if IsA(v, "ImageButton") and v.Visible then
+                                local ClaimButton = FindFirstChild(v, "ClaimButton");
+                                if not ClaimButton or not ClaimButton.Visible then return; end;
+                                firesignal(ClaimButton.UpperLabel.MouseButton1Click);
+                            end;
+
+                            return tk.delay(1, function()
+                                if not RewardFrame.Visible then return; end;
+                                if not RewardFrame.CloseButton.Visible then return; end;
+                                firesignal(RewardFrame.CloseButton.UpperLabel.MouseButton1Click);
+                            end);
+                        end);
+                    end);
 
                     PSG.NodeGui.BoostFrame.ChildAdded:Connect(function(v)
                         if CoreDestroyed or not ClientCon.AutoClickMinigame then return; end;
