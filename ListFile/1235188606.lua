@@ -279,7 +279,7 @@ return {
             if CurrentWorld ~= "Solstice2026" then return; end;
 
             self.WhackCFr = CFr(611, 280, -370);
-            self.StarsCFr = CFr(814, 285, 41);
+            self.StarsCFr = CFr(814, 280, 41);
             self.IsMinigame = selff.Settings.Minigame;
             
             local FlowerClass = require(RepFolder.FlowerClassClient);
