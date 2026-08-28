@@ -100,7 +100,7 @@ Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.69";
+    Version = "DA_V3.70";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -280,7 +280,18 @@ return {
 
             self.WhackCFr = CFr(611, 280, -370);
             self.StarsCFr = CFr(814, 280, 41);
-            self.IsMinigame = selff.Settings.Minigame;
+            self.MinigameValue = selff.Settings.Minigame;
+
+            self.MinigameValue:GetPropertyChangedSignal("Value"):Connect(function()
+                warn(self.MinigameValue.Value)
+                if self.MinigameValue.Value then
+                    self.IsMinigame = true;
+                else
+                    twait(5); if not self.MinigameValue.Value then
+                        self.IsMinigame = false;
+                    end;
+                end;
+            end); self.IsMinigame = self.MinigameValue.Value;
             
             local FlowerClass = require(RepFolder.FlowerClassClient);
             local ItemClass = require(RepFolder.ItemClassClient);
@@ -781,7 +792,7 @@ return {
             end);
         end;
         Functions.Solstice_Join = function(self, target)
-            if self.IsMinigame.Value or (self.RewardFrame and self.RewardFrame.Visible) then
+            if self.IsMinigame then
                 return;
             elseif target == "Whack" then
                 return Tween({
@@ -1354,7 +1365,7 @@ return {
                                 firesignal(RewardFrame.CloseButton.UpperLabel.MouseButton1Click);
                             end);
                         end);
-                    end); Functions.RewardFrame = RewardFrame;
+                    end);
 
                     PSG.NodeGui.BoostFrame.ChildAdded:Connect(function(v)
                         if CoreDestroyed or not ClientCon.AutoClickMinigame then return; end;
