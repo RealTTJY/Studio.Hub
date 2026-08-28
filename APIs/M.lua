@@ -12306,7 +12306,7 @@ local FreeLoad, KeyLoad = {
 }, {
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.72";
+        Version = "DA_V3.73";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
@@ -12328,6 +12328,11 @@ local FreeLoad, KeyLoad = {
         File = "1176784616";
         Version = "TDS_V3.01";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "MacroFileSys"};
+    };
+    [6739698191] = {
+        File = "6739698191";
+        Version = "VD_V3.01";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
 };
 
