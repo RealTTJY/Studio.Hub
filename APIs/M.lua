@@ -78,6 +78,7 @@ local Kicks, KickReason, GG = {
     ["TTJY_SolD"] = "[TTJY Studio] : Compatibility with Solara has been removed.\n\n<font size=\"14\">( You can get a free executor at https://projectreal.gg/ )</font>",
     ["TTJY_INFO"] = "[TTJY Studio] : getinfo not found. Please change executor.",
     ["TTJY_IDXO"] = "Your executor is '<b>Xeno</b>'. Imagine using a virus.\n\nAnyway, This executor isn't supported.\n\n<font size=\"14\">Visit ttjy-studio.vercel.app to see the list of supported executors.</font>",
+    ["TheMimicCOUNT9R1"] = "[TTJY Studio] : The Mimic Script has been temporary shutdown for Hall Of Fame update. \n\n<font size=\"14\">Visit our discord server for more info.</font>"
 }, nil, (getgenv and getgenv()) or _G or shared;
 
 game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(v)
@@ -12315,7 +12316,7 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.C4";
+        Version = "TheMimicV3.C5";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage"};
     };
     [4760747038] = {
