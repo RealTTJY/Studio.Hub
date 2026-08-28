@@ -100,7 +100,7 @@ Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.70";
+    Version = "DA_V3.72";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -1348,24 +1348,28 @@ return {
                         end;
                     end;
 
-                    local RewardFrame = PSG.MinigamesGui.RewardFrame;
-                    RewardFrame.RewardsFrame.ChildAdded:Connect(function(v)
-                        if not (EventsCon.Solstice.AutoJoinMinigame) then
-                            return;
-                        end; tk.delay(1, function()
-                            if IsA(v, "ImageButton") and v.Visible then
-                                local ClaimButton = FindFirstChild(v, "ClaimButton");
-                                if not ClaimButton or not ClaimButton.Visible then return; end;
-                                firesignal(ClaimButton.UpperLabel.MouseButton1Click);
-                            end;
+                    local RewardFrame = FindFirstChild(PSG, "MinigamesGui");
+                    RewardFrame = RewardFrame and FindFirstChild(RewardFrame, "RewardFrame");
 
-                            return tk.delay(1, function()
-                                if not RewardFrame.Visible then return; end;
-                                if not RewardFrame.CloseButton.Visible then return; end;
-                                firesignal(RewardFrame.CloseButton.UpperLabel.MouseButton1Click);
+                    if RewardFrame then
+                        RewardFrame.RewardsFrame.ChildAdded:Connect(function(v)
+                            if not (EventsCon.Solstice.AutoJoinMinigame) then
+                                return;
+                            end; tk.delay(1, function()
+                                if IsA(v, "ImageButton") and v.Visible then
+                                    local ClaimButton = FindFirstChild(v, "ClaimButton");
+                                    if not ClaimButton or not ClaimButton.Visible then return; end;
+                                    firesignal(ClaimButton.UpperLabel.MouseButton1Click);
+                                end;
+
+                                return tk.delay(1, function()
+                                    if not RewardFrame.Visible then return; end;
+                                    if not RewardFrame.CloseButton.Visible then return; end;
+                                    firesignal(RewardFrame.CloseButton.UpperLabel.MouseButton1Click);
+                                end);
                             end);
                         end);
-                    end);
+                    end;
 
                     PSG.NodeGui.BoostFrame.ChildAdded:Connect(function(v)
                         if CoreDestroyed or not ClientCon.AutoClickMinigame then return; end;
