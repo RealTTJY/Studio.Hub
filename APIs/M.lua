@@ -11867,6 +11867,12 @@ AssetStorage.IntroLib = function()
                     Icon = "circle-alert",
                     Content = "You are currently in lobby, join a chapter to see all features from this script."
                 }) or {},
+                (PlaceId == 128715637193371 and {
+                    Key = "TheMimicHOF",
+                    Title = "<font color='rgb(255, 0, 0)'>HALL OF FAME</font>",
+                    Icon = "circle-alert",
+                    Content = "Script passed RSA Simulation Test which mean it is undetected. So, do not use other script while in HOF except TTJY Studio. The punishment including <font color='rgb(255, 255, 0)'>bans, lantern removal</font> are after event ended so you won't know if you just got detected or not."
+                }) or {},
             }; StackPop(wind, tutorialList, 1);
         end,
         Init = function(wind, tab)
@@ -12316,7 +12322,7 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.C5";
+        Version = "TheMimicV3.C7";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage"};
     };
     [4760747038] = {
