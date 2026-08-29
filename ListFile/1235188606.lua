@@ -100,7 +100,7 @@ Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.73";
+    Version = "DA_V3.74";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -350,11 +350,19 @@ return {
             local LB_new, o;o=LowerC(LunarBoss.new, function(...)
                 local Returned = o(...); tk.delay(10, function()
                     local oRE = Returned.StarfallCatchRemote;
+                    local oRE2 = Returned.DamageSelfRemote;
                     Returned.StarfallCatchRemote = {
                         FireServer = function(self,...)
                             if DragonCon.Godmode then
                                 return;
                             end; oRE:FireServer(...);
+                        end;
+                    };
+                    Returned.DamageSelfRemote = {
+                        FireServer = function(self,...)
+                            if DragonCon.Godmode then
+                                return;
+                            end; oRE2:FireServer(...);
                         end;
                     };
                 end); return Returned;
