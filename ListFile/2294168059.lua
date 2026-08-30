@@ -111,7 +111,7 @@ Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
 Config.WitchTrial = Config.WitchTrial or {};
 
 return {
-    Version = "TheMimicV3.C8";
+    Version = "TheMimicV3.D1";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -2304,55 +2304,148 @@ return {
                 sRE:FireServer("Section2/HideoMinigameStarted");
                 sRE:FireServer("Section2/HideoHealed");
                 return sRE:FireServer("Section2/HideoMinigameEnded");
+            elseif where == "School/Note" then
+                Tp(HumRSelf, CFr(142, 20, 504), 0.3);
+                fireproximityprompt(W.Section2.MAINOBJECTIVE.Locker.LockerDoor.ProximityPart.ProximityPrompt);
+                Tp(HumRSelf, CFr(142, 20, 504), 0.3);
+                fireproximityprompt(W.Section2.MAINOBJECTIVE.Diary.ProximityPrompt, 0.3);
+            elseif where == "School/Spider" then
+                local CHs = GetChildren(W.Section2.MAINOBJECTIVE2.Spiders); for i=1, #CHs do
+                    local v=CHs[i]; if v.Name ~= "AkariSpider" then continue; end;
+                    local Hitbox = FindFirstChild(v, "Hitbox");
+                    if not Hitbox then continue; end;
+                    local sRE = FindFirstChild(Hitbox, "RemoteEvent");
+                    if not sRE then continue; end;
+
+                    local Akari = FindFirstChild(W.Section2.Monster, "AkariNM") or FindFirstChild(W.Section2.Monster, "Akari");
+                    Akari = Akari or FindFirstChild(W.Section2.Rage, "AkariRageNM", true) or FindFirstChild(W.Section2.Rage, "AkariRage", true);
+                    if not Akari or not Akari.Parent then return; end;
+                    
+                    if distOf(Akari.Hitbox, HumRSelf, 60) then continue; end;
+
+                    Tp(HumRSelf, Hitbox.CFrame, 0.3);
+
+                    for ri=1, 20 do
+                        if not Hitbox.Parent or not sRE.Parent then
+                            break;
+                        end;
+
+                        if distOf(Akari.Hitbox, HumRSelf, 60) then
+                            Tp(HumRSelf, CFr(142, 20, 504)); break;
+                        end;
+
+                        if self:ToolNow("Gun") then
+                            CAMERAREPLICA = Hitbox.CFrame;
+                            R.GunAction:FireServer("fire");
+                            sRE:FireServer(); twait(0.1);
+                        end;
+                    end;
+                end; CAMERAREPLICA = nil;
+            elseif where == "School/Exit" then
+                Tp(HumRSelf, CFr(175, 8, 508), 0.3);
+                fireproximityprompt(W.Section2.School.Doors.ExitDoor.ProxPart.ProximityPrompt);
+            elseif where == "School/Forest" then
+                Tp(HumRSelf, CFr(-197, 50, 338));
+            elseif where == "Forest/Cave" then
+                Tp(HumRSelf, W.Section3.Trigger.CFrame, 1);
+                Tp(HumRSelf, W.Section3.OBJECTIVE.Trigger2.CFrame);
             elseif where == "Forest/Generator" then
-                if not FindFirstChild(PSG, "CircuitsMinigame") then return; end;
                 local CHs = GetChildren(W.Section3.OBJECTIVE.Circuits); for i=1, #CHs do
                     local v=CHs[i]; if v.Parent and v.Name == "CircuitPillar" then
-                        if dist(v.CollisionPart.Position) <= 50 then
-                            for i=1, 3 do
-                                if GetAttribute(v, "CurrentRound") == 4 then
-                                    return;
-                                end; R.modules.Packet.Reliable:FireServer(
-                                    "Section3/CircuitRoundComplete",
-                                    v
-                                );
-                            end; return;
+                        v.CollisionPart.CanCollide = false;
+                        Tp(HumRSelf, v.CollisionPart.CFrame, 0.3);
+                        fireproximityprompt(v.PromptPart.ProximityPrompt);
+                        for i=1, 3 do
+                            if GetAttribute(v, "CurrentRound") == 4 then
+                                return;
+                            end; R.modules.Packet.Reliable:FireServer(
+                                "Section3/CircuitRoundComplete",
+                                v
+                            );
                         end;
                     end;
                 end;
+            elseif where == "IJO/Keycard" then
+                local Prompt = W.Section4.Lab.Floor1.Entrance.IDCARD.ProximityPrompt;
+                Tp(HumRSelf, Prompt.Parent.CFrame, 0.3); fireproximityprompt(Prompt);
             elseif where == "IJO/PASS" then
                 R.modules.Packet.Unreliable:FireServer(
                     "Section4/LaptopSubmit",
                     W.Section4.Lab.Floor1.Objective.StickyNote.PASSWORD.SurfaceGui.RandomNumber.Text
                 );
-            elseif where == "IJO/Terminal" then
-                local CHs=GetChildren(W.Section4.Lab.CleanseRoomObjective.ShapeTerminals); for i=1, #CHs do
-                    local v=CHs[i]; if v.Parent and v.Name == "Terminal" then
-                        local ProxPart = FindFirstChild(v, "PromptPart");
-                        if not ProxPart or dist(ProxPart.Position) > 30 then continue; end;
-                        R.modules.Packet.Reliable:FireServer("ShapeTerminal/RoundComplete", v);
-                        R.modules.Packet.Reliable:FireServer("ShapeTerminal/Release", v);
+            elseif where == "IJO/C4" then
+                local CHs=GetChildren(W.Section4.Lab.Floor1.Objective2.C4Explode); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.Name == "C4Bomb" then
+                        local Prox = FindFirstChild(v, "ProximityPrompt");
+                        if not Prox or not Prox.Enabled then continue; end;
+                        Tp(HumRSelf, v.CFrame, 0.3);
+                        fireproximityprompt(Prox, 1);
                     end;
                 end;
+            elseif where == "IJO/C4_2" then
+                Tween({primary = HumRSelf; goal = { CFrame = CFr(-4147, 107, 2154) }, info=TweenInfo.new(3)});
+                Tween({primary = HumRSelf; goal = { CFrame = CFr(-4143, 107, 2501) }, info=TweenInfo.new(3)});
+                local CHs = GetChildren(W.Section4.Lab.Floor1.Objective3.C4Explode); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.Name == "C4Bomb" then
+                        local Prox = FindFirstChild(v, "ProximityPrompt");
+                        if not Prox or not Prox.Enabled then continue; end;
+                        Tp(HumRSelf, v.CFrame, 0.3);
+                        fireproximityprompt(Prox, 1);
+                    end;
+                end;
+            elseif where == "IJO/Terminal" then
+                local HogoGuntai = FindFirstChild(W.Section4.Monster, "HogoGuntai");
+                local CHs=GetChildren(W.Section4.Lab.CleanseRoomObjective.ShapeTerminals); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and strfind(v.Name, "Terminal") then
+                        local Prox = FindFirstChild(v, "PromptPart");
+                        Prox = Prox and FindFirstChild(Prox, "ProximityPrompt");
+                        if not Prox or not Prox.Enabled then continue; end;
+                        if distOf(HogoGuntai.Hitbox, Prox.Parent, 60) then
+                            continue;
+                        end; Tp(HumRSelf, Prox.Parent.CFrame, 0.3);
+                        fireproximityprompt(Prox); twait(0.3);
+                        Tp(HumRSelf, CFr(-3389, -298, 4390), 1);
+                        R.modules.Packet.Reliable:FireServer(
+                            "ShapeTerminal/RoundComplete",
+                            v
+                        );
+                        R.modules.Packet.Reliable:FireServer(
+                            "ShapeTerminal/Release",
+                            v
+                        );
+                    end;
+                end; Tp(HumRSelf, CFr(-3389, -298, 4390));
             elseif where == "IJO/Valve" then
-                local CHs=GetChildren(W.Section4.Lab.CleanseRoomObjective.Valves); for i=1, #CHs do
+                local HogoGuntai = FindFirstChild(W.Section4.Monster, "HogoGuntai");
+                local CHs=GetChildren(W.Section4.Lab.CleanseRoomObjective.Valves);
+                
+                for i=1, #CHs do
                     local v=CHs[i]; if v.Parent and v.ClassName == "Model" then
                         local Icon = v.Notification.Icon;
-                        if not Icon.Enabled then
-                            continue; 
-                        end;
-                        
-                        if dist(Icon.Parent.Position) > 30 then continue; end;
-                        local Chs = GetChildren(v); for i=1, #Chs do
-                            local v2 = Chs[i]; if v2 and v2.Name == "Turners" then
-                                local Prompt = FindFirstChild(v2, "Right");
-                                if Prompt then fireproximityprompt(Prompt); end;
+                        if not Icon.Enabled then continue; end;
+                        local Chs = GetChildren(v);
+                        while Icon.Enabled do
+                            Tp(HumRSelf, Icon.Parent.CFrame); for i=1, #Chs do
+                                local v2 = Chs[i]; if v2 and v2.Name == "Turners" then
+                                    local Prompt = FindFirstChild(v2, "Right");
+                                    if distOf(HogoGuntai.Hitbox, HumRSelf, 60) then
+                                        Tp(HumRSelf, CFr(-3389, -298, 4390));
+                                        break;
+                                    elseif Prompt then
+                                        Tp(HumRSelf, Icon.Parent.CFrame);
+                                        fireproximityprompt(Prompt);
+                                    end;
+                                end;
                             end;
                         end;
                     end;
                 end;
             elseif where == "IJO/Threat" then
                 R.modules.Packet.Reliable:FireServer("Section4/LockdownSkillCheckHit");
+            elseif where == "Water/Main" then
+                local MainSwitch = W.Section5.MainObjective.PowerSwitch.RootPart.ProximityPrompt;
+                Tp(HumRSelf, MainSwitch.Parent.CFrame, 0.3);
+                fireproximityprompt(MainSwitch, 1);
             elseif where == "Water/Wire" then
                 local sRE = R.modules.Packet.Reliable;
                 local CHs = GetChildren(W.Section5.MainObjective.Boxes);
@@ -2374,7 +2467,6 @@ return {
                             end;
 
                             sRE:FireServer("Section5/WireBoxComplete", box);
-                            --box.PromptPart.ProximityPrompt.Enabled = false;
                         end;
                     end;
                 end;
@@ -2487,9 +2579,9 @@ return {
                             Cam.CameraSubject = if state then VOIDPART else HumSelf;
                         end},
                         {type="Toggle", EN="Full Bright", EN2="Make the game brighter, easier to see or look around.", TH1="แมพสว่าง", TH2="มองเห็นง่ายขึ้น", Bindable="+", Path="Client/Full Bright"},
-                        {type="Toggle", EN="Float", EN2="Make your character float in the air.", TH1="ลอย", TH2="ทำให้ตัวละครเดินบนอากาศได้", Bindable="+", Locked=Chapter=="B3C1", Path="Client/Float"},
-                        {type="Toggle", EN="Noclip", EN2="Allow you to walk through walls.", TH1="เดินทะลุกำแพง", TH2="ต้องอธิบายด้วยหรอ", Bindable="+", Locked=Chapter=="B3C1", Path="Client/Noclip"},
-                        {type="Slider", EN="Walk Speed", EN2="Change the speed of your walk.", TH1="ความเร็วในการเดิน", TH2="ปรับความเร็วการเดิน", Value={Min=1, Max=100}, Path="Client/WalkSpeed", Locked=Chapter=="B3C1", Callback=function(value)
+                        {type="Toggle", EN="Float", EN2="Make your character float in the air.", TH1="ลอย", TH2="ทำให้ตัวละครเดินบนอากาศได้", Bindable="+", Path="Client/Float"},
+                        {type="Toggle", EN="Noclip", EN2="Allow you to walk through walls.", TH1="เดินทะลุกำแพง", TH2="ต้องอธิบายด้วยหรอ", Bindable="+", Path="Client/Noclip"},
+                        {type="Slider", EN="Walk Speed", EN2="Change the speed of your walk.", TH1="ความเร็วในการเดิน", TH2="ปรับความเร็วการเดิน", Value={Min=1, Max=100}, Path="Client/WalkSpeed", Callback=function(value)
                             ClientCon.WalkSpeed = value;
                             ClientPackage.SetWalkSpeed(value)
                         end},
@@ -2497,10 +2589,10 @@ return {
                             ClientCon["Enable WalkSpeed"] = state;
                             ClientPackage.RunWalkSpeed(state);
                         end},
-                        {type="Slider", EN="Teleport Walk Speed", EN2="Change the speed of teleport walk.", TH1="ความเร็วในการเดินแบบวาร์ป", TH2="ปรับความเร็วในการเดินแบบวาร์ป", Locked=Chapter=="B3C1", Value={Min=1, Max=10}, Path="Client/TeleportWalk Speed"},
-                        {type="Toggle", EN="Enable Teleport Walk", EN2="Enable teleport walk.", TH1="เปิดใช้งานเดินแบบวาร์ป", TH2="เปิดใช้งานเดินโดยการวาร์ปไปเรื่อยๆ", Bindable="+", Locked=Chapter=="B3C1", Path="Client/Enable TeleportWalk"},
-                        {type="Slider", EN="Jump Power", EN2="Change the power of your jump.", TH1="ความแรงในการกระโดด", TH2="ปรับความแรงในการกระโดด", Locked=Chapter=="B3C1", Value={Min=1, Max=300}, Path="Client/JumpPower"},
-                        {type="Toggle", EN="Enable Jump Power", EN2="Enable jump power modification.", TH1="เปิดใช้งานความแรงในการกระโดด", TH2="ปรับความแรงในการกระโดด", Bindable="+", Locked=Chapter=="B3C1", Path="Client/Enable JumpPower"},
+                        {type="Slider", EN="Teleport Walk Speed", EN2="Change the speed of teleport walk.", TH1="ความเร็วในการเดินแบบวาร์ป", TH2="ปรับความเร็วในการเดินแบบวาร์ป", Value={Min=1, Max=10}, Path="Client/TeleportWalk Speed"},
+                        {type="Toggle", EN="Enable Teleport Walk", EN2="Enable teleport walk.", TH1="เปิดใช้งานเดินแบบวาร์ป", TH2="เปิดใช้งานเดินโดยการวาร์ปไปเรื่อยๆ", Bindable="+", Path="Client/Enable TeleportWalk"},
+                        {type="Slider", EN="Jump Power", EN2="Change the power of your jump.", TH1="ความแรงในการกระโดด", TH2="ปรับความแรงในการกระโดด", Value={Min=1, Max=300}, Path="Client/JumpPower"},
+                        {type="Toggle", EN="Enable Jump Power", EN2="Enable jump power modification.", TH1="เปิดใช้งานความแรงในการกระโดด", TH2="ปรับความแรงในการกระโดด", Bindable="+", Path="Client/Enable JumpPower"},
                     }, Title="Client", Open=true};
                 }};
             };
@@ -2511,7 +2603,7 @@ return {
                 
             });
             YenTab = ((strfind(Chapter, "B2") or strfind(Chapter, "B3")) and {
-                {type="Toggle", EN="Collect All Yen", EN2="Teleport & collect spawned yen", TH1="เก็บเงินทั้งหมด", TH2="วาปไปเก็บเงินทั้งหมดที่เกิดอยู่", Locked=Chapter=="B3C1", Path="Auto"},
+                {type="Toggle", EN="Collect All Yen", EN2="Teleport & collect spawned yen", TH1="เก็บเงินทั้งหมด", TH2="วาปไปเก็บเงินทั้งหมดที่เกิดอยู่", Path="Auto"},
                 {type="Toggle", EN="Yen Aura", EN2="Auto collect nearby Yen.", TH1="ออโต้เก็บเงิน", TH2="ออโต้เก็บเงินในระยะ", Path="Aura"},
                 {type="Toggle", EN="ESP Yen", EN2="Show Yen boxes.", TH1="ESP เงิน", TH2="มองเห็นเงิน", Path="ESP"},
             });
@@ -3027,301 +3119,23 @@ return {
             PackB3C1 = (Chapter == "B3C1" and {
                 Tabs={
                     {Tab={at="B3C1", Title="School", Icon="book-open", Path="B3C1"}, Data={
-                        {type="Button", EN="Show Guide", EN2="Show path so you could walk.", TH1="ความช่วยเหลือ", TH2="แสดงเส้นทางลูกผู้ชายไว้เดิน", Callback=function()
-                            local TweenService = game:GetService("TweenService")
-                            local Paths = {
-                                {Vector3.new(176.420, 4.533, 343.054), Vector3.new(176.405, 4.533, 347.145)},
-                                {Vector3.new(176.405, 4.533, 347.145), Vector3.new(176.385, 4.533, 352.278)},
-                                {Vector3.new(176.385, 4.533, 352.278), Vector3.new(176.368, 4.533, 356.945)},
-                                {Vector3.new(176.368, 4.533, 356.945), Vector3.new(176.347, 4.523, 362.311)},
-                                {Vector3.new(176.347, 4.523, 362.311), Vector3.new(176.329, 4.533, 367.212)},
-                                {Vector3.new(176.329, 4.533, 367.212), Vector3.new(177.858, 4.534, 369.714)},
-                                {Vector3.new(177.858, 4.534, 369.714), Vector3.new(183.778, 4.534, 371.039)},
-                                {Vector3.new(183.778, 4.534, 371.039), Vector3.new(188.787, 4.534, 372.160)},
-                                {Vector3.new(188.787, 4.534, 372.160), Vector3.new(193.455, 4.534, 373.205)},
-                                {Vector3.new(193.455, 4.534, 373.205), Vector3.new(198.350, 4.534, 374.300)},
-                                {Vector3.new(198.350, 4.534, 374.300), Vector3.new(202.221, 4.534, 375.167)},
-                                {Vector3.new(202.221, 4.534, 375.167), Vector3.new(205.907, 4.534, 375.610)},
-                                {Vector3.new(205.907, 4.534, 375.610), Vector3.new(211.273, 4.534, 375.677)},
-                                {Vector3.new(211.273, 4.534, 375.677), Vector3.new(216.406, 4.534, 375.742)},
-                                {Vector3.new(216.406, 4.534, 375.742), Vector3.new(222.160, 4.534, 375.814)},
-                                {Vector3.new(222.160, 4.534, 375.814), Vector3.new(229.010, 4.534, 375.900)},
-                                {Vector3.new(229.010, 4.534, 375.900), Vector3.new(236.109, 4.534, 375.989)},
-                                {Vector3.new(236.109, 4.534, 375.989), Vector3.new(244.703, 4.534, 376.097)},
-                                {Vector3.new(244.703, 4.534, 376.097), Vector3.new(252.242, 4.534, 376.192)},
-                                {Vector3.new(252.242, 4.534, 376.192), Vector3.new(260.217, 4.534, 376.292)},
-                                {Vector3.new(260.217, 4.534, 376.292), Vector3.new(268.208, 4.534, 376.393)},
-                                {Vector3.new(268.208, 4.534, 376.393), Vector3.new(276.205, 4.534, 376.493)},
-                                {Vector3.new(276.205, 4.534, 376.493), Vector3.new(284.603, 4.534, 376.598)},
-                                {Vector3.new(284.603, 4.534, 376.598), Vector3.new(292.601, 4.534, 376.698)},
-                                {Vector3.new(292.601, 4.534, 376.698), Vector3.new(299.399, 4.534, 376.783)},
-                                {Vector3.new(299.399, 4.534, 376.783), Vector3.new(303.077, 4.534, 374.957)},
-                                {Vector3.new(303.077, 4.534, 374.957), Vector3.new(304.752, 4.534, 370.139)},
-                                {Vector3.new(304.752, 4.534, 370.139), Vector3.new(307.038, 4.534, 363.562)},
-                                {Vector3.new(307.038, 4.534, 363.562), Vector3.new(308.812, 4.534, 358.460)},
-                                {Vector3.new(308.812, 4.534, 358.460), Vector3.new(308.753, 5.245, 355.552)},
-                                {Vector3.new(308.753, 5.245, 355.552), Vector3.new(308.495, 7.725, 350.190)},
-                                {Vector3.new(308.495, 7.725, 350.190), Vector3.new(308.186, 10.715, 343.774)},
-                                {Vector3.new(308.186, 10.715, 343.774), Vector3.new(307.911, 10.967, 338.059)},
-                                {Vector3.new(307.911, 10.967, 338.059), Vector3.new(305.014, 10.967, 337.387)},
-                                {Vector3.new(305.014, 10.967, 337.387), Vector3.new(300.640, 10.967, 337.899)},
-                                {Vector3.new(300.640, 10.967, 337.899), Vector3.new(300.685, 10.967, 341.652)},
-                                {Vector3.new(300.685, 10.967, 341.652), Vector3.new(300.773, 12.725, 348.920)},
-                                {Vector3.new(300.773, 12.725, 348.920), Vector3.new(300.874, 16.779, 357.324)},
-                                {Vector3.new(300.874, 16.779, 357.324), Vector3.new(300.974, 17.470, 365.599)},
-                                {Vector3.new(300.974, 17.470, 365.599), Vector3.new(301.054, 17.470, 372.361)},
-                                {Vector3.new(301.054, 17.470, 372.361), Vector3.new(300.207, 17.470, 374.910)},
-                                {Vector3.new(300.207, 17.470, 374.910), Vector3.new(295.909, 17.470, 380.502)},
-                                {Vector3.new(295.909, 17.470, 380.502), Vector3.new(290.685, 17.319, 386.698)},
-                                {Vector3.new(290.685, 17.319, 386.698), Vector3.new(285.910, 17.470, 392.910)},
-                                {Vector3.new(285.910, 17.470, 392.910), Vector3.new(284.347, 17.470, 397.529)},
-                                {Vector3.new(284.347, 17.470, 397.529), Vector3.new(284.407, 17.470, 404.296)},
-                                {Vector3.new(284.407, 17.470, 404.296), Vector3.new(284.496, 17.470, 414.546)},
-                                {Vector3.new(284.496, 17.470, 414.546), Vector3.new(284.564, 17.470, 422.329)},
-                                {Vector3.new(284.564, 17.470, 422.329), Vector3.new(284.635, 17.470, 430.685)},
-                                {Vector3.new(284.635, 17.470, 430.685), Vector3.new(284.707, 17.470, 438.770)},
-                                {Vector3.new(284.707, 17.470, 438.770), Vector3.new(284.777, 17.470, 446.664)},
-                                {Vector3.new(284.777, 17.470, 446.664), Vector3.new(284.856, 17.470, 455.562)},
-                                {Vector3.new(284.856, 17.470, 455.562), Vector3.new(284.923, 17.470, 463.161)},
-                                {Vector3.new(284.923, 17.470, 463.161), Vector3.new(284.970, 17.470, 468.482)},
-                                {Vector3.new(284.970, 17.470, 468.482), Vector3.new(283.552, 17.470, 468.539)},
-                                {Vector3.new(283.552, 17.470, 468.539), Vector3.new(277.504, 17.470, 468.784)},
-                                {Vector3.new(277.504, 17.470, 468.784), Vector3.new(269.371, 17.470, 469.113)},
-                                {Vector3.new(269.371, 17.470, 469.113), Vector3.new(261.975, 17.470, 469.412)},
-                                {Vector3.new(261.975, 17.470, 469.412), Vector3.new(253.660, 17.470, 469.748)},
-                                {Vector3.new(253.660, 17.470, 469.748), Vector3.new(240.950, 17.470, 463.209)},
-                                {Vector3.new(240.950, 17.470, 463.209), Vector3.new(233.744, 17.435, 464.778)},
-                                {Vector3.new(233.744, 17.435, 464.778), Vector3.new(223.672, 17.470, 466.209)},
-                                {Vector3.new(223.672, 17.470, 466.209), Vector3.new(214.707, 17.470, 467.482)},
-                                {Vector3.new(214.707, 17.470, 467.482), Vector3.new(206.926, 17.470, 468.587)},
-                                {Vector3.new(206.926, 17.470, 468.587), Vector3.new(199.020, 17.470, 469.710)},
-                                {Vector3.new(199.020, 17.470, 469.710), Vector3.new(191.006, 17.470, 470.847)},
-                                {Vector3.new(191.006, 17.470, 470.847), Vector3.new(183.087, 17.470, 471.973)},
-                                {Vector3.new(183.087, 17.470, 471.973), Vector3.new(175.563, 17.470, 473.042)},
-                                {Vector3.new(175.563, 17.470, 473.042), Vector3.new(168.138, 17.470, 474.097)},
-                                {Vector3.new(168.138, 17.470, 474.097), Vector3.new(161.852, 17.470, 474.432)},
-                                {Vector3.new(161.852, 17.470, 474.432), Vector3.new(151.745, 17.470, 474.093)},
-                                {Vector3.new(151.745, 17.470, 474.093), Vector3.new(143.536, 17.470, 473.817)},
-                                {Vector3.new(143.536, 17.470, 473.817), Vector3.new(141.881, 17.470, 475.685)},
-                                {Vector3.new(141.881, 17.470, 475.685), Vector3.new(143.033, 17.483, 482.996)},
-                                {Vector3.new(143.033, 17.483, 482.996), Vector3.new(143.416, 17.483, 491.627)},
-                                {Vector3.new(143.416, 17.483, 491.627), Vector3.new(143.422, 17.477, 500.661)},
-                                {Vector3.new(143.422, 17.477, 500.661), Vector3.new(143.421, 17.483, 503.891)},
-                                {Vector3.new(143.421, 17.483, 503.891), Vector3.new(142.889, 17.482, 502.377)},
-                                {Vector3.new(142.889, 17.482, 502.377), Vector3.new(140.778, 17.483, 495.785)},
-                                {Vector3.new(140.778, 17.483, 495.785), Vector3.new(138.492, 17.466, 488.186)},
-                                {Vector3.new(138.492, 17.466, 488.186), Vector3.new(139.173, 17.483, 485.571)},
-                                {Vector3.new(139.173, 17.483, 485.571), Vector3.new(143.618, 17.466, 477.924)},
-                                {Vector3.new(143.618, 17.466, 477.924), Vector3.new(146.717, 17.470, 472.593)},
-                                {Vector3.new(146.717, 17.470, 472.593), Vector3.new(151.759, 17.470, 472.953)},
-                                {Vector3.new(151.759, 17.470, 472.953), Vector3.new(166.285, 17.470, 473.989)},
-                                {Vector3.new(166.285, 17.470, 473.989), Vector3.new(176.025, 17.470, 474.684)},
-                                {Vector3.new(176.025, 17.470, 474.684), Vector3.new(183.971, 17.470, 475.250)},
-                                {Vector3.new(183.971, 17.470, 475.250), Vector3.new(190.331, 17.470, 475.490)},
-                                {Vector3.new(190.331, 17.470, 475.490), Vector3.new(197.966, 17.470, 474.728)},
-                                {Vector3.new(197.966, 17.470, 474.728), Vector3.new(211.697, 17.470, 473.359)},
-                                {Vector3.new(211.697, 17.470, 473.359), Vector3.new(221.754, 17.470, 470.069)},
-                                {Vector3.new(221.754, 17.470, 470.069), Vector3.new(231.396, 17.470, 465.376)},
-                                {Vector3.new(231.396, 17.470, 465.376), Vector3.new(236.200, 17.470, 463.681)},
-                                {Vector3.new(236.200, 17.470, 463.681), Vector3.new(236.399, 17.470, 463.589)},
-                                {Vector3.new(236.399, 17.470, 463.589), Vector3.new(244.118, 17.470, 466.432)},
-                                {Vector3.new(244.118, 17.470, 466.432), Vector3.new(258.775, 17.470, 471.829)},
-                                {Vector3.new(258.775, 17.470, 471.829), Vector3.new(266.964, 17.470, 474.845)},
-                                {Vector3.new(266.964, 17.470, 474.845), Vector3.new(271.931, 17.470, 475.932)},
-                                {Vector3.new(271.931, 17.470, 475.932), Vector3.new(281.581, 17.470, 476.635)},
-                                {Vector3.new(281.581, 17.470, 476.635), Vector3.new(291.195, 17.470, 477.336)},
-                                {Vector3.new(291.195, 17.470, 477.336), Vector3.new(300.321, 17.466, 477.678)},
-                                {Vector3.new(300.321, 17.466, 477.678), Vector3.new(307.013, 17.470, 477.855)},
-                                {Vector3.new(307.013, 17.470, 477.855), Vector3.new(304.588, 17.470, 475.800)},
-                                {Vector3.new(304.588, 17.470, 475.800), Vector3.new(296.867, 17.470, 469.258)},
-                                {Vector3.new(296.867, 17.470, 469.258), Vector3.new(290.975, 17.470, 464.265)},
-                                {Vector3.new(290.975, 17.470, 464.265), Vector3.new(289.028, 17.470, 458.427)},
-                                {Vector3.new(289.028, 17.470, 458.427), Vector3.new(288.237, 17.470, 446.038)},
-                                {Vector3.new(288.237, 17.470, 446.038), Vector3.new(287.358, 17.470, 432.291)},
-                                {Vector3.new(287.358, 17.470, 432.291), Vector3.new(286.647, 17.470, 421.148)},
-                                {Vector3.new(286.647, 17.470, 421.148), Vector3.new(286.085, 17.470, 412.373)},
-                                {Vector3.new(286.085, 17.470, 412.373), Vector3.new(285.498, 17.470, 403.194)},
-                                {Vector3.new(285.498, 17.470, 403.194), Vector3.new(284.861, 17.470, 393.214)},
-                                {Vector3.new(284.861, 17.470, 393.214), Vector3.new(284.325, 17.326, 384.832)},
-                                {Vector3.new(284.325, 17.326, 384.832), Vector3.new(284.743, 17.470, 379.315)},
-                                {Vector3.new(284.743, 17.470, 379.315), Vector3.new(287.431, 17.470, 374.234)},
-                                {Vector3.new(287.431, 17.470, 374.234), Vector3.new(290.934, 17.458, 367.867)},
-                                {Vector3.new(290.934, 17.458, 367.867), Vector3.new(288.798, 17.470, 371.775)},
-                                {Vector3.new(288.798, 17.470, 371.775), Vector3.new(275.068, 17.470, 372.444)},
-                                {Vector3.new(275.068, 17.470, 372.444), Vector3.new(257.551, 17.470, 372.467)},
-                                {Vector3.new(257.551, 17.470, 372.467), Vector3.new(244.853, 17.470, 372.483)},
-                                {Vector3.new(244.853, 17.470, 372.483), Vector3.new(234.471, 17.470, 372.495)},
-                                {Vector3.new(234.471, 17.470, 372.495), Vector3.new(223.676, 17.470, 372.509)},
-                                {Vector3.new(223.676, 17.470, 372.509), Vector3.new(212.877, 17.470, 372.522)},
-                                {Vector3.new(212.877, 17.470, 372.522), Vector3.new(203.878, 17.470, 372.533)},
-                                {Vector3.new(203.878, 17.470, 372.533), Vector3.new(197.331, 17.457, 365.712)},
-                                {Vector3.new(197.331, 17.457, 365.712), Vector3.new(192.104, 17.470, 371.695)},
-                                {Vector3.new(192.104, 17.470, 371.695), Vector3.new(182.156, 17.470, 371.631)},
-                                {Vector3.new(182.156, 17.470, 371.631), Vector3.new(172.651, 17.470, 371.571)},
-                                {Vector3.new(172.651, 17.470, 371.571), Vector3.new(163.583, 17.470, 371.514)},
-                                {Vector3.new(163.583, 17.470, 371.514), Vector3.new(156.020, 17.470, 371.465)},
-                                {Vector3.new(156.020, 17.470, 371.465), Vector3.new(152.687, 17.457, 361.837)},
-                                {Vector3.new(152.687, 17.457, 361.837), Vector3.new(145.144, 17.470, 374.678)},
-                                {Vector3.new(145.144, 17.470, 374.678), Vector3.new(142.039, 17.457, 362.736)},
-                                {Vector3.new(142.039, 17.457, 362.736), Vector3.new(132.486, 17.470, 373.146)},
-                                {Vector3.new(132.486, 17.470, 373.146), Vector3.new(124.522, 17.470, 373.759)},
-                                {Vector3.new(124.522, 17.470, 373.759), Vector3.new(114.309, 17.470, 374.545)},
-                                {Vector3.new(114.309, 17.470, 374.545), Vector3.new(104.890, 17.470, 375.269)},
-                                {Vector3.new(104.890, 17.470, 375.269), Vector3.new(85.917, 17.470, 378.825)},
-                                {Vector3.new(85.917, 17.470, 378.825), Vector3.new(78.000, 17.470, 382.563)},
-                                {Vector3.new(78.000, 17.470, 382.563), Vector3.new(69.123, 17.477, 382.581)},
-                                {Vector3.new(69.123, 17.477, 382.581), Vector3.new(63.408, 17.477, 382.509)},
-                                {Vector3.new(63.408, 17.477, 382.509), Vector3.new(71.344, 17.477, 382.616)},
-                                {Vector3.new(71.344, 17.477, 382.616), Vector3.new(80.899, 17.469, 382.519)},
-                                {Vector3.new(80.899, 17.469, 382.519), Vector3.new(93.102, 17.470, 382.866)},
-                                {Vector3.new(93.102, 17.470, 382.866), Vector3.new(106.699, 17.470, 382.330)},
-                                {Vector3.new(106.699, 17.470, 382.330), Vector3.new(115.843, 17.470, 381.369)},
-                                {Vector3.new(115.843, 17.470, 381.369), Vector3.new(127.018, 17.470, 381.421)},
-                                {Vector3.new(127.018, 17.470, 381.421), Vector3.new(138.467, 17.470, 382.202)},
-                                {Vector3.new(138.467, 17.470, 382.202), Vector3.new(148.934, 17.470, 381.934)},
-                                {Vector3.new(148.934, 17.470, 381.934), Vector3.new(161.250, 17.470, 381.217)},
-                                {Vector3.new(161.250, 17.470, 381.217), Vector3.new(171.622, 17.470, 381.925)},
-                                {Vector3.new(171.622, 17.470, 381.925), Vector3.new(182.181, 17.470, 381.149)},
-                                {Vector3.new(182.181, 17.470, 381.149), Vector3.new(194.802, 17.470, 378.970)},
-                                {Vector3.new(194.802, 17.470, 378.970), Vector3.new(205.576, 17.470, 379.705)},
-                                {Vector3.new(205.576, 17.470, 379.705), Vector3.new(217.858, 17.470, 379.125)},
-                                {Vector3.new(217.858, 17.470, 379.125), Vector3.new(228.532, 17.470, 379.853)},
-                                {Vector3.new(228.532, 17.470, 379.853), Vector3.new(238.907, 17.470, 380.561)},
-                                {Vector3.new(238.907, 17.470, 380.561), Vector3.new(248.983, 17.470, 381.248)},
-                                {Vector3.new(248.983, 17.470, 381.248), Vector3.new(258.161, 17.470, 381.875)},
-                                {Vector3.new(258.161, 17.470, 381.875), Vector3.new(269.725, 17.465, 382.627)},
-                                {Vector3.new(269.725, 17.465, 382.627), Vector3.new(279.189, 17.470, 382.712)},
-                                {Vector3.new(279.189, 17.470, 382.712), Vector3.new(279.372, 17.403, 385.521)},
-                                {Vector3.new(279.372, 17.403, 385.521), Vector3.new(280.277, 17.470, 399.441)},
-                                {Vector3.new(280.277, 17.470, 399.441), Vector3.new(280.932, 17.470, 409.522)},
-                                {Vector3.new(280.932, 17.470, 409.522), Vector3.new(280.549, 17.470, 425.000)},
-                                {Vector3.new(280.549, 17.470, 425.000), Vector3.new(280.675, 17.470, 436.593)},
-                                {Vector3.new(280.675, 17.470, 436.593), Vector3.new(281.095, 17.470, 448.110)},
-                                {Vector3.new(281.095, 17.470, 448.110), Vector3.new(280.241, 17.470, 455.741)},
-                                {Vector3.new(280.241, 17.470, 455.741), Vector3.new(279.644, 17.470, 461.076)},
-                                {Vector3.new(279.644, 17.470, 461.076), Vector3.new(274.501, 17.470, 465.422)},
-                                {Vector3.new(274.501, 17.470, 465.422), Vector3.new(266.105, 17.470, 466.510)},
-                                {Vector3.new(266.105, 17.470, 466.510), Vector3.new(254.542, 17.470, 468.007)},
-                                {Vector3.new(254.542, 17.470, 468.007), Vector3.new(245.482, 17.470, 469.180)},
-                                {Vector3.new(245.482, 17.470, 469.180), Vector3.new(235.982, 17.470, 470.410)},
-                                {Vector3.new(235.982, 17.470, 470.410), Vector3.new(228.351, 17.470, 471.398)},
-                                {Vector3.new(228.351, 17.470, 471.398), Vector3.new(220.518, 17.470, 472.413)},
-                                {Vector3.new(220.518, 17.470, 472.413), Vector3.new(212.486, 17.470, 473.454)},
-                                {Vector3.new(212.486, 17.470, 473.454), Vector3.new(209.263, 17.470, 476.189)},
-                                {Vector3.new(209.263, 17.470, 476.189), Vector3.new(212.228, 17.470, 483.675)},
-                                {Vector3.new(212.228, 17.470, 483.675), Vector3.new(215.023, 17.111, 490.733)},
-                                {Vector3.new(215.023, 17.111, 490.733), Vector3.new(217.354, 12.512, 500.025)},
-                                {Vector3.new(217.354, 12.512, 500.025), Vector3.new(217.766, 10.967, 504.473)},
-                                {Vector3.new(217.766, 10.967, 504.473), Vector3.new(218.250, 10.981, 509.699)},
-                                {Vector3.new(218.250, 10.981, 509.699), Vector3.new(214.946, 10.981, 510.502)},
-                                {Vector3.new(214.946, 10.981, 510.502), Vector3.new(209.778, 10.981, 508.544)},
-                                {Vector3.new(209.778, 10.981, 508.544), Vector3.new(206.619, 10.981, 505.099)},
-                                {Vector3.new(206.619, 10.981, 505.099), Vector3.new(205.973, 8.876, 498.174)},
-                                {Vector3.new(205.973, 8.876, 498.174), Vector3.new(205.274, 5.237, 490.685)},
-                                {Vector3.new(205.274, 5.237, 490.685), Vector3.new(204.464, 4.534, 482.004)},
-                            }
-
-                            local PATH_COLOR = Color3.fromRGB(0, 255, 255) -- cyan
-                            local START_COLOR = Color3.fromRGB(0, 255, 0) -- green
-                            local END_COLOR = Color3.fromRGB(255, 0, 0) -- red
-                            local TRAVEL_COLOR = Color3.fromRGB(255, 255, 255) -- white pulse
-                            local AFTER_COLOR = Color3.fromRGB(0, 0, 0) -- black after pulse
-
-                            local folder = Instance.new("Folder")
-                            folder.Name = "Paths"
-                            folder.Parent = workspace
-
-                            local parts = {}
-
-                            -- Create paths
-                            for i, path in ipairs(Paths) do
-                                local startPos = path[1]
-                                local endPos = path[2]
-
-                                local middle = (startPos + endPos) / 2
-                                local direction = endPos - startPos
-                                local length = direction.Magnitude
-
-                                local part = Instance.new("Part")
-                                part.Anchored = true
-                                part.CanCollide = false
-                                part.Material = Enum.Material.Neon
-                                part.Size = Vector3.new(0.4, 0.4, length)
-                                part.CFrame = CFrame.lookAt(middle, endPos)
-                                part.Parent = folder
-
-                                -- First path = green
-                                if i == 1 then
-                                    part.Color = START_COLOR
-
-                                -- Last path = red
-                                elseif i == #Paths then
-                                    part.Color = END_COLOR
-
-                                -- Everything between = cyan
-                                else
-                                    part.Color = PATH_COLOR
-                                end
-
-                                table.insert(parts, part)
-                            end
-
-                            -- Replay
-                            task.spawn(function()
-                                while true do
-
-                                    task.spawn(function()
-                                        for i, part in ipairs(parts) do
-                                            local length = part.Size.Z
-
-                                            -- Remember the path's original color
-                                            local originalColor
-
-                                            if i == 1 then
-                                                originalColor = START_COLOR
-                                            elseif i == #parts then
-                                                originalColor = END_COLOR
-                                            else
-                                                originalColor = PATH_COLOR
-                                            end
-
-                                            task.spawn(function()
-                                                -- Replay color
-                                                part.Color = TRAVEL_COLOR
-
-                                                -- How long the replay stays on this segment
-                                                task.wait(length / 20)
-
-                                                -- Fade back to its original color
-                                                local fade = TweenService:Create(
-                                                    part,
-                                                    TweenInfo.new(
-                                                        0.3,
-                                                        Enum.EasingStyle.Linear
-                                                    ),
-                                                    {
-                                                        Color = AFTER_COLOR
-                                                    }
-                                                )
-
-                                                fade:Play()
-                                            end)
-
-                                            task.wait(0.3)
-                                        end
-                                    end)
-
-                                    -- Restart the whole runway every 3 seconds
-                                    task.wait(5)
-                                end
-                            end)
-
-                        end};
                         {type="Button", EN="Grab Medical Kit", EN2="Magically grab it.", TH1="หยิบกล่องปฐมพยาบาล", TH2="หยิบกล่องปฐมพยาบาลแบบงงๆ", Callback=function()
                             return Functions:B3C1Func("School/Med");
                         end};
                         {type="Button", EN="Heal Hideo", EN2="Magically teleport to him & heal.", TH1="รักษา Hideo", TH2="วาปไปแบบงงๆแล้วรักษา", Callback=function()
                             return Functions:B3C1Func("School/Heal");
+                        end};
+                        {type="Button", EN="Read Note", EN2="Teleport & read note.", TH1="อ่านโน๊ต", TH2="วาปไปอ่านโน๊ต", Callback=function()
+                            return Functions:B3C1Func("School/Note");
+                        end};
+                        {type="Button", EN="Kill Spiders", EN2="Teleport & kill all spiders", TH1="ฆ่าแมงมุม", TH2="วาปฆ่าแมงมุมทั้งหมด", Callback=function()
+                            return Functions:B3C1Func("School/Spider");
+                        end};
+                        {type="Button", EN="Exit", EN2="Teleport to exit door.", TH1="ออก", TH2="วาปไปที่ประตูทางออก", Callback=function()
+                            return Functions:B3C1Func("School/Exit");
+                        end};
+                        {type="Button", EN="Enter Forest", EN2="Teleport to the forest.", TH1="เข้าป่า", TH2="วาปเข้าป่า", Callback=function()
+                            return Functions:B3C1Func("School/Forest");
                         end};
                         {type="Toggle", EN="ESP Akari", EN2="Show Akari's hitbox.", TH1="ESP Akari", TH2="มองเห็น Akari", Path="School/ESP/Akari", Callback=function(state)
                             B3C1Con.School.ESP.Akari = state;
@@ -3329,39 +3143,48 @@ return {
                         end};
                     }};
                     {Tab={at="B3C1", Title="Forest", Icon="book-open", Path="B3C1"}, Data={
-                        {type="Button", EN="Fix Generator", EN2="Fix current generator", TH1="ซ่อม Generator", TH2="ซ่อม Generator ที่กำลังซ่อมอยู่", Callback=function()
-                            return Functions:B3C1Func("Forest/Generator");
+                        {type="Button", EN="Teleport To IJO Entrance", EN2="Teleport to the cave entrance for cutscene.", TH1="วาปไปที่ทางเข้าถ้ำ", TH2="วาปไปที่ทางเข้าถ้ำเพื่อเริ่มฉากต่อสู้", Callback=function()
+                            return Functions:B3C1Func("Forest/Cave");
                         end};
+                        {type="Button", EN="Auto Fix Generators", EN2="Teleport & fix generators.", TH1="ซ่อม Generator", TH2="วาปไปซ่อม Generator", Callback=function()
+                            return Functions:B3C1Func("Forest/Generator");
+                        end}; {type="Space"}; {type="Space"};
                         {type="Toggle", EN="ESP Mizuno", EN2="Show Mizuno's hitbox.", TH1="ESP Mizuno", TH2="มองเห็น Mizuno", Path="Forest/ESP/Mizuno", Callback=function(state)
                             B3C1Con.Forest.ESP.Mizuno = state;
                             return Functions:B3C1ESP("Mizuno", state);
                         end};
                     }};
-                    {Tab={at="IJO", Title="IJO  ", Icon="book-open", Path="B3C1"}, Data={
+                    {Tab={at="IJO", Title="IJO", Icon="book-open", Path="B3C1"}, Data={
+                        {type="Button", EN="Grab Keycard", EN2="Teleport & collect keycard. <font color='rgb(255,0,0)'>You must open the gate or termianl & valve won't spawn.</font>", TH1="เก็บคีย์การ์ด", TH2="วาปไปเก็บคีย์การ์ด", Callback=function()
+                            return Functions:B3C1Func("IJO/Keycard");
+                        end};
                         {type="Button", EN="Enter Codes", EN2="Magically enter the code from anywhere.", TH1="ใส่รหัส", TH2="ใส่รหัสจากที่ไหนก็ได้แบบงงๆ", Callback=function()
                             return Functions:B3C1Func("IJO/PASS");
                         end};
-                        {type="Button", EN="Activate Terminal", EN2="Activate current terminal.", TH1="เปิด terminals", TH2="เปิด terminals ที่กำลังทำอยู่", Callback=function()
+                        {type="Button", EN="Place C4 (1)", EN2="Teleport & place C4.", TH1="วางระเบิด C4", TH2="วาปไปวางระเบิด C4", Callback=function()
+                            return Functions:B3C1Func("IJO/C4");
+                        end};
+                        {type="Button", EN="Place C4 (2)", EN2="Teleport & place C4 at Netamo.", TH1="วางระเบิด C4 ที่ผี", TH2="วาปไปวางระเบิด C4 ที่ผี", Callback=function()
+                            return Functions:B3C1Func("IJO/C4_2");
+                        end}; {type="Space"};
+                        {type="Button", EN="Activate Terminals", EN2="Teleport & activate terminals.", TH1="เปิด terminals", TH2="วาปไปเปิด terminals", Callback=function()
                             return Functions:B3C1Func("IJO/Terminal");
+                        end};
+                        {type="Button", EN="Turn Valves", EN2="Teleport & turn valves.", TH1="เปิดวาล์ว", TH2="วาปไปเปิดวาล์ว", Callback=function()
+                            return Functions:B3C1Func("IJO/Valve");
                         end};
                         {type="Button", EN="Hit Skill Check", EN2="Enter the 'Lock Threat' minigame by yourself. Only press this button by the amout of circles on screen.", TH1="กดสกิล", TH2="กดเพื่อเริ่มมินิเกม 'Lock Threat' ด้วยตัวเองแล้วค่อยกดออโต้ตามจำนวนวงกลมบนหน้าจอ", Callback=function()
                             return Functions:B3C1Func("IJO/Threat");
-                        end};
-                        {type="Toggle", EN="Valves Aura", EN2="Turn valves on when you get near.", TH1="เปิดวาวออร่า", TH2="เปิดวาวอัตโนมัติในระยะ", Path="IJO/ValvesAura"};
-                        {type="Toggle", EN="ESP Terminal", EN2="Show Terminal.", TH1="ESP terminals", TH2="มองเห็น terminals", Path="IJO/ESP/Terminal", Callback=function(state)
-                            B3C1Con.IJO.ESP.Terminal = state;
-                            return Functions:B3C1ESP("Terminal", state);
-                        end};
-                        {type="Toggle", EN="ESP Boulder Seal", EN2="Show the C4 spot.", TH1="ESP หิน", TH2="รู้จุดที่วางระเบิด", Path="IJO/ESP/BoulderSeal", Callback=function(state)
-                            B3C1Con.IJO.ESP.BoulderSeal = state;
-                            return Functions:B3C1ESP("BoulderSeal", state);
-                        end}; {type="Space"};
+                        end}; {type="Space"}; {type="Space"};
                         {type="Toggle", EN="ESP HogoGuntai", EN2="Show HogoGuntai's hitbox.", TH1="ESP HogoGuntai", TH2="มองเห็น HogoGuntai", Path="IJO/ESP/HogoGuntai", Callback=function(state)
                             B3C1Con.IJO.ESP.HogoGuntai = state;
                             return Functions:B3C1ESP("HogoGuntai", state);
                         end};
                     }};
-                    {Tab={at="B3C1", Title="Water", Icon="book-open", Path="B3C1"}, Data={
+                    {Tab={at="B3C1", Title="Water", Icon="book-open", Path="B3C1"}, Data={ {type="Space"}, 
+                        {type="Button", EN="Main Switch", EN2="Teleport & interact with the main switch.", TH1="เปิดสวิตช์หลัก", TH2="วาปไปเปิดสวิตช์หลัก", Callback=function()
+                            return Functions:B3C1Func("Water/Main");
+                        end};
                         {type="Button", EN="Auto Wire", EN2="Magically interact with the all boxes.", TH1="เสียบสายไฟอัตโนมัติ", TH2="วาปไปเสียบสายไฟอัตโนมัติ", Callback=function()
                             return Functions:B3C1Func("Water/Wire");
                         end}; {type="Space"}; {type="Space"};
@@ -3713,7 +3536,7 @@ return {
                         local Prox = FindFirstChildOfClass(v, "ProximityPrompt");
                         if not Prox then continue; end;
 
-                        if YenCon.Auto and Prox.Enabled and Chapter ~= "B3C1" then
+                        if YenCon.Auto and Prox.Enabled then
                             Tp(HumRSelf, v.CFrame, 0.3); fireproximityprompt(Prox);
                         elseif YenCon.Aura and dist(v.Position) <= 20 then
                             fireproximityprompt(Prox);
@@ -3909,19 +3732,6 @@ return {
                     end; ForceFloat = "None"; Tp(HumRSelf, SAFEPOS);
                 end; twait(0.1);
             end;
-        end);
-        CoruTask.New("B3C1@IJO", function()
-            if Chapter ~= "B3C1" then return; end;
-
-            warn(pcall(function()while true do
-                if not B3C1Con.IJO.ValvesAura or CoreDestroyed then
-                    CoruTask.Close("B3C1@IJO");
-                end;
-
-                if B3C1Con.IJO.ValvesAura then
-                    Functions:B3C1Func("IJO/Valve");
-                end; twait(0.1);
-            end; end));
         end);
 
         local LSecureUI = function()
