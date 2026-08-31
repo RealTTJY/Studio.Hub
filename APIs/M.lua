@@ -374,7 +374,9 @@ do (function()
     local MainFrame = Instancen("Frame", ScreenGui);
     local ContentContainer = Instancen("Frame", MainFrame);
     local Logo = Instancen("ImageLabel", ContentContainer);
-    local Title = Instancen("TextLabel", ContentContainer);
+    local Cross = Instancen("TextLabel", ContentContainer);
+    local LeftText = Instancen("TextLabel", ContentContainer);
+    local RightText = Instancen("TextLabel", ContentContainer);
     local Subtitle = Instancen("TextLabel", ContentContainer);
     local BarContainer = Instancen("Frame", ContentContainer);
     local Bar = Instancen("Frame", BarContainer);
@@ -396,21 +398,46 @@ do (function()
     Logo.Name = "Logo";
     Logo.Size = Dim2(0, 0, 0, 0);
     Logo.AnchorPoint = VEC05;
-    Logo.Position = Dim2(0.5, 0, 0.4, 0);
+    Logo.Position = Dim2(0.5, 0, 0.7, 0);
     Logo.BackgroundTransparency = 1;
     Logo.Image = TTJYLogo;
-    Title.Name = "Title";
-    Title.Size = Dim2(1, 0, 0, 50);
-    Title.Position = Dim2(0, 0, 0.65, 0);
-    Title.BackgroundTransparency = 1;
-    Title.Font = Enum.Font.GothamBold;
-    Title.Text = "TTJY HUB";
-    Title.TextColor3 = WHITE;
-    Title.TextSize = 42;
-    Title.TextTransparency = 1;
+
+    Cross.Name = "Cross";
+    Cross.Size = Dim2(0, 50, 0, 50);
+    Cross.AnchorPoint = VEC05;
+    Cross.Position = Dim2(0.5, 0, 0.9, 0);
+    Cross.BackgroundTransparency = 1;
+    Cross.Font = Enum.Font.GothamBold;
+    Cross.Text = "X";
+    Cross.TextColor3 = WHITE;
+    Cross.TextSize = 0;
+    Cross.TextTransparency = 1;
+
+    LeftText.Name = "LeftText";
+    LeftText.Size = Dim2(0, 150, 0, 50);
+    LeftText.AnchorPoint = VEC05;
+    LeftText.Position = Dim2(0.5, 0, 0.7, 0);
+    LeftText.BackgroundTransparency = 1;
+    LeftText.Font = Enum.Font.GothamBold;
+    LeftText.Text = "TTJY Studio";
+    LeftText.TextColor3 = WHITE;
+    LeftText.TextSize = 24;
+    LeftText.TextTransparency = 1;
+
+    RightText.Name = "RightText";
+    RightText.Size = Dim2(0, 150, 0, 50);
+    RightText.AnchorPoint = VEC05;
+    RightText.Position = Dim2(0.5, 0, 0.7, 0);
+    RightText.BackgroundTransparency = 1;
+    RightText.Font = Enum.Font.GothamBold;
+    RightText.Text = "JYRS T";
+    RightText.TextColor3 = WHITE;
+    RightText.TextSize = 24;
+    RightText.TextTransparency = 1;
+
     Subtitle.Name = "Subtitle";
     Subtitle.Size = Dim2(1, 0, 0, 20);
-    Subtitle.Position = Dim2(0, 0, 0.8, 0);
+    Subtitle.Position = Dim2(0, 0, 0.95, 0);
     Subtitle.BackgroundTransparency = 1;
     Subtitle.Font = Enum.Font.GothamMedium;
     Subtitle.Text = "Script Made By TTJY Studio";
@@ -435,7 +462,7 @@ do (function()
 
     local FadeObjects, cProgress, VisTween = {
         {Logo, "ImageTransparency"},
-        {Title, "TextTransparency"},
+
         {Subtitle, "TextTransparency"},
         {BarContainer, "BackgroundTransparency"},
         {Bar, "BackgroundTransparency"},
@@ -479,19 +506,48 @@ do (function()
     end);
 
     tspawn(function()
-        twait(0.2); tween(Logo, TWEENINFO2, {Size = Dim2(0, 150, 0, 150)});
-        twait(0.4); Title.Position = Dim2(0, 0, 0.7, 0);
-        tween(Title, TWEENINFO3, {
+        twait(0.2);
+        tween(BarContainer, TWEENINFO, {BackgroundTransparency = 0.8});
+        tween(BarGlow, TWEENINFO, {Transparency = 0.5}); twait(0.6);
+        tween(Cross, TwInfo(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = Dim2(0.5, 0, 0.7, 0),
+            TextSize = 60,
             TextTransparency = 0,
-            Position = Dim2(0, 0, 0.65, 0)
-        }); twait(0.3);
+            Rotation = 360
+        }); twait(1.2);
+        tween(LeftText, TwInfo(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = Dim2(0.25, 0, 0.7, 0),
+            TextTransparency = 0
+        });
+        tween(RightText, TwInfo(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = Dim2(0.75, 0, 0.7, 0),
+            TextTransparency = 0
+        }); twait(1.5);
+        tween(LeftText, TwInfo(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = Dim2(0.5, 0, 0.7, 0),
+            TextTransparency = 1
+        });
+        tween(RightText, TwInfo(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = Dim2(0.5, 0, 0.7, 0),
+            TextTransparency = 1
+        }); twait(0.4);
+        tween(Cross, TwInfo(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+            Rotation = 720,
+            TextSize = 0,
+            TextTransparency = 1
+        }); twait(0.4);
+        Logo.Position = Dim2(0.5, 0, 0.7, 0);
+        tween(Logo, TWEENINFO2, {
+            Size = Dim2(0, 150, 0, 150)
+        }); twait(1.2); twait(0.3); 
         tween(Subtitle, TWEENINFO3, {TextTransparency = 0});
-        twait(0.2); tween(BarContainer, TWEENINFO, {BackgroundTransparency = 0.8});
-        tween(BarGlow, TWEENINFO, {Transparency = 0.5}); twait(0.2);
+        twait(0.2);
 
         local pulse = tween(Logo, TWEENINFO4, {
             Size = Dim2(0, 160, 0, 160),
-        }); tspawn(function()
+        }); 
+        
+        tspawn(function()
             for i = 1, 30 do
                 if cProgress >= i then continue; end;
                 updateProgress(i); twait(0.05 + (i * 0.002));
