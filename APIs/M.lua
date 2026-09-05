@@ -11883,7 +11883,7 @@ AssetStorage.IntroLib = function()
             }; StackPop(wind, tutorialList, 1);
         end,
         Init = function(wind, tab)
-            tab:Paragraph({Title="IMPORTANT", Desc="The Mimic Script will be take down soon for an update. Please use it now while you can because lots of features are being removed.", Color="Red"}); tab:Space();
+            tab:Paragraph({Title="IMPORTANT", Desc="New update is out.", Color="Green"}); tab:Space();
             if not LoaderSettings.BadNetwork then
                 local DiscordAPI = "https://discord.com/api/v10/invites/" .. "qeDJUKBX4K" .. "?with_counts=true&with_expiration=true";
                 local Response = (function()
@@ -12329,7 +12329,7 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.D1";
+        Version = "TheMimicV3.D2";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack"};
     };
     [4760747038] = {
@@ -12353,7 +12353,7 @@ GG.LoadFromVControl = LoadFromVControl;
 GG.LoaderSettings = LoaderSettings;
 GG.ScriptCache = ScriptCache;
 
-if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_B2C4")(selff, selc) then
+if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_uk2901")(selff, selc) then
     return selff:Kick("TTJY_IDAC");
 end;
 
