@@ -183,7 +183,7 @@ Config.WitchTrial = Config.WitchTrial or {};
 Config.WitchTrial.ESP = Config.WitchTrial.ESP or {};
 
 return {
-    Version = "TheMimicV3.D2";
+    Version = "TheMimicV3.D3";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -2786,7 +2786,7 @@ return {
                 });
             end; ESPF.Visible(where, true, true);
         end;
-        Functions.EgaoFunc = function(where)
+        Functions.EgaoFunc = function(where, count)
             if where == "AutoFind" then
                 if Chapter == "Lobby" then
                     QueuePack.SetInfo("Egao", true);
@@ -2800,18 +2800,33 @@ return {
                         }
                     );
                 elseif Chapter == "B3C1" then
-                    local Intro = WaitForChild(W, "IntroCutscene", 9e9);
-                    repeat twait(0.1); until not Intro or not Intro.Parent or not FindFirstChild(Intro, "SpawnBox");
+                    if count == nil then
+                        local Intro = WaitForChild(W, "IntroCutscene", 9e9);
+                        repeat twait(0.1); until not Intro or not Intro.Parent or not FindFirstChild(Intro, "SpawnBox");
+                    end;
+
                     if Config.Egao.AutoFind then
-                        Tween({primary = HumRSelf; goal = { CFrame = CFr(-175, 7, -21) }; info=TweenInfo.new(3)});
-                        pcall(function() firetouchinterest(HumRSelf, W.EgaoSpawns.Part, 0); end);
+                        if count == nil then
+                            Tween({primary = HumRSelf; goal = { CFrame = CFr(-175, 7, -80) }; info=TweenInfo.new(3)});
+                            Tween({primary = HumRSelf; goal = { CFrame = CFr(-175, 7, -21) }; info=TweenInfo.new(3)});
+                        elseif count == 1 then
+                            for i=1, 3 do
+                                Tp(HumRSelf, CFr(-3652, 8, 295), 1);
+                            end;
+
+                            Tween({primary = HumRSelf; goal = { CFrame = CFr(-3658, 8, 372) }; info=TweenInfo.new(3)});
+                        end; pcall(function() firetouchinterest(HumRSelf, W.EgaoSpawns.Part, 0); end);
                         local ISEGAO = false; PSG.EgaoPulseText.Frame:GetPropertyChangedSignal("Visible"):Connect(function()
                             ISEGAO = true;
                         end); tk.delay(5 + math.clamp(Functions.GetPing(), 0, 100), function()
                             if not ISEGAO then
-                                QueuePack.SetInfo("Egao", true);
-                                QueuePack.Init();
-                                TeleportService:Teleport(6243699076, selff);
+                                if count == nil then
+                                    Functions.EgaoFunc("AutoFind", 1);
+                                elseif count == 1 then
+                                    QueuePack.SetInfo("Egao", true);
+                                    QueuePack.Init();
+                                    TeleportService:Teleport(6243699076, selff);
+                                end;
                             else
                                 WindUI:Notify({
                                     Title = "<font color='rgb(255,0,0)'>EGAO</font>",
