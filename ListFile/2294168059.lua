@@ -1,5 +1,6 @@
 local GG=GG; if not GG then return game:GetService("Players").LocalPlayer:Kick("[TTJY Studio] : Really? Your account is now at risk for the next ban wave."); end;
 
+local QUEUE_INFO = GG.QUEUE_INFO or {};
 local ScriptCache = GG.ScriptCache;
 local LoaderSettings = GG.LoaderSettings;
 local userIdentify = ScriptCache.userIdentify;
@@ -12,6 +13,8 @@ local tble = table;
 local Col3 = Color3;
 local tk = task;
 
+local TextChatService = GetService(game, "TextChatService");
+local TeleportService = GetService(game, "TeleportService");
 local R = GetService(game, "ReplicatedStorage");
 local H = GetService(game, "RunService");
 local W = GetService(game, "Workspace");
@@ -55,7 +58,72 @@ local PERSISTENT = Enum.ModelStreamingMode.Persistent;
 
 local PlaceId = game.PlaceId;
 
-local ScriptData = {};
+local ScriptData = {
+    Sections = {
+        B1C1 = {
+            [1] = (PlaceId == 6296321810 or PlaceId == 6479231833) and { i = "Map1", dat = {
+                [1] = { i = "Spawn", C = CFr(269.3022155761719, 3, -1.3705496788024902) };
+                [2] = { i = "Jigoku", C = CFr(316.1304626464844, 3.2333202362060547, 316.0523681640625) };
+                [3] = { i = "Key 1", C = CFr(670.4268798828125, 3.049999713897705, 484.9584655761719) };
+                [4] = { i = "Key 2", C = CFr(860.452880859375, 3.1949996948242188, 219.03762817382812) };
+                [5] = { i = "Entrance Maze", C = CFr(3164.7529296875, 37.40338134765625, -1586.5648193359375) };
+                [6] = { i = "Key 3", C = CFr(3317.523681640625, 37.64610290527344, -1764.0106201171875) };
+                [7] = { i = "Exit Maze", C = CFr(3416.580322265625, 37.646121978759766, -1538.938720703125) };
+            }} or {};
+            [2] = (PlaceId == 6301638949 or PlaceId == 6480994221) and { i = "Map2", dat = {
+                [1] = { i = "Spawn", C = CFr(284.4999084472656, 73.06249237060547, 101.47504425048828) };
+                [2] = { i = "Cave House", C = CFr(32.434173583984375, 94.35484313964844, -1233.511962890625) };
+                [3] = { i = "Entrance Main House", C = CFr(-112.36238861083984, 91.99998474121094, -2021.73974609375) };
+                [4] = { i = "Spawn Hotel", C = CFr(-268.7034606933594, 91.63571166992188, -3243.083251953125) };
+                [5] = { i = "Spawn Hotel 2nd Floor", C = CFr(-248.93421936035156, 128.62155151367188, -2547.898193359375) };
+                [6] = { i = "Spawn Hotel 3rd Floor", C = CFr(237.497314453125, 199.52268981933594, -2568.7646484375) };
+                [7] = { i = "Exit Hotel", C = CFr(1274.949951171875, 199.5399932861328, -2537.929931640625) };
+                [8] = { i = "Spawn Outside Hotel", C = CFr(2139.439453125, 257.1267395019531, -2504.615966796875) };
+                [9] = { i = "Chapter 2 Entrance Gate", C = CFr(2138.8232421875, 257.12353515625, -2742.88427734375) };
+            }} or {};
+        };
+        B1C2 = {
+            [1] = { i = "Map1", dat = {
+                [1] = { i = "Spawn", C = CFr(31.30192756652832, 14.765870094299316, -50.99848937988281) };
+                [2] = { i = "Key 1", C = CFr(146.7581329345703, 26.52265739440918, -429.7537841796875) };
+                [3] = { i = "Lever Room", C = CFr(136.9575653076172, 14.773530006408691, -340.3115234375) };
+                [4] = { i = "Exit Hallway", C = CFr(196.88290405273438, 26.39544677734375, -703.8648071289062) };
+                [5] = { i = "Exit Samurai", C = CFr(234.37767028808594, 51.09593200683594, -1297.229736328125) };
+                [6] = { i = "Butterfly 1", C = CFr(234.37767028808594, 51.09593200683594, -1297.229736328125) };
+                [7] = { i = "Butterfly 2", C = CFr(220.61093139648438, 52.18296813964844, -1644.1612548828125) };
+            }};
+            [2] = { i = "Map2", dat = {
+                [1] = { i = "Spawn", C = CFr(400.1822814941406, -47.07728958129883, 909.1865234375) };
+                [2] = { i = "Butterfly Outside", C = CFr(431.97601318359375, 60.81093215942383, 380.8719787597656) };
+                [3] = { i = "Key", C = CFr(161.5194091796875, 101.88359069824219, -562.4013671875) };
+                [4] = { i = "Butterfly Inside", C = CFr(258.27105712890625, 94.61199188232422, -848.0752563476562) };
+                [5] = { i = "Exit Door", C = CFr(235.35060119628906, 101.9432373046875, -551.535888671875) };
+            }};
+            [3] = { i = "Map3", dat = {
+                [1] = { i = "Spawn", C = CFr(-96.32198333740234, 75.3413314819336, -22.335594177246094) };
+                [2] = { i = "Butterfly", C = CFr(671.8909912109375, 78.17596435546875, -115.32154083251953) };
+                [3] = { i = "Exit", C = CFr(827.9335327148438, 75.3413314819336, -352.0482482910156) };
+            }};
+        };
+        B1C3 = {
+            [1] = { i = "Map1", dat = {
+                [1] = { i = "Spawn", C = CFr(1112.6671142578125, 83.19374084472656, -359.1717834472656) };
+                [2] = { i = "Cave Spawn", C = CFr(1899.2449951171875, 4.8473639488220215, 281.3607177734375) };
+                [3] = { i = "Kaito Entrance", C = CFr(2047.682861328125, -0.4862976670265198, 561.9852294921875) };
+                [4] = { i = "Kaito Exit", C = CFr(2314.2900390625, 5.150242328643799, 818.3004760742188) };
+                [5] = { i = "Hand Entrance", C = CFr(2408.81396484375, -23.031116485595703, 1459.683837890625) };
+                [6] = { i = "Hand Exit", C = CFr(2413.467529296875, -23.03111457824707, 1816.749267578125) };
+            }};
+            [2] = { i = "Map2", dat = {
+                [1] = { i = "Spawn", C = CFr(39.31187057495117, 36.4764518737793, 84.27843475341797) };
+                [2] = { i = "Blade", C = CFr(79.64765930175781, 36.359718322753906, 87.4922866821289) };
+                [3] = { i = "Butterfly", C = CFr(128.96363830566406, 36.35921859741211, 98.9471435546875) };
+                [4] = { i = "Rose", C = CFr(322.61297607421875, 37.51033401489258, 78.7746810913086) };
+                [5] = { i = "Bell Safe Spot", C = CFr(210.59703063964844, 31.717370986938477, 407.951416015625) };
+            }};
+        };
+    };
+};
 local Config = GG.Configs or {};
 
 Config.Client = Config.Client or {};
@@ -108,11 +176,15 @@ Config.B3C1.IJO = Config.B3C1.IJO or {};
 Config.B3C1.IJO.ESP = Config.B3C1.IJO.ESP or {};
 Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
+Config.Jigoku = Config.Jigoku or {};
+Config.Jigoku.ESP = Config.Jigoku.ESP or {};
+Config.Egao = Config.Egao or {};
 Config.WitchTrial = Config.WitchTrial or {};
+Config.WitchTrial.ESP = Config.WitchTrial.ESP or {};
 
 return {
-    Version = "TheMimicV3.D1";
-    Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage)
+    Version = "TheMimicV3.D2";
+    Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
         local ForceFloat        = "None";
@@ -149,6 +221,7 @@ return {
                                   elseif PlaceId == 15962819441 then "B2C3"
                                   elseif PlaceId == 96354063422506 then "B2C4"
                                   elseif PlaceId == 128715637193371 then "B3C1"
+                                  elseif PlaceId == 7618863566 then "Jigoku"
                                   elseif PlaceId == 7068738088 or PlaceId == 7068951438 or PlaceId == 7068739000 or PlaceId == 7068951914 or PlaceId == 7068740106 or PlaceId == 7068952294 then "WitchTrial"
                                   elseif PlaceId == 6243699076 then "Lobby"
                                   elseif PlaceId == 7068737459 then "GLobby"
@@ -171,6 +244,32 @@ return {
         ClientCon.SpeedMultiplier = ClientCon.SpeedMultiplier or 1;
         ClientCon["TeleportWalk Speed"] = ClientCon["TeleportWalk Speed"] or 1;
 
+        Functions.PairingSections = function(self, data)
+            if not self.PackSections and data[Chapter] then
+                local PackSections = {Tabs={}};
+                local GroupDat = {};
+
+                for i=1, #data[Chapter] do
+                    local sec=data[Chapter][i];
+                    if not sec or not sec.dat then continue; end;
+                    for i2=1, #sec.dat do
+                        tblein(GroupDat, {
+                            type = "Button";
+                            EN = sec.dat[i2].i;
+                            Callback = function()
+                                Tp(HumRSelf, sec.dat[i2].C);
+                            end;
+                        });
+                    end;
+                end;
+                
+                PackSections.Tabs = {{
+                    Tab={at="Section", Title="Sections", Icon="map-pinned", Path=Chapter}, Data=GroupDat
+                }}; self.PackSections = PackSections;
+            end;
+
+            return LoaderSettings.TheMimicLoader.Load_Sections and self.PackSections or {};
+        end;
         Functions.GetPing = function()
             return S.Network.ServerStatsItem["Data Ping"]:GetValue() / 1000;
         end;
@@ -2080,9 +2179,30 @@ return {
                         for ri=1, 3 do
                             local rv=Labels[ri].Text;
                             if rv == answer then
-                                return W["Section2.5"].ChihiroMinigame.Trivia.Signal:FireServer(1, tonumber(Labels[ri].Parent.Parent.Name));
+                                W["Section2.5"].ChihiroMinigame.Trivia.Signal:FireServer(1, tonumber(Labels[ri].Parent.Parent.Name));
+                                return pcall(function()
+                                    TextChatService.TextChannels.RBXGeneral:SendAsync(answer);
+                                end);
                             end;
                         end;
+                    end;
+                end;
+            elseif where == "Draw/Outside" then
+                Tp(HumRSelf, CFr(-35, -431, 9154));
+            elseif where == "Draw/Inside" then
+                Tp(HumRSelf, CFr(87, -430, 9267));
+            elseif where == "Draw/Tp" then
+                local PaintStations=W.Section3.PaintPuzzle;
+                local CHs = {
+                    PaintStations.PaintStation_A.Pad;
+                    PaintStations.PaintStation_B.Pad;
+                    PaintStations.PaintStation_C.Pad;
+                    PaintStations.PaintStation_D.Pad;
+                }; for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local Prox = FindFirstChild(v, "Draw");
+                        if not Prox or not Prox.Enabled then continue; end;
+                        return Tp(HumRSelf, Prox.Parent.CFrame);
                     end;
                 end;
             elseif where == "Draw/Draw" then
@@ -2107,6 +2227,14 @@ return {
                             for _, v in pairs(Paints[target]) do
                                 Pad.Controls.Draw:FireServer(Pos, v[1], v[2]);
                             end;
+                        end;
+                    end;
+                end;
+            elseif where == "Draw/Pillar" then
+                local CHs = GetChildren(W.Section3.MagicPillars); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.Name == "Pillar" then
+                        if not v.Text.SurfaceGui.Enabled then
+                            return Tp(HumRSelf, v.PillarBase.CFrame);
                         end;
                     end;
                 end;
@@ -2295,10 +2423,46 @@ return {
             end; ESPF.Visible(where, true, true);
         end;
         Functions.B3C1Func = function(self, where)
-            if where == "School/Med" then
-                H:Set3dRenderingEnabled(false);
+            if where == "City/Kill" then
+                local CHs=GetChildren(W.Section1.Grunts); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent and v.ClassName == "Model" then
+                        local sRE = FindFirstChild(v, "RemoteEvent");
+                        if not sRE then continue; end;
+                        while v.Parent and sRE.Parent do
+                            if self:ToolNow("Gun") then
+                                local Pivot = GetPivot(v);
+                                Tp(HumRSelf, Pivot*CFr(0, 40, 0));
+                                R.GunAction:FireServer("fire");
+                                sRE:FireServer();
+                            end; twait();
+                        end;
+                    end;
+                end;
+            elseif where == "City/Body" then
+                local Bodies = GetChildren(W.Section1.DeadCivilians); for i=1, #Bodies do
+                    local v = Bodies[i]; if v.Parent then
+                        local Prox = FindFirstChild(v, "HumanoidRootPart");
+                        Prox = Prox and FindFirstChild(Prox, "ProximityPrompt");
+                        if Prox then
+                            Tp(HumRSelf, Prox.Parent.CFrame, 0.3);
+                            fireproximityprompt(Prox);
+                        end;
+                    end;
+                end; return Tp(HumRSelf, CFr(81, 9.3, 224));
+            elseif where == "City/Mika" then
+                Tp(HumRSelf, W.Section1.Monster.Trigger.CFrame);
+            elseif where == "City/Hideo" then
+                Tp(HumRSelf, GetPivot(W.Section1.HideoScene.Hideo2));
+            elseif where == "City/Cutter" then
+                local Prox = W.Section1.SchoolGatePart.Truck.BoltCutter.Main.ProximityPrompt;
+                Tp(HumRSelf, Prox.Parent.CFrame); fireproximityprompt(Prox);
+            elseif where == "City/Cut" then
+                local Prox = W.Section1.SchoolGatePart.Gate.Chain.PromptPart.ProximityPrompt;
+                Tp(HumRSelf, Prox.Parent.CFrame, 0.3); for i=1, 4 do
+                    fireproximityprompt(Prox);
+                end;
+            elseif where == "School/Med" then
                 fireproximityprompt(W.Section2.Items.Bandage.Handle.ProximityPrompt);
-                H:Set3dRenderingEnabled(true);
             elseif where == "School/Heal" then
                 local sRE = R.modules.Packet.Reliable;
                 sRE:FireServer("Section2/HideoMinigameStarted");
@@ -2309,6 +2473,16 @@ return {
                 fireproximityprompt(W.Section2.MAINOBJECTIVE.Locker.LockerDoor.ProximityPart.ProximityPrompt);
                 Tp(HumRSelf, CFr(142, 20, 504), 0.3);
                 fireproximityprompt(W.Section2.MAINOBJECTIVE.Diary.ProximityPrompt, 0.3);
+            elseif where == "School/Freeze" then
+                local CHs = GetChildren(W.Section2.MAINOBJECTIVE2.Spiders); for i=1, #CHs do
+                    local v=CHs[i]; if v.Name ~= "AkariSpider" then continue; end;
+                    local RootPart = FindFirstChild(v, "RootPart");
+                    if not RootPart then continue; end;
+
+                    local Bones = FindFirstChild(RootPart, "Bone");
+                    if not Bones then continue; end;
+                    Bones:Destroy();
+                end;
             elseif where == "School/Spider" then
                 local CHs = GetChildren(W.Section2.MAINOBJECTIVE2.Spiders); for i=1, #CHs do
                     local v=CHs[i]; if v.Name ~= "AkariSpider" then continue; end;
@@ -2325,7 +2499,7 @@ return {
 
                     Tp(HumRSelf, Hitbox.CFrame, 0.3);
 
-                    for ri=1, 20 do
+                    for ri=1, 50 do
                         if not Hitbox.Parent or not sRE.Parent then
                             break;
                         end;
@@ -2335,12 +2509,11 @@ return {
                         end;
 
                         if self:ToolNow("Gun") then
-                            CAMERAREPLICA = Hitbox.CFrame;
                             R.GunAction:FireServer("fire");
-                            sRE:FireServer(); twait(0.1);
+                            sRE:FireServer(); twait();
                         end;
                     end;
-                end; CAMERAREPLICA = nil;
+                end;
             elseif where == "School/Exit" then
                 Tp(HumRSelf, CFr(175, 8, 508), 0.3);
                 fireproximityprompt(W.Section2.School.Doors.ExitDoor.ProxPart.ProximityPrompt);
@@ -2393,6 +2566,8 @@ return {
                         fireproximityprompt(Prox, 1);
                     end;
                 end;
+            elseif where == "IJO/Exit" then
+                Tp(HumRSelf, CFr(-3379, -300, 4451));
             elseif where == "IJO/Terminal" then
                 local HogoGuntai = FindFirstChild(W.Section4.Monster, "HogoGuntai");
                 local CHs=GetChildren(W.Section4.Lab.CleanseRoomObjective.ShapeTerminals); for i=1, #CHs do
@@ -2428,9 +2603,8 @@ return {
                             Tp(HumRSelf, Icon.Parent.CFrame); for i=1, #Chs do
                                 local v2 = Chs[i]; if v2 and v2.Name == "Turners" then
                                     local Prompt = FindFirstChild(v2, "Right");
-                                    if distOf(HogoGuntai.Hitbox, HumRSelf, 60) then
-                                        Tp(HumRSelf, CFr(-3389, -298, 4390));
-                                        break;
+                                    if distOf(HogoGuntai.Hitbox, Prompt.Parent, 60) then
+                                        return Tp(HumRSelf, CFr(-3389, -298, 4390));
                                     elseif Prompt then
                                         Tp(HumRSelf, Icon.Parent.CFrame);
                                         fireproximityprompt(Prompt);
@@ -2442,6 +2616,8 @@ return {
                 end;
             elseif where == "IJO/Threat" then
                 R.modules.Packet.Reliable:FireServer("Section4/LockdownSkillCheckHit");
+            elseif where == "Water/Stair" then
+                Tp(HumRSelf, W.Section5.StairsSection.EndTrigger.CFrame);
             elseif where == "Water/Main" then
                 local MainSwitch = W.Section5.MainObjective.PowerSwitch.RootPart.ProximityPrompt;
                 Tp(HumRSelf, MainSwitch.Parent.CFrame, 0.3);
@@ -2546,6 +2722,115 @@ return {
                 });
             end; ESPF.Visible(where, true, true);
         end;
+        Functions.JigokuFunc = function(self, where)
+            if where == "AutoFind" then
+                if Chapter == "Lobby" then
+                    QueuePack.SetInfo("Jigoku", true);
+                    QueuePack.Init();
+                    R.LobbyInterface.Networking.Lobby:FireServer(
+                        "SingleplayerTeleport",
+                        {
+                            Chapter = 1,
+                            Mode = "Nightmare",
+                            Book = "Control"
+                        }
+                    );
+                elseif PlaceId == 6479231833 then
+                    local IdleNPC = WaitForChild(W, "IdleNPC", 5 + math.clamp(self.GetPing(), 0, 100));
+                    if not Config.Jigoku.AutoFind then return; end;
+                    if not IdleNPC then
+                        QueuePack.SetInfo("Jigoku", true);
+                        QueuePack.Init();
+                        TeleportService:Teleport(6243699076, selff);
+                    end;
+
+                    Tp(HumRSelf, WaitForChild(IdleNPC, "HumanoidRootPart").CFrame, 0.3);
+                    fireproximityprompt(IdleNPC.HumanoidRootPart.PromptPoint.ProximityPrompt); twait(0.3 + math.clamp(self.GetPing(), 0, 100));
+                    R.Dialog.Complete:FireServer();
+                    R.Option.Vote:FireServer("3");
+                end;
+            elseif where == "Talk" then
+                Tp(HumRSelf, CFr(607.54, 11.91, 1080));
+            elseif where == "Complete" then
+                local CHs = GetChildren(GameAI.Souls); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local Prox = FindFirstChild(v, "ProximityPrompt");
+                        if not Prox or not Prox.Enabled then continue; end;
+                        Tp(HumRSelf, v.CFrame, 0.3);
+                        fireproximityprompt(Prox);
+                    end;
+                end;
+            end;
+        end;
+        Functions.JigokuESP = function(where, state)
+            if not state then
+                return ESPF.Visible(where, false);
+            elseif where == "Souls" then
+                local CHs = GetChildren(GameAI.Souls); for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        local Prox = FindFirstChild(v, "ProximityPrompt");
+                        if not Prox or not Prox.Enabled then continue; end;
+                        ESPF.ESP(where, v, {
+                            Color = WHITE;
+                            Size = VEC2;
+                            Text = ".";
+                        });
+                    end;
+                end;
+            elseif where == "Shinigami" then
+                local Shinigami = W.GameAI.AI.HumanoidRootPart;
+                ESPF.ESP(where, Shinigami, {
+                    Color = RED;
+                    Size = VEC10;
+                    Text = "Shinigami";
+                });
+            end; ESPF.Visible(where, true, true);
+        end;
+        Functions.EgaoFunc = function(where)
+            if where == "AutoFind" then
+                if Chapter == "Lobby" then
+                    QueuePack.SetInfo("Egao", true);
+                    QueuePack.Init();
+                    R.LobbyInterface.Networking.Lobby:FireServer(
+                        "SingleplayerTeleport",
+                        {
+                            Chapter = 1,
+                            Mode = "Normal",
+                            Book = "Rage"
+                        }
+                    );
+                elseif Chapter == "B3C1" then
+                    local Intro = WaitForChild(W, "IntroCutscene", 9e9);
+                    repeat twait(0.1); until not Intro or not Intro.Parent or not FindFirstChild(Intro, "SpawnBox");
+                    if Config.Egao.AutoFind then
+                        Tween({primary = HumRSelf; goal = { CFrame = CFr(-175, 7, -21) }; info=TweenInfo.new(3)});
+                        pcall(function() firetouchinterest(HumRSelf, W.EgaoSpawns.Part, 0); end);
+                        local ISEGAO = false; PSG.EgaoPulseText.Frame:GetPropertyChangedSignal("Visible"):Connect(function()
+                            ISEGAO = true;
+                        end); tk.delay(5 + math.clamp(Functions.GetPing(), 0, 100), function()
+                            if not ISEGAO then
+                                QueuePack.SetInfo("Egao", true);
+                                QueuePack.Init();
+                                TeleportService:Teleport(6243699076, selff);
+                            else
+                                WindUI:Notify({
+                                    Title = "<font color='rgb(255,0,0)'>EGAO</font>",
+                                    Content = "IS HERE!",
+                                    Icon = "circle-alert",
+                                    Duration = 5,
+                                });
+                            end;
+                        end);
+                    end;
+                end;
+            elseif where == "AutoLook" then
+                local Egao = FindFirstChild(W, "EgaoEventRig");
+                local Root = Egao and FindFirstChild(Egao, "RootPart");
+                if not Root then return; end;
+                local CamCF = Cam.CFrame
+                Root.Position = CamCF.Position + CamCF.LookVector * 10;
+            end;
+        end;
         Functions.WitchTrialFunc = function(where)
             if where == "Complete" then
                 local GameTPTWT = FindFirstChild(W, "Game Teleporter", true);
@@ -2567,12 +2852,34 @@ return {
                 end;
             end;
         end;
+        Functions.WitchTrialESP = function(where, state)
+            if not state then
+                return ESPF.Visible(where, false);
+            elseif where == "Monsters" then
+                local CHs = if not GameAI then GetChildren(W) else GetChildren(GameAI);
+                
+                for i=1, #CHs do
+                    local v=CHs[i]; if v.Parent then
+                        if v.ClassName == "Model" and (strfind(v.Name, "AI") or v.Parent == GameAI) then
+                            local AI = FindFirstChild(v, "AI");
+                            if not AI then continue; end;
+                            ESPF.ESP(where, v, {
+                                Color = RED;
+                                Size = VEC10;
+                                Text = v.Name;
+                            });
+                        end;
+                    end;
+                end;
+            end; ESPF.Visible(where, true, true);
+        end;
 
         ScriptData.AutoData = {
             ClientTab = {
                 {type="Group", dats={
                     {dat={
                         {type="Toggle", EN="Auto Free Yourself", EN2="Automatically press E when needed.", TH1="ปลดปล่อยตัวเองอัตโนมัติ", TH2="ออโต้กดEเมื่อจำเป็น", Bindable="+", Path="Client/AutoFreeYourself"},
+                        {type="Toggle", EN="Instant Prompt", EN2="Instantly activate prompts.", TH1="กดปุ่มทันที", TH2="กดปุ่มได้แบบทันที", Bindable="+", Path="Client/InstantPrompt"},
                         {type="Toggle", EN="No Render", EN2="Change camera subject & disable 3D rendering", TH1="ปิดการ Render", TH2="เปลี่ยนกล้องและปิดการ render 3D", Bindable="+", Path="Client/No Render", Callback=function(state)
                             ClientCon["No Render"] = state;
                             H:Set3dRenderingEnabled(not state);
@@ -2599,8 +2906,58 @@ return {
             PlaceholderTab = (Chapter == "Lobby" and {
                 {type="Paragraph", Title="Information", Desc="The Mimic script is now Internal Base which make it smoother and safer to use. To unlock other tab like Control I or Rage I, you must join the main game first. There are a few settings in Core Settings that you can use for The Mimic."},
             });
-            EgaoTab = (Chapter == "Lobby" and {
-                
+            PackJigoku = (Chapter == "Lobby" and {
+                Tabs={
+                    {Tab={at="Jigoku", Title="Jigoku", Icon="skull", Path="Jigoku"}, Data={
+                        {type="Toggle", EN="Auto Find Hell Place", EN2="Start & rejoin the game to find hell for you.", TH1="ออโต้หาด่าน", TH2="ออโต้กดเริ่มเกมและออกเกมเพื่อหาด่านนรก", Path="AutoFind", Callback=function(state)
+                            Config.Jigoku.AutoFind = state;
+                            Functions:JigokuFunc("AutoFind");
+                        end};
+                    }};
+                };
+            }) or (Chapter == "Jigoku" and {
+                Tabs={
+                    {Tab={at="Jigoku", Title="Main", Icon="skull", Path="Jigoku"}, Data={
+                        {type="Button", EN="Auto Complete", EN2="Talk & collect all souls with a perfect timer so you don't die", TH1="ออโต้จบเกม", TH2="วาปไปคุยกับ Shinigami แล้วเก็บดวงซิญญานทั้งหมดโดยมีการจับเวลาเพื่อใม่ให้ตาย", Callback=function(state)
+                            Functions:JigokuFunc("Talk"); twait(11); Functions:JigokuFunc("Complete");
+                        end};
+                    }};
+                    {Tab={at="Jigoku", Title="ESP", Icon="skull", Path="Jigoku"}, Data={
+                        {type="Toggle", EN="Souls", EN2="Show soul's box", TH1="ESP ดวงวิญญาน", TH2="มองเห็นดวงวิญญาน", Path="ESP/Souls", Callback=function(state)
+                            Config.Jigoku.ESP.Souls = state;
+                            Functions.JigokuESP("Souls", state);
+                        end};
+                        {type="Toggle", EN="Shinigami", EN2="Show Shinigami's hitbox", TH1="ESP Shinigami", TH2="มองเห็น Shinigami", Path="ESP/Shinigami", Callback=function(state)
+                            Config.Jigoku.ESP.Shinigami = state;
+                            Functions.JigokuESP("Shinigami", state);
+                        end};
+                    }};
+                    {Tab={at="Jigoku", Title="Sections", Icon="skull", Path="Jigoku"}, Data={
+                        {type="Button", EN="Talk", EN2="Teleport & talk to Shinigami.", TH1="คุย", TH2="วาปไปคุยกับ Shinigami", Callback=function(state)
+                            Functions:JigokuFunc("Talk");
+                        end};
+                        {type="Button", EN="Complete", EN2="Teleport & collect all souls.", TH1="จบเกม", TH2="วาปเก็บดวงวิญญานทั้งหมด", Callback=function(state)
+                            Functions:JigokuFunc("Complete");
+                        end};
+                    }};
+                };
+            });
+            PackEgao = (Chapter == "Lobby" and {
+                Tabs={
+                    {Tab={at="Egao", Title="Egao", Icon="smile", Path="Egao"}, Data={
+                        {type="Toggle", EN="Auto Find Egao", EN2="Start & rejoin the game to find egao for you.", TH1="ออโต้หาด่าน", TH2="ออโต้กดเริ่มเกมและออกเกมเพื่อหา Egao", Path="AutoFind", Callback=function(state)
+                            Config.Egao.AutoFind = state;
+                            Functions.EgaoFunc("AutoFind");
+                        end};
+                        {type="Toggle", EN="Auto Look", EN2="Look at the Egao for you.", TH1="ออโต้มอง", TH2="ออโต้มอง Egao", Path="AutoLook"};
+                    }};
+                };
+            }) or (Chapter == "B3C1" and {
+                Tabs={
+                    {Tab={at="Egao", Title="Egao", Icon="smile", Path="Egao"}, Data={
+                        {type="Toggle", EN="Auto Look", EN2="Look at the Egao for you.", TH1="ออโต้มอง", TH2="ออโต้มอง Egao", Path="AutoLook"};
+                    }};
+                };
             });
             YenTab = ((strfind(Chapter, "B2") or strfind(Chapter, "B3")) and {
                 {type="Toggle", EN="Collect All Yen", EN2="Teleport & collect spawned yen", TH1="เก็บเงินทั้งหมด", TH2="วาปไปเก็บเงินทั้งหมดที่เกิดอยู่", Path="Auto"},
@@ -2613,7 +2970,7 @@ return {
                         {type="Button", EN="Auto Complete Game", EN2="Teleport to the end of the game.", TH1="ออโต้จบเกม", TH2="วาปไปที่ด่านสุดท้ายของเกม", Callback=Functions.AutoCompleteBook1}; {type="Space"},
                         {type="Toggle", EN="ESP Items", EN2="Show item's box & name", Path="ESP/Items", TH1="ESP ไอเทม", TH2="มองเห็นไอเทม", Callback=Functions.ESPItemsBook1};
                         {type="Toggle", EN="ESP Monsters", EN2="Show monster's hitbox & name", Path="ESP/Monsters", TH1="ESP ผี", TH2="มองเห็นผี", Callback=Functions.ESPMonsterBook1};
-                    }}; {Tab={at="B1C1Sec", Title="Sections", Icon="map-pinned"}, Data={}};
+                    }};
                 };
             });
             PackB1C2 = (Chapter == "B1C2" and {
@@ -2622,7 +2979,7 @@ return {
                         {type="Button", EN="Auto Complete Game", EN2="Teleport to the end of the game.", TH1="ออโต้จบเกม", TH2="วาปไปที่ด่านสุดท้ายของเกม", Callback=Functions.AutoCompleteBook1}; {type="Space"},
                         {type="Toggle", EN="ESP Items", EN2="Show item's box & name", Path="ESP/Items", TH1="ESP ไอเทม", TH2="มองเห็นไอเทม", Callback=Functions.ESPItemsBook1};
                         {type="Toggle", EN="ESP Monsters", EN2="Show monster's hitbox & name", Path="ESP/Monsters", TH1="ESP ผี", TH2="มองเห็นผี", Callback=Functions.ESPMonsterBook1};
-                    }}; {Tab={at="B1C2Sec", Title="Sections", Icon="map-pinned"}, Data={}};
+                    }};
                 };
             });
             PackB1C3 = (Chapter == "B1C3" and {
@@ -2631,7 +2988,7 @@ return {
                         {type="Button", EN="Auto Complete Game", EN2="Teleport to the end of the game.", TH1="ออโต้จบเกม", TH2="วาปไปที่ด่านสุดท้ายของเกม", Callback=Functions.AutoCompleteBook1}; {type="Space"},
                         {type="Toggle", EN="ESP Items", EN2="Show item's box & name", Path="ESP/Items", TH1="ESP ไอเทม", TH2="มองเห็นไอเทม", Callback=Functions.ESPItemsBook1};
                         {type="Toggle", EN="ESP Monsters", EN2="Show monster's hitbox & name", Path="ESP/Monsters", TH1="ESP ผี", TH2="มองเห็นผี", Callback=Functions.ESPMonsterBook1};
-                    }}; {Tab={at="B1C3Sec", Title="Sections", Icon="map-pinned"}, Data={}};
+                    }};
                 };
             });
             PackB1C4 = (Chapter == "B1C4" and {
@@ -3074,8 +3431,20 @@ return {
                         end};
                     }};
                     {Tab={at="B2C4", Title="Drawing", Icon="book-open", Path="B2C4"}, Data={
+                        {type="Button", EN="Teleport Outside", EN2="Teleport to the gate.", TH1="วาปไปข้างนอก", TH2="วาปไปที่ทางเข้าหมู่บ้าน", Callback=function()
+                            return Functions:B2C4Func("Draw/Outside");
+                        end};
+                        {type="Button", EN="Teleport Inside", EN2="Enter the village without trigger Senzai. Make sure you go back to the gat entrance after reaching 3/4 pillars so the game continue.", TH1="วาปไปข้างใน", TH2="วาปไปในหมู่บ้านทำให้ผีไม่เกิด โดยต้องกลับไปที่ทางเข้าเพื่อให้ผีเกิดตอนได้ครบ3/4เพื่อให้เล่นต่อได้", Callback=function()
+                            return Functions:B2C4Func("Draw/Inside");
+                        end};
+                        {type="Button", EN="Teleport To Pad", EN2="Teleport to the drawing pad.", TH1="วาปไปที่แท่น", TH2="วาปไปที่แท่นวาดรูป", Callback=function()
+                            return Functions:B2C4Func("Draw/Tp");
+                        end};
                         {type="Button", EN="Draw", EN2="This only draw for you; Enter by yourself.", TH1="วาดรูป", TH2="วาดอย่างเดียว ไม่มีการวาปให้", Callback=function()
                             return Functions:B2C4Func("Draw/Draw");
+                        end};
+                        {type="Button", EN="Teleport To Pillar", EN2="Teleport to the pillar.", TH1="วาปไปที่เสา", TH2="วาปไปที่เสาผี", Callback=function()
+                            return Functions:B2C4Func("Draw/Pillar");
                         end};
                         {type="Button", EN="Collect Quest Items", EN2="Teleport & collect item dropped.", TH1="ออโต้เก็บไอเทมจากผี", TH2="วาปและเก็บไอเทมที่ดรอปจากผี", Callback=function()
                             return Functions:B2C4Func("Draw/Item");
@@ -3118,6 +3487,31 @@ return {
             });
             PackB3C1 = (Chapter == "B3C1" and {
                 Tabs={
+                    {Tab={at="B3C1", Title="City", Icon="book-open", Path="B3C1"}, Data={
+                        {type="Button", EN="Kill All Gatas", EN2="Teleport & fire a shot with client validation.", TH1="ยิง Gatas", TH2="วาปไปยิง Gatas พร้อมการยืนยันจาก Client", Callback=function()
+                            return Functions:B3C1Func("City/Kill");
+                        end};
+                        {type="Button", EN="Interact All Dead Bodies", EN2="Teleport to dead bodies and interact.", TH1="รายงานศพ", TH2="วาปไปรายงานศพ", Callback=function()
+                            return Functions:B3C1Func("City/Body");
+                        end};
+                        {type="Button", EN="Teleport To Mika", EN2="Watch she's gone.", TH1="วาปไปหา Mika", TH2="ไปดูฉากสิ้นหวัง", Callback=function()
+                            return Functions:B3C1Func("City/Mika");
+                        end};
+                        {type="Button", EN="Teleport To Hideo/Door", EN2="Tell Hideo a sad story.", TH1="วาปไปหา Hideo", TH2="ไปเล่าเรื่องราวสิ้นหวัง", Callback=function()
+                            return Functions:B3C1Func("City/Hideo");
+                        end};
+                        {type="Button", EN="Cut The Chains", EN2="Teleport & magically cut the chain.", TH1="ตัดโซ่", TH2="วาปและตัดโซ่แบบงงๆ", Callback=function()
+                            return Functions:B3C1Func("City/Cut");
+                        end}; {type="Space"}; {type="Space"};
+                        {type="Toggle", EN="ESP Gatas", EN2="Show Gatas' hitbox", TH1="ESP Gatas", TH2="มองเห็น Gatas", Path="City/ESP/Gatas", Callback=function(state)
+                            B3C1Con.City.ESP.Gatas = state;
+                            return Functions:B3C1ESP("City/Gatas", state);
+                        end};
+                        {type="Toggle", EN="ESP Dead Bodies", EN2="Show dead bodies", TH1="ESP ศพ", TH2="มองเห็นศพ", Path="City/ESP/Bodies", Callback=function(state)
+                            B3C1Con.City.ESP.Bodies = state;
+                            return Functions:B3C1ESP("City/Bodies", state);
+                        end};
+                    }};
                     {Tab={at="B3C1", Title="School", Icon="book-open", Path="B3C1"}, Data={
                         {type="Button", EN="Grab Medical Kit", EN2="Magically grab it.", TH1="หยิบกล่องปฐมพยาบาล", TH2="หยิบกล่องปฐมพยาบาลแบบงงๆ", Callback=function()
                             return Functions:B3C1Func("School/Med");
@@ -3127,6 +3521,9 @@ return {
                         end};
                         {type="Button", EN="Read Note", EN2="Teleport & read note.", TH1="อ่านโน๊ต", TH2="วาปไปอ่านโน๊ต", Callback=function()
                             return Functions:B3C1Func("School/Note");
+                        end};
+                        {type="Button", EN="Freeze Spiders", EN2="Permanently stop spiders from moving.", TH1="หยุดแมงมุม", TH2="ทำให้แมงมุมขยับไม่ได้แบบถาวร", Callback=function()
+                            return Functions:B3C1Func("School/Freeze");
                         end};
                         {type="Button", EN="Kill Spiders", EN2="Teleport & kill all spiders", TH1="ฆ่าแมงมุม", TH2="วาปฆ่าแมงมุมทั้งหมด", Callback=function()
                             return Functions:B3C1Func("School/Spider");
@@ -3167,6 +3564,9 @@ return {
                         {type="Button", EN="Place C4 (2)", EN2="Teleport & place C4 at Netamo.", TH1="วางระเบิด C4 ที่ผี", TH2="วาปไปวางระเบิด C4 ที่ผี", Callback=function()
                             return Functions:B3C1Func("IJO/C4_2");
                         end}; {type="Space"};
+                        {type="Button", EN="Trigger Leave Event", EN2="Teleport & attempt to exit IJO Place to continue the game.", TH1="วาปไปที่ทางออก IJO", TH2="วาปไปที่ทางออก IJO เพื่อให้เกมดำเนินต่อ", Callback=function()
+                            return Functions:B3C1Func("IJO/Exit");
+                        end};
                         {type="Button", EN="Activate Terminals", EN2="Teleport & activate terminals.", TH1="เปิด terminals", TH2="วาปไปเปิด terminals", Callback=function()
                             return Functions:B3C1Func("IJO/Terminal");
                         end};
@@ -3181,7 +3581,10 @@ return {
                             return Functions:B3C1ESP("HogoGuntai", state);
                         end};
                     }};
-                    {Tab={at="B3C1", Title="Water", Icon="book-open", Path="B3C1"}, Data={ {type="Space"}, 
+                    {Tab={at="B3C1", Title="Water", Icon="book-open", Path="B3C1"}, Data={ {type="Space"},
+                        {type="Button", EN="Complete Stair", EN2="Teleport to the end of stair.", TH1="จบด่านบันได", TH2="วาปไปข้างล่างบันได", Callback=function()
+                            return Functions:B3C1Func("Water/Stair");
+                        end}; {type="Space"};
                         {type="Button", EN="Main Switch", EN2="Teleport & interact with the main switch.", TH1="เปิดสวิตช์หลัก", TH2="วาปไปเปิดสวิตช์หลัก", Callback=function()
                             return Functions:B3C1Func("Water/Main");
                         end};
@@ -3200,7 +3603,11 @@ return {
                     {Tab={at="WitchTrial", Title="Witch Trial", Icon="ghost", Path="WitchTrial"}, Data={
                         {type="Button", EN="Auto Complete", EN2="Teleport to the end of the map.", TH1="ออโต้จบเกม", TH2="วาปไปที่จุดจบแมพ", Callback=function()
                             Functions.WitchTrialFunc("Complete");
-                        end}; {type="Space"}, {type="Divider"}, {type="Space"},
+                        end};
+                        {type="Toggle", EN="ESP Monsters", EN2="Show monster's hitbox", TH1="ESP ผี", TH2="มองเห็นมอนสเตอร์", Path="WitchTrial/ESP/Monsters", Callback=function(state)
+                            Config.WitchTrial.ESP.Monsters = state;
+                            return Functions.WitchTrialESP("Monsters", state);
+                        end}; {type="Space"},
                         {type="Button", EN="Teleport To Fireplace 1", EN2="This is where you burn the butterfly A.", TH1="วาปไปที่เตาเผา 1", TH2="เผาผีเสื้ออันแรก", Callback=function()
                             Functions.WitchTrialFunc("Fire1");
                         end},
@@ -3765,7 +4172,8 @@ return {
                 
                 Div1 = Window:Divider(),
                 Placeholder = if ScriptData.AutoData.PlaceholderTab then Window:Tab({ Title = "Information", Icon = "star" }) else false,
-                Egao = if ScriptData.AutoData.EgaoTab then Window:Tab({ Title = "Egao", Icon = "smile", Locked=true }) else false,
+                Jigoku = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackJigoku),
+                Egao = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackEgao),
                 B1C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C1),
                 B1C2 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C2),
                 B1C3 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C3),
@@ -3776,6 +4184,7 @@ return {
                 B2C4 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB2C4),
                 B3C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB3C1),
                 WitchTrial = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackWitchTrial),
+                Section = Windy:CreateDynamic(Window, Tabs, Functions:PairingSections(ScriptData.Sections)),
 
                 ExtraDiv = Window:Divider(),
                 AddOn = LoaderSettings.AllowAddOn and Window:Tab({ Title = "AddOn", Icon = "box" }),
@@ -3791,13 +4200,16 @@ return {
 
             Window:SelectTab(1); Window:OnDestroy(function()
                 CoreDestroyed = true;
+                PromptPackage.UpdateState(true);
             end);
 
             Window:SetToggleKey((LoaderSettings.UIKeybind and Enum.KeyCode[LoaderSettings.UIKeybind]) or Enum.KeyCode["RightShift"]);
             ScriptCache.WindUI = WindUI; ScriptCache.Window = Window;
         end; local LSecureLoad = function(AUTH_KEY)
             local OneRunCallMain, OneRunErrorMain = pcall(function()
-                CoreDestroyed = false; GG.ESPF_ChangeMode = ESPF.Method;
+                CoreDestroyed = false;
+                PromptPackage.UpdateState(false);
+                GG.ESPF_ChangeMode = ESPF.Method;
                 ClientCon.WalkSpeed = HumSelf and HumSelf.WalkSpeed or 16;
                 ClientCon.JumpPower = HumSelf and HumSelf.JumpPower or 50;
 
@@ -3868,6 +4280,10 @@ return {
                     if ClientCon.AutoFreeYourself then
                         Functions:FreeYourself();
                     end;
+
+                    if Config.Egao.AutoLook then
+                        Functions.EgaoFunc("AutoLook");
+                    end;
                 end);
                 CoreConnection[2] = H.Heartbeat:Connect(function(delta)
                     if CoreDestroyed and CoreConnection[2] then
@@ -3932,6 +4348,14 @@ return {
                             DownloadPackage.Download(false, "Paintings");
                         end; 
                     end;
+
+                    tk.delay(3, function()
+                        if QUEUE_INFO.Jigoku then
+                            Functions:JigokuFunc("AutoFind");
+                        elseif QUEUE_INFO.Egao then
+                            Functions.EgaoFunc("AutoFind");
+                        end;
+                    end);
 
                     GG.DownloadHandler = DownloadPackage;
                 end;
