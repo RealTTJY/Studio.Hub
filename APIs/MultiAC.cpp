@@ -23,7 +23,7 @@ local function Restore(m)
 end;
 
 return {
-    Version = "2023_ACI_2026_B2C4";
+    Version = "2023_ACI_2026_uk2901";
     Function = function(selff, selc)
         if GameId == 2294168059 then
             if PlaceId == 15962819441 then
@@ -37,23 +37,17 @@ return {
                     end; return o(self, ...);
                 end);
             elseif PlaceId == 96354063422506 then
-                for _, connection in next, getconnections(selff.PlayerGui.ChildAdded) do
-                    if connection then
-                        connection:Disable();
-                    end;
-                end;
-
                 local o;o=UpperC(game, "__namecall", function(self, ...)
-                    local traceBack = debug.traceback()
-                    local selfString = tostring(self)
+                    local traceBack = debug.traceback();
+                    local selfString = tostring(self);
                     
-                    if strfind(traceBack, "ReplicatedFirst.Loading.LocalScript", 1, true) then
+                    if strfind(traceBack, "ReplicatedFirst.Loading.LocalScript") then
                         tdefer(Restore, "namecall");
                         return error("Bypassed Anti Cheat [sUNC + Specific]");
                     end
                     
-                    if getnamecallmethod() == "FireServer" and not checkcaller() then
-                        if strfind(selfString, "Sender", 1, true) or strfind(selfString, "Sender2", 1, true) then
+                    if getnamecallmethod() == "FireServer" then
+                        if strfind(selfString, "Sender") or strfind(selfString, "Sender2") then
                             return error("Bypassed Anti Cheat [sUNC + Specific]");
                         end;
                     end;
