@@ -508,7 +508,16 @@ do (function()
     tspawn(function()
         twait(0.2);
         tween(BarContainer, TWEENINFO, {BackgroundTransparency = 0.8});
-        tween(BarGlow, TWEENINFO, {Transparency = 0.5}); twait(0.6);
+        tween(BarGlow, TWEENINFO, {Transparency = 0.5}); 
+        
+        tspawn(function()
+            for i = 1, 30 do
+                if cProgress >= i then continue; end;
+                updateProgress(i); twait(0.05 + (i * 0.002));
+            end;
+        end);
+
+        twait(0.6);
         tween(Cross, TwInfo(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
             Position = Dim2(0.5, 0, 0.7, 0),
             TextSize = 60,
@@ -547,12 +556,7 @@ do (function()
             Size = Dim2(0, 160, 0, 160),
         }); 
         
-        tspawn(function()
-            for i = 1, 30 do
-                if cProgress >= i then continue; end;
-                updateProgress(i); twait(0.05 + (i * 0.002));
-            end;
-        end); repeat twait(0.1) until cProgress >= 90;
+        repeat twait(0.1) until cProgress >= 90;
         twait(0.5); pulse:Cancel(); setVisibility(false); twait(0.6); ScreenGui:Destroy();
     end);
 end)(); end;
@@ -720,85 +724,32 @@ end;
 AssetStorage.PromptPackage = function()
     local ProximityPromptService = GetService(game, "ProximityPromptService");
     local IsPause, originalUNC, prompts = false, fireproximityprompt, {};
-    local Validation, CFR004 = function(prompt) return true; end, CFr(0,0,-4);
+    local Validationtbl, CFR004 = {}, CFr(0,0,-4);
+    local Validator = selffucntion;
+    local Validation = function(prompt)
+        if Validationtbl[prompt] then
+            return false;
+        end; return Validator(prompt);
+    end;
+
     local Prompts = {}; ProximityPromptService.PromptShown:Connect(function(v)
         if not Validation(v) or not GG.Configs then return; end;
         if not Prompts[v] then Prompts[v] = v.HoldDuration; end;
-        if GG.Configs.Client.Client["Instant Prompt"] and not IsPause then
+        if GG.Configs.Client.Client["InstantPrompt"] and not IsPause then
             v.HoldDuration = 0;
         else
             v.HoldDuration = Prompts[v];
         end;
     end);
 
-    local W, H = GetService(game, "Workspace"), GetService(game, "RunService");
-    local AttachP = FindFirstChild(Workspace, "LuaUNCPackage_Prompt") or Instancen("Part", Workspace);
-    AttachP.Anchored = true; AttachP.CanTouch = false;
-    AttachP.CanCollide = false; AttachP.CanQuery = false;
-    AttachP.CastShadow = false; AttachP.Size = Vec3(0.01, 0.01, 0.01);
-    AttachP.Name = "LuaUNCPackage_Prompt"; AttachP.Transparency = 1;
-    local fireprompt = function(prompt, skip)
-        local Cam = W.CurrentCamera;
-        prompt.MaxActivationDistance = 250;
-        prompt.Enabled = true;
-        prompt.RequiresLineOfSight = false;
-        prompt.Parent = AttachP;
-        local spam = tk.spawn(function()
-            if skip <= 0 then
-                while true do 
-                    twait(0.2);
-                    AttachP.CFrame = Cam.CFrame * CFR004;
-                    prompt.HoldDuration = skip;
-                    prompt:InputHoldBegin();      
-                    H.RenderStepped:Wait();
-                    AttachP.CFrame = Cam.CFrame * CFR004;
-                    prompt:InputHoldEnd();
-                end;
-            else
-                while true do
-                    AttachP.CFrame = Cam.CFrame * CFR004;
-                    prompt.HoldDuration = skip;
-                    prompt:InputHoldBegin();      
-                    twait(skip);
-                    AttachP.CFrame = Cam.CFrame * CFR004;
-                    prompt:InputHoldEnd(); twait(0.5);
-                end;
-            end;
-        end); prompt.Triggered:Wait();
-        local suc = false; repeat
-            suc = pcall(function()
-                tk.cancel(spam);
-            end); twait();
-        until suc;
-        local Reset = prompts[prompt];
-        prompt.Parent = Reset.Parent;
-        prompt.HoldDuration = Reset.HoldDuration;
-        prompt.MaxActivationDistance = Reset.MaxActivationDistance;
-        prompt.RequiresLineOfSight = Reset.RequiresLineOfSight;
-    end;
-    local LuaUNC = function(prompt, amount, skip)
-        if skip == nil then skip = true; end;
-        if not prompts[prompt] then
-            local Info = {};
-            Info.HoldDuration = prompt.HoldDuration;
-            Info.MaxActivationDistance = prompt.MaxActivationDistance;
-            Info.RequiresLineOfSight = prompt.RequiresLineOfSight;
-            Info.Parent = prompt.Parent;
-            prompts[prompt] = Info;
-        end; for i=1, amount do
-            fireprompt(prompt, if skip then -5 else prompt.HoldDuration);
-        end;
-    end; return {
-        ChangeValidation = function(fn) Validation = fn; end;
+    return {
         UpdateState = function(state) IsPause = state; end;
-        SwitchUNC = function(to)
-            if to == "Lua" then
-                GG.fireproximityprompt = LuaUNC;
-            else
-                GG.fireproximityprompt = originalUNC;
-            end;
+        ValidateRule = function(prompt, isblock)
+            Validationtbl[prompt] = isblock;
         end;
-        SimpleFire = LuaUNC;
+        Validator = function(newf)
+            Validator = newf or selfucntion;
+        end;
     };
 end;
 AssetStorage.ESPPackage = function()
@@ -1265,7 +1216,7 @@ AssetStorage.QueuePack = function()
             src ..= "getgenv().Configs = " .. serialize(GG.Configs);
             src ..= "getgenv().LoaderSettings = " .. serialize(GG.LoaderSettings);
 
-            src ..= 'loadstring(game:HttpGet("https://raw.githubusercontent.com/RealTTJY/Studio.Hubrefs/heads/main/APIs/M.lua"))()';
+            src ..= 'loadstring(game:HttpGet("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/M.lua"))()';
             queueonteleport(src);
         end;
     };
@@ -12123,7 +12074,7 @@ AssetStorage.Windy = function()
         end;
         CreateDynamic = function(self, wind, tabs, data)
             if not tabs or not data then return; end;
-            local Tabs = data.Tabs; for i=1, #Tabs do
+            local Tabs = data.Tabs or {}; for i=1, #Tabs do
                 local TabInfo = Tabs[i]; if TabInfo.Tab then
                     local TComponent = TabInfo.Tab;
                     local Tab = wind:Tab(TComponent)
@@ -12379,7 +12330,7 @@ local FreeLoad, KeyLoad = {
     [2294168059] = {
         File = "2294168059";
         Version = "TheMimicV3.D1";
-        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage"};
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack"};
     };
     [4760747038] = {
         File = "4760747038";
