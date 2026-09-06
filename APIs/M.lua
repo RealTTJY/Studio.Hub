@@ -12349,7 +12349,7 @@ local FreeLoad, KeyLoad = {
     };
     [6739698191] = {
         File = "6739698191";
-        Version = "VD_V3.01";
+        Version = "VD_V3.02";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
 };
