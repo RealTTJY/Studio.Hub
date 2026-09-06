@@ -12332,6 +12332,11 @@ local FreeLoad, KeyLoad = {
         Version = "TheMimicV3.D3";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack"};
     };
+    [5527989791] = {
+        File = "5527989791";
+        Version = "TheMimicClassicV3.00";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage"};
+    };
     [4760747038] = {
         File = "4760747038";
         Version = "WonderWhyV3.02";
