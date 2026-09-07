@@ -12319,7 +12319,7 @@ local FreeLoad, KeyLoad = {
 }, {
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.74";
+        Version = "DA_V3.75";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
