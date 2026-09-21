@@ -246,10 +246,14 @@ local KeyProcessor = function(script_key)
             end;
         end; return 500;
     end;
-end; KeyProcessor = newcclosure(KeyProcessor);
+end;
+
+if ExecName ~= "Delta" then
+    KeyProcessor = newcclosure(KeyProcessor);
+end;
 
 return {
-    Version = "KAuth3.81",
+    Version = "KAuth3.82",
     Function = function(version, KeyPackage, ...)
         local ToGo = {...}; GG.InKey = function()
             local GlobCrLoad = KeyPackage();
