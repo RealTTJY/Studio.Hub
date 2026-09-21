@@ -2830,7 +2830,8 @@ AssetStorage.LoadUILib = function()
                     Green = "#43a047",
                     Blue = "#039be5",
                     White = "#ffffff",
-                    Grey = "#484848"
+                    Grey = "#484848",
+                    Yellow = "#FFFF00",
                 },
                 ThemeFallbacks = a.load "a",
                 Shapes = {
@@ -11883,7 +11884,7 @@ AssetStorage.IntroLib = function()
             }; StackPop(wind, tutorialList, 1);
         end,
         Init = function(wind, tab)
-            tab:Paragraph({Title="IMPORTANT", Desc="New update is out.", Color="Green"}); tab:Space();
+            tab:Paragraph({Title="Announcement", Desc="Next update: [FPS] OneTap.", Color="Yellow"}); tab:Space();
             if not LoaderSettings.BadNetwork then
                 local DiscordAPI = "https://discord.com/api/v10/invites/" .. "qeDJUKBX4K" .. "?with_counts=true&with_expiration=true";
                 local Response = (function()
