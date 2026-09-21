@@ -1137,6 +1137,49 @@ AssetStorage.ESPPackage = function()
         end;
     };
 end;
+AssetStorage.CirclePackage = function()
+    local Dim2Off = UDim2.fromOffset;
+    local Circle = {}; Circle.__index = Circle;
+    local gui = Instancen("ScreenGui", gethui());
+    gui.Name = "TTJY_Hub_Circle";
+    gui.IgnoreGuiInset = true;
+    function Circle:new(radius)
+        local self = setmetatable({}, Circle)
+        local frame = Instancen("Frame", gui);
+        frame.Size = Dim2Off(radius * 2, radius * 2);
+        frame.Position = Dim2Off(0, 0);
+        frame.AnchorPoint = Vec2(0.5, 0.5);
+        frame.BackgroundTransparency = 1;
+        frame.Visible = true;
+        frame.Parent = gui;
+        local corner = Instancen("UICorner", frame);
+        corner.CornerRadius = Dim(1, 0);
+        local stroke = Instancen("UIStroke", frame);
+        stroke.Thickness = 2;
+        stroke.Color = Col3.new(1, 1, 1);
+        stroke.Transparency = 0;
+        stroke.Parent = frame;
+        self._frame = frame;
+        self._stroke = stroke;
+        self.Radius = radius;
+        self.Visible = true;
+        return self
+    end; function Circle:SetPosition(vec2:Vector2): nil
+        self._frame.Position = Dim2Off(vec2.X, vec2.Y);
+    end; function Circle:SetRadius(r)
+        self.Radius = r;
+        self._frame.Size = Dim2Off(r * 2, r * 2);
+    end; function Circle:SetColor(col)
+        self._stroke.Color = col;
+    end; function Circle:SetThickness(t)
+        self._stroke.Thickness = t;
+    end;function Circle:SetVisible(v)
+        self.Visible = v;
+        self._frame.Visible = v;
+    end; function Circle:Remove()
+        self._frame:Destroy();
+    end; return Circle;
+end;
 AssetStorage.CoruTask = function()
     local coru = coroutine;
     local corus = coru.status;
@@ -11884,7 +11927,7 @@ AssetStorage.IntroLib = function()
             }; StackPop(wind, tutorialList, 1);
         end,
         Init = function(wind, tab)
-            tab:Paragraph({Title="Announcement", Desc="Next update: [FPS] OneTap.", Color="Yellow"}); tab:Space();
+            tab:Paragraph({Title="Announcement", Desc="Updated: [FPS] OneTap V3.02 is now out!", Color="Green"}); tab:Space();
             if not LoaderSettings.BadNetwork then
                 local DiscordAPI = "https://discord.com/api/v10/invites/" .. "qeDJUKBX4K" .. "?with_counts=true&with_expiration=true";
                 local Response = (function()
@@ -12317,6 +12360,11 @@ local FreeLoad, KeyLoad = {
         Version = "RealUNISnapshot5";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "PromptPackage", "CoruTask"};
     };
+    [9294074907] = {
+        File = "9294074907";
+        Version = "OneTapV3.02";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack", "CirclePackage"};
+    };
 }, {
     [1235188606] = {
         File = "1235188606";
@@ -12382,7 +12430,7 @@ end;
 if FreeLoad[GameId] then
     return LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/ListFile/" .. Resolve, Resolve, GG.CustomVersion or FreeLoad[GameId].Version)(AutoInclude(FreeLoad[GameId].Included))();
 elseif KeyLoad[GameId] then
-    return LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/K.oluac", "K.lua", "KAuth3.80")(GG.CustomVersion or KeyLoad[GameId].Version, AssetStorage.KeyPackage, AutoInclude(KeyLoad[GameId].Included))();
+    return LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/K.oluac", "K.lua", "KAuth3.81")(GG.CustomVersion or KeyLoad[GameId].Version, AssetStorage.KeyPackage, AutoInclude(KeyLoad[GameId].Included))();
 else
     return LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/ListFile/7597195391.lua", "7597195391.lua", GG.CustomVersion or FreeLoad[7597195391].Version)(AutoInclude(FreeLoad[7597195391].Included))();
 end;
