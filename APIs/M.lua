@@ -12412,7 +12412,7 @@ GG.LoadFromVControl = LoadFromVControl;
 GG.LoaderSettings = LoaderSettings;
 GG.ScriptCache = ScriptCache;
 
-if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_uk2901")(selff, selc) then
+if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_ForYoulol")(selff, selc) then
     return selff:Kick("TTJY_IDAC");
 end;
 
