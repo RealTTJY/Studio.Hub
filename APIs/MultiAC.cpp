@@ -23,7 +23,7 @@ local function Restore(m)
 end;
 
 return {
-    Version = "2023_ACI_2026_ForYoulol";
+    Version = "2023_ACI_2026_HyperNew";
     Function = function(selff, selc)
         if GameId == 2294168059 then
             if PlaceId == 15962819441 then
@@ -54,37 +54,6 @@ return {
                     
                     return o(self, ...);
                 end);
-            end;
-        elseif GameId == 5995470825 then
-            local ContentProvider = game:GetService("ContentProvider");
-            local str1, str2, str3 = "VirtualUser", "VirtualInputManager", "UGCValidationService";
-            local o;o=LowerC(game.FindService, function(self, a)
-                if a == str1 or a == str2 or a == str3 then
-                    return nil;
-                end; return o(self, a);
-            end);
-
-            LowerC(ContentProvider.PreloadAsync, function() end);
-            LowerC(ContentProvider.GetAssetFetchStatus, function()
-                return Enum.AssetFetchStatus.None;
-            end);
-
-            local getconstants = debug.getconstants or getconstants;
-            local setconstant = debug.setconstant or setconstant;
-            
-            if getconnections then
-                for i,v in pairs(getconnections(game:GetService("LogService").MessageOut)) do
-                    if v.Function then
-                        local cons = getconstants(v.Function);
-                        for i2=1, #cons do
-                            local v2=cons[i2];
-                            local lens = string.len(v2);
-                            if lens == 11 then
-                                setconstant(v.Function, i2, "(?!)");
-                            end;
-                        end;
-                    end;
-                end;
             end;
         end; return true;
     end;
