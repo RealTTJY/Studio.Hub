@@ -12365,6 +12365,11 @@ local FreeLoad, KeyLoad = {
         Version = "OneTapV3.02";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack", "CirclePackage"};
     };
+    [5995470825] = {
+        File = "5995470825";
+        Version = "HyperSV3.05";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack", "CirclePackage"};
+    };
 }, {
     [1235188606] = {
         File = "1235188606";
