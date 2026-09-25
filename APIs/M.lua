@@ -168,6 +168,10 @@ elseif GameId == 1701518532 then
     LoaderSettings.BadNetwork = true;
     LoaderSettings.ScaryAC = true;
     LoaderSettings.SkipBypass = false;
+elseif GameId == 5995470825 then
+    LoaderSettings.BadNetwork = true;
+    LoaderSettings.ScaryAC = true;
+    LoaderSettings.ScaryAC2 = false;
 end;
 
 if GG.LSecureLoad then
@@ -1216,12 +1220,14 @@ AssetStorage.CoruTask = function()
         end;
         Init = function(WindUI)
             for name, v in pairs(Routines) do
-                twait(0.2); WindUI:Notify({
-                    Title = "<font color='rgb(255, 0, 0)'>Thread</font>",
-                    Content = "New thread has been added to Script Core: " .. name .. "\n" .. tostring(v),
-                    Icon = "circle-alert",
-                    Duration = 10,
-                }); corur(v);
+                twait(0.2); if WindUI then
+                    WindUI:Notify({
+                        Title = "<font color='rgb(255, 0, 0)'>Thread</font>",
+                        Content = "New thread has been added to Script Core: " .. name .. "\n" .. tostring(v),
+                        Icon = "circle-alert",
+                        Duration = 10,
+                    });
+                end; corur(v);
             end; coruc = nil; coru = nil;
         end;
     };
@@ -2878,17 +2884,17 @@ AssetStorage.LoadUILib = function()
                 },
                 ThemeFallbacks = a.load "a",
                 Shapes = {
-                    Square = "rbxassetid://82909646051652",
-                    ["Square-Outline"] = "rbxassetid://72946211851948",
-                    Squircle = "rbxassetid://80999662900595",
-                    SquircleOutline = "rbxassetid://117788349049947",
-                    ["Squircle-Outline"] = "rbxassetid://117817408534198",
-                    SquircleOutline2 = "rbxassetid://117817408534198",
-                    ["Shadow-sm"] = "rbxassetid://84825982946844",
-                    ["Squircle-TL-TR"] = "rbxassetid://73569156276236",
-                    ["Squircle-BL-BR"] = "rbxassetid://93853842912264",
-                    ["Squircle-TL-TR-Outline"] = "rbxassetid://136702870075563",
-                    ["Squircle-BL-BR-Outline"] = "rbxassetid://75035847706564"
+                    Square = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://82909646051652",
+                    ["Square-Outline"] = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://72946211851948",
+                    Squircle = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://80999662900595",
+                    SquircleOutline = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://117788349049947",
+                    ["Squircle-Outline"] = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://117817408534198",
+                    SquircleOutline2 = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://117817408534198",
+                    ["Shadow-sm"] = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://84825982946844",
+                    ["Squircle-TL-TR"] = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://73569156276236",
+                    ["Squircle-BL-BR"] = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://93853842912264",
+                    ["Squircle-TL-TR-Outline"] = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://136702870075563",
+                    ["Squircle-BL-BR-Outline"] = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://75035847706564"
                 };
             };
             function p.Init(r) m = r; end;
@@ -3871,7 +3877,7 @@ AssetStorage.LoadUILib = function()
                         BackgroundTransparency = 1,
                         Size = Dim2Scale(1, 1)
                     }, {}), ac("ImageLabel", {
-                        Image = "rbxassetid://9968344105",
+                        Image = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://9968344105",
                         ImageTransparency = 0.98,
                         ScaleType = Enum.ScaleType.Tile,
                         TileSize = Dim2(0, 128, 0, 128),
@@ -3882,7 +3888,7 @@ AssetStorage.LoadUILib = function()
                             CornerRadius = Dim(0, 8)
                         });
                     }), ac("ImageLabel", {
-                        Image = "rbxassetid://9968344227",
+                        Image = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://9968344227",
                         ImageTransparency = 0.9,
                         ScaleType = Enum.ScaleType.Tile,
                         TileSize = Dim2(0, 128, 0, 128),
@@ -4901,7 +4907,7 @@ AssetStorage.LoadUILib = function()
                         ac("ImageLabel", {
                             Size = Dim2(0, ak.TooltipArrowSizeX, 0, ak.TooltipArrowSizeY),
                             BackgroundTransparency = 1,
-                            Image = "rbxassetid://105854070513330",
+                            Image = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://105854070513330",
                             ThemeTag = {
                                 ImageColor3 = "Tooltip" .. ah
                             }
@@ -7311,7 +7317,7 @@ AssetStorage.LoadUILib = function()
                 }); aw.UIElements.SatVibMap = ae("ImageLabel", {
                     Size = UDim2.fromOffset(160, 158),
                     Position = UDim2.fromOffset(0, 40 + aw.TextPadding),
-                    Image = "rbxassetid://4155801252",
+                    Image = (LoaderSettings.ScaryAC2 and "") or "rbxassetid://4155801252",
                     BackgroundColor3 = fromHSV(az, 1, 1),
                     BackgroundTransparency = 0,
                     Parent = ay.UIElements.Main
@@ -7358,7 +7364,7 @@ AssetStorage.LoadUILib = function()
                         CornerRadius = Dim(0, 8)
                     });
                 }); ae("ImageLabel", {
-                        Image = "http://www.roblox.com/asset/?id=14204231522",
+                        Image = (LoaderSettings.ScaryAC and "") or "http://www.roblox.com/asset/?id=14204231522",
                         ImageTransparency = 0.45,
                         ScaleType = Enum.ScaleType.Tile,
                         TileSize = UDim2.fromOffset(40, 40),
@@ -7430,7 +7436,7 @@ AssetStorage.LoadUILib = function()
                 ae(
                     "ImageLabel",
                     {
-                        Image = "http://www.roblox.com/asset/?id=14204231522",
+                        Image = (LoaderSettings.ScaryAC and "") or "http://www.roblox.com/asset/?id=14204231522",
                         ImageTransparency = 0.45,
                         ScaleType = Enum.ScaleType.Tile,
                         TileSize = UDim2.fromOffset(40, 40),
@@ -12367,7 +12373,7 @@ local FreeLoad, KeyLoad = {
     };
     [5995470825] = {
         File = "5995470825";
-        Version = "HyperSV3.05";
+        Version = "HyperSV3.06";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack", "CirclePackage"};
     };
 }, {
@@ -12412,7 +12418,7 @@ GG.LoadFromVControl = LoadFromVControl;
 GG.LoaderSettings = LoaderSettings;
 GG.ScriptCache = ScriptCache;
 
-if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_ForYoulol")(selff, selc) then
+if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/APIs/MultiAC.cpp", "MultiAC.lua", "2023_ACI_2026_HyperNew")(selff, selc) then
     return selff:Kick("TTJY_IDAC");
 end;
 
