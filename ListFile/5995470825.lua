@@ -55,7 +55,7 @@ Config.Aimbot = Config.Aimbot or {};
 Config.ESP = Config.ESP or {};
 
 return {
-    Version = "HyperSV3.05";
+    Version = "HyperSV3.06";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack, CircleF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -95,8 +95,6 @@ return {
         local Functions         = {randomObjs={"Head", "HumanoidRootPart"}};
         local REQ               = {};
 
-        ClientCon.FlySpeed = ClientCon.FlySpeed or 1;
-        ClientCon.WalkSpeed = ClientCon.WalkSpeed or 16;
         ClientCon.JumpPower = ClientCon.JumpPower or 50;
         ClientCon["TeleportWalk Speed"] = ClientCon["TeleportWalk Speed"] or 1;
 
@@ -354,15 +352,6 @@ return {
                         {type="Toggle", EN="Instant Reload", EN2="Faster reloading. This function was not approved by TTJY, which means we don't know whether it will be detected.", TH1="รีโหลดปืนทันที", TH2="รีโหลดเร็วขึ้น; ฟังก์ชันนี้ไม่ได้รับการอนุมัติจาก TTJY ซึ่งหมายความว่าเราไม่ทราบว่าจะถูกตรวจพบหรือไม่", Path="Client/InstantReload"},
                         {type="Toggle", EN="Full Bright", EN2="Make the game brighter, easier to see or look around.", TH1="แมพสว่าง", TH2="มองเห็นง่ายขึ้น", Bindable="+", Path="Client/Full Bright"},
                         {type="Toggle", EN="Float", EN2="Make your character float in the air.", TH1="ลอย", TH2="ทำให้ตัวละครเดินบนอากาศได้", Bindable="+", Path="Client/Float"},
-                        {type="Toggle", EN="Noclip", EN2="Allow you to walk through walls.", TH1="เดินทะลุกำแพง", TH2="ต้องอธิบายด้วยหรอ", Bindable="+", Path="Client/Noclip"},
-                        {type="Slider", EN="Walk Speed", EN2="Change the speed of your walk.", TH1="ความเร็วในการเดิน", TH2="ปรับความเร็วการเดิน", Value={Min=1, Max=100}, Path="Client/WalkSpeed", Callback=function(value)
-                            ClientCon.WalkSpeed = value;
-                            ClientPackage.SetWalkSpeed(value)
-                        end},
-                        {type="Toggle", EN="Enable Walk Speed", EN2="Enable walk speed modification.", TH1="เปิดใช้งานความเร็วในการเดิน", TH2="ปรับความเร็วในการเดิน", Bindable="+", Path="Client/Enable WalkSpeed", Locked=Chapter=="B3C1", Callback=function(state)
-                            ClientCon["Enable WalkSpeed"] = state;
-                            ClientPackage.RunWalkSpeed(state);
-                        end},
                         {type="Slider", EN="Teleport Walk Speed", EN2="Change the speed of teleport walk.", TH1="ความเร็วในการเดินแบบวาร์ป", TH2="ปรับความเร็วในการเดินแบบวาร์ป", Value={Min=1, Max=10}, Path="Client/TeleportWalk Speed"},
                         {type="Toggle", EN="Enable Teleport Walk", EN2="Enable teleport walk.", TH1="เปิดใช้งานเดินแบบวาร์ป", TH2="เปิดใช้งานเดินโดยการวาร์ปไปเรื่อยๆ", Bindable="+", Path="Client/Enable TeleportWalk"},
                         {type="Slider", EN="Jump Power", EN2="Change the power of your jump.", TH1="ความแรงในการกระโดด", TH2="ปรับความแรงในการกระโดด", Value={Min=1, Max=300}, Path="Client/JumpPower"},
@@ -402,50 +391,8 @@ return {
             };
         };
 
-        CoruTask.New("Fly", function()
-            local BG = Instancen("BodyGyro", HumRSelf);
-            local BV = Instancen("BodyVelocity", HumRSelf);
-            local VEC9E9 = Vec3(9e9, 9e9, 9e9);
-            local FSpeed = 0; while true do
-                if not ClientCon["Enable Fly"] or not HumRSelf or not HumRSelf.Parent or CoreDestroyed then
-                    Control = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0};
-                    FSpeed = 0; if BG then BG:Destroy(); end; if BV then BV:Destroy(); end; CoruTask.Close("Fly");
-                end;
-                
-                if not BG or not BG.Parent then
-                    BG = Instancen("BodyGyro", HumRSelf);
-                    BV = Instancen("BodyVelocity", HumRSelf);
-                    BG.CFrame = HumRSelf.CFrame;
-                    BV.MaxForce = VEC9E9;
-                    BG.MaxTorque = VEC9E9;
-                    BV.Velocity = VEC0;
-                    BG.P = 9e4;
-                end;
-    
-                local direction, Speed = ControlModule:GetMoveVector(), ClientCon.FlySpeed;
-                Control.L = direction.X < 0 and direction.X * Speed or 0;
-                Control.R = direction.X > 0 and direction.X * Speed or 0;
-                Control.F = direction.Z < 0 and -direction.Z * Speed or 0;
-                Control.B = direction.Z > 0 and -direction.Z * Speed or 0;
-
-                if (Control.L + Control.R) ~= 0 or (Control.F + Control.B) ~= 0 or (Control.Q + Control.E) ~= 0 then
-                    FSpeed = 50;
-                elseif not (Control.L + Control.R ~= 0 or Control.F + Control.B ~= 0 or (Control.Q + Control.E) ~= 0) and FSpeed ~= 0 then
-                    FSpeed = 0;
-                end;
-
-                if (Control.L + Control.R) ~= 0 or (Control.F + Control.B) ~= 0 or (Control.Q + Control.E) ~= 0 then
-                    BV.Velocity = ((Cam.CFrame.LookVector * (Control.F + Control.B)) + 
-                        ((Cam.CFrame * CFr(Control.L + Control.R, 
-                        (Control.F + Control.B + Control.Q + Control.E) * 0.2, 0).p) - 
-                        Cam.CFrame.p)) * FSpeed;
-                else
-                    BV.Velocity = VEC0;
-                end; twait(0.1);
-            end;
-        end);
         CoruTask.New("ESP-Main", function()
-            print(pcall(function() while true do
+            pcall(function() while true do
                 if not (ESPCon.Bots and ESPCon.Players) or CoreDestroyed then
                     CoruTask.Close("ESP-Main");
                 end;
@@ -454,7 +401,7 @@ return {
                 Functions.ESPPlayer();
 
                 twait(0.1);
-            end; end));
+            end; end);
         end);
 
         local LSecureUI = function()
@@ -511,7 +458,6 @@ return {
         end; local LSecureLoad = function(AUTH_KEY)
             local OneRunCallMain, OneRunErrorMain = pcall(function()
                 CoreDestroyed = false; GG.ESPF_ChangeMode = ESPF.Method;
-                ClientCon.WalkSpeed = HumSelf and HumSelf.WalkSpeed or 16;
                 ClientCon.JumpPower = HumSelf and HumSelf.JumpPower or 50;
                 AimbotCir:SetColor(RED); AimbotCir:SetThickness(2);
 
@@ -520,9 +466,6 @@ return {
 
                 tk.spawn(function()
                     while not CoreDestroyed do
-                        if ClientCon["Enable Fly"] then
-                            CoruTask.Handle("Fly");
-                        end;
                         if ESPCon.Bots or ESPCon.Players then
                             CoruTask.Handle("ESP-Main");
                         end; twait(0.1);
@@ -538,7 +481,6 @@ return {
                     end;
 
                     ClientPackage.UpdatePosition(ClientCon.Float, ForceFloat, HumRSelf);
-                    ClientPackage.Noclip(ClientCon.Noclip, selc.Parent and GetDescendants(selc));
                     ClientPackage.Brightness(ClientCon["Full Bright"]);
                     ClientPackage.SetJumpPower(ClientCon["Enable JumpPower"], ClientCon.JumpPower, HumSelf);
                 end);
