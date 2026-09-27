@@ -11933,7 +11933,8 @@ AssetStorage.IntroLib = function()
             }; StackPop(wind, tutorialList, 1);
         end,
         Init = function(wind, tab)
-            tab:Paragraph({Title="Announcement", Desc="Updated: [FPS] OneTap V3.02 is now out!", Color="Green"}); tab:Space();
+            tab:Paragraph({Title="Announcement", Desc="Updated: [FPS] OneTap V3.03 is now out!", Color="Green"});
+            tab:Paragraph({Title="Announcement", Desc="Updated: Streamer Mode is out! Check 'Core Settings'.", Color="Green"}); tab:Space();
             if not LoaderSettings.BadNetwork then
                 local DiscordAPI = "https://discord.com/api/v10/invites/" .. "qeDJUKBX4K" .. "?with_counts=true&with_expiration=true";
                 local Response = (function()
@@ -12168,10 +12169,172 @@ AssetStorage.CorePackage = function()
         };
     };
 
+    local WaitForChild = game.WaitForChild;
+    local StreamerModeToggle = nil;
+    local StreamerModeToggle2 = nil;
+    local StreamerModeToggle3 = nil;
+
+    tk.spawn(function()
+        local PlayerList, TargetData = WaitForChild(CoreGui, "PlayerList", 9e9), {
+            "OffsetFrame",
+            "PlayerScrollList",
+            "SizeOffsetFrame",
+            "Column",
+            "Body",
+            "ScrollingFrameClippingFrame",
+            "ScrollingFrame",
+            "OffsetUndoFrame",
+            "TeamList_Neutral"
+        };
+
+        local TARGETNAME = GG.MYDEVYES or "Protected";
+        local STABLESIZE = Dim2(0, 30, 0, 30);
+        local STABLESIZE2 = Dim(0, 7);
+        local STABLESIZE3 = Dim(0, 5);
+
+        local function SetUp(CHs)
+            for _, name in ipairs(TargetData) do
+                CHs = CHs and WaitForChild(CHs, name, 100);
+                if not CHs then return; end;
+            end
+
+            CHs = WaitForChild(CHs, "PlayerEntry_" .. selff.UserId, 3);
+            if not CHs then return; end;
+
+            local NameFrame = WaitForChild(CHs, "PlayerEntryContentFrame", 3);
+            NameFrame = NameFrame and WaitForChild(NameFrame, "OverlayFrame", 3);
+            NameFrame = NameFrame and WaitForChild(NameFrame, "NameFrame", 3);
+
+            local PlayerName = WaitForChild(NameFrame, "PlayerName", 3);
+            PlayerName = PlayerName and WaitForChild(PlayerName, "PlayerName", 3);
+
+            if PlayerName then
+                local function UpdateName()
+                    if LoaderSettings.StreamerMode then
+                        if PlayerName.Text ~= TARGETNAME then
+                            PlayerName.Text = TARGETNAME;
+                        end;
+                    end;
+                end;
+
+                PlayerName:GetPropertyChangedSignal("Text"):Connect(UpdateName);
+                UpdateName();
+            end; if not LoaderSettings.StreamerMode then return; end;
+
+            local InitalPadding = WaitForChild(NameFrame, "InitalPadding", 3);
+            local PlayerIcon = WaitForChild(NameFrame, "PlayerIcon", 3);
+            local Layout = WaitForChild(NameFrame, "Layout", 3);
+
+            if PlayerIcon and PlayerIcon.ClassName == "ImageLabel" then
+                PlayerIcon.Image = TTJYLogo;
+                PlayerIcon.Size = STABLESIZE;
+
+                if InitalPadding then
+                    InitalPadding.PaddingLeft = STABLESIZE2;
+                end; if Layout then
+                    Layout.Padding = STABLESIZE3;
+                end;
+            end;
+        end;
+
+        local function Refresh()
+            local CHs = FindFirstChild(PlayerList, "Children")
+            if CHs then SetUp(CHs); end;
+        end; Refresh();
+
+        PlayerList.ChildAdded:Connect(function(v)
+            if v.Name == "Children" then
+                task.defer(function()
+                    SetUp(v);
+                end);
+            end;
+        end); StreamerModeToggle = Refresh;
+    end);
+    tk.spawn(function()
+        local PageView = CoreGui;
+        for _, name in ipairs({
+            "RobloxGui",
+            "SettingsClippingShield",
+            "SettingsShield",
+            "MenuContainer",
+            "Page",
+            "PageViewClipper",
+            "PageView",
+            "PageViewInnerFrame"
+        }) do
+            PageView = PageView and WaitForChild(PageView, name, 9e9);
+            if not PageView then return; end;
+        end;
+
+        local Page = PageView.Parent.Parent;
+        local Players = WaitForChild(PageView, "Players", 9e9);
+        if not Players then return; end;
+
+        local function Refresh()
+            if not LoaderSettings.StreamerMode then
+                Page.Visible = true;
+                return;
+            end; if Players.Visible then
+                Page.Visible = false;
+            else
+                Page.Visible = true;
+            end;
+        end;
+
+        Players:GetPropertyChangedSignal("Visible"):Connect(Refresh);
+        Refresh(); StreamerModeToggle3 = Refresh;
+    end);
+    tk.spawn(function()
+        local PageView = CoreGui;
+        local PageViewClipper = nil;
+
+        for _, name in ipairs({
+            "RobloxGui",
+            "SettingsClippingShield",
+            "SettingsShield",
+            "MenuContainer",
+            "Page",
+            "PageViewClipper",
+            "PageView",
+            "PageViewInnerFrame"
+        }) do
+            PageView = PageView and WaitForChild(PageView, name, 9e9);
+            if not PageView then return; end;
+            if name == "PageViewClipper" then
+                PageViewClipper = PageView;
+            end;
+        end;
+
+        local peoplepage = WaitForChild(PageView, "peoplepage", 9e9)
+        if not peoplepage then return; end;
+
+        local function Refresh()
+            if not LoaderSettings.StreamerMode then
+                PageViewClipper.Visible = true;
+                return;
+            end; if peoplepage.Visible then
+                PageViewClipper.Visible = false;
+            end;
+        end;
+
+        peoplepage:GetPropertyChangedSignal("Visible"):Connect(Refresh);
+        Refresh(); StreamerModeToggle2 = Refresh;
+    end);
+
     local Data = {
         {type="Toggle", EN="Thai Language", EN2="ใช้ภาษาไทย (ต้องรันอีกรอบ แต่ปิดหน้านี้ก่อนนะ)", P="ThaiLanguage", Callback=function(state)
             LoaderSettings.ThaiLanguage = state;
         end}; {type = "Space"};
+        {type="Toggle", EN="Streamer Mode", EN2="Hiding your name from CoreGuis", TH1="สตรีมเมอร์โหมด", TH2="ซ่อนชื่อจาก CoreGuis", P="StreamerMode", Callback=function(state)
+            LoaderSettings.StreamerMode = state;
+            if StreamerModeToggle then
+                StreamerModeToggle();
+            end; if StreamerModeToggle2 then
+                StreamerModeToggle2();
+            end; if StreamerModeToggle3 then
+                StreamerModeToggle3();
+            end;
+        end};
         {type="Dropdown", EN="ESP Mode", EN2="Change the ESP mode globally.", TH1="โหมด ESP", TH2="เปลี่ยนโหมด ESP แบบglobal", P="ESPMode", Values={"Box", "Highlight", "2D"}, Callback=function(option)
             LoaderSettings.ESPMode = option; GG.ESPF_ChangeMode(option);
         end};
@@ -12368,7 +12531,7 @@ local FreeLoad, KeyLoad = {
     };
     [9294074907] = {
         File = "9294074907";
-        Version = "OneTapV3.02";
+        Version = "OneTapV3.03";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack", "CirclePackage"};
     };
     [5995470825] = {
