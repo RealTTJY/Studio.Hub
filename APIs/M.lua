@@ -172,6 +172,10 @@ elseif GameId == 5995470825 then
     LoaderSettings.BadNetwork = true;
     LoaderSettings.ScaryAC = true;
     LoaderSettings.ScaryAC2 = false;
+elseif GameId == 1831550657 then
+    LoaderSettings.CreatureOfSonaria = LoaderSettings.CreatureOfSonaria or {
+        PlayersPersistent = false;
+    };
 end;
 
 if GG.LSecureLoad then
@@ -12428,6 +12432,11 @@ AssetStorage.CorePackage = function()
         Data[#Data+1] = {type="Toggle", EN="Allow TP Bypass", EN2="Instant teleport; You need to have low ping or this won't work.", TH1="วาปทันที", TH2="เวลาฟาม เวลาขโมยจะวาปทันทีแต่ต้องเน็ตแรงๆ ปิงน้อยๆ", Callback=function(state)
             LoaderSettings.GAG2Loader.Allow_TPBypass = state;
         end};
+    elseif GameId == 1831550657 then
+        Data[#Data+1] = {type="Space"}; Data[#Data+1] = {type="Divider"}; Data[#Data+1] = {type="Space"};
+        Data[#Data+1] = {type="Toggle", EN="Players Persistent", EN2="Keep all players and objects loaded in memory, prevents them from unloading when you are far away.", TH1="โหลดข้อมูลผู้เล่นค้างไว้", TH2="โหลดข้อมูลผู้เล่นค้างไว้ ป้องกันไม่ให้มันหายไปเมื่อคุณอยู่ไกล", P="CreatureOfSonaria", P2="PlayersPersistent", Callback=function(state)
+            LoaderSettings.CreatureOfSonaria.PlayersPersistent = state;
+        end};
     end;
 
     local Init = function()
@@ -12540,6 +12549,11 @@ local FreeLoad, KeyLoad = {
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack", "CirclePackage"};
     };
 }, {
+    [1831550657] = {
+        File = "1831550657";
+        Version = "CoS_JYRS_V3_This_IsA_Force_V3_ToTheDate.01";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
+    };
     [1235188606] = {
         File = "1235188606";
         Version = "DA_V3.77";
