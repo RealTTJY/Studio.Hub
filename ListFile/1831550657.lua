@@ -105,7 +105,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "CoS_V3.02";
+    Version = "CoS_V3.03";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -585,7 +585,7 @@ return {
         Functions.DMGAuraCreature = function(self, forceDist)
             if CombatCon.Kill.AutoKill and not forceDist then return; end;
             if not self.DAC then self.DAC = 0; end;
-            if time() - self.DAC < 0.7 then return; end; self.DAC = time();
+            if time() - self.DAC < 0.7 then return; end; self.DAC = time() + mclamp(Pings, 0, 10);
 
             local Selected = CombatCon.DMGAura.SelectTarget;
             local Distance = forceDist or CombatCon.DMGAura.CreatureRange;
@@ -603,7 +603,7 @@ return {
         end;
         Functions.DMGAuraResource = function(self, Resources, forceDist)
             if not self.DAR then self.DAR = 0; end;
-            if time() - self.DAR < 0.7 then return; end; self.DAR = time();
+            if time() - self.DAR < 0.7 then return; end; self.DAR = time() + mclamp(Pings, 0, 10);
             
             local Distance = forceDist or CombatCon.DMGAura.ResourceRange;
             local AttackingTable = {}; for obj, data in pairs(Resources) do
