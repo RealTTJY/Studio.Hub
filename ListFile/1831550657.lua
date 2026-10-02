@@ -21,15 +21,18 @@ local S = GetService(game, "Stats");
 local IsA = game.IsA;
 local twait = tk.wait;
 local CFr = CFrame.new;
+local tblef = tble.find;
 local strfind = str.find;
 local Vec3 = Vector3.new;
 local tblein = tble.insert;
 local GetPivot = W.GetPivot;
 local PivotTo = W.PivotTo;
+local mclamp = math.clamp;
 local GetAttribute = game.GetAttribute;
 local SetAttribute = game.SetAttribute;
 local WaitForChild = game.WaitForChild;
 local FindFirstChild = game.FindFirstChild;
+local GetServerTimeNow = W.GetServerTimeNow;
 local FindFirstChildOfClass = game.FindFirstChildOfClass;
 
 local CF030 = CFr(0,3,0);
@@ -43,6 +46,17 @@ local SAFESPOT = CFr(-3885, 3988, 3456);
 local EMPTY_OBJECT = {Parent=nil, SeatPart=nil};
 local PERSISTENT = Enum.ModelStreamingMode.Persistent;
 
+local SHRINES = {
+    ["GarraTablet"] = CFr(3277, 381, 1520);
+    ["ArdorTablet"] = CFr(779, 203, -3425);
+    ["AngelicTablet"] = CFr(2143, 185, -1522);
+    ["RabbitTablet"] = CFr(309, 332, 2240);
+    ["HellionTablet"] = CFr(-1286, 233, 380);
+    ["NovusTablet"] = CFr(1133, 859, 818);
+    ["BorealTablet"] = CFr(-2259, 381, -1060);
+    ["EigionTablet"] = CFr(1012, -509, 514);
+};
+
 local ScriptData = {};
 local Config = GG.Configs or {};
 
@@ -54,6 +68,7 @@ Config.Dragon.Stats = Config.Dragon.Stats or {};
 Config.Dragon.Godmode = Config.Dragon.Godmode or {};
 Config.Dragon.Mood = Config.Dragon.Mood or {};
 Config.Automation = Config.Automation or {};
+Config.Automation.Farm = Config.Automation.Farm or {};
 Config.Combat = Config.Combat or {};
 Config.Combat.DMGAura = Config.Combat.DMGAura or {};
 Config.Combat.Death = Config.Combat.Death or {};
@@ -71,15 +86,15 @@ Config.ESP.TextSize = Config.ESP.TextSize or {
     Players = 1;
     Foods = 15;
     Lakes = 7;
-    NPCs = 1;
+    NPCs = 12;
     GachaTokens = 20;
 };
 Config.ESP.TextScale = Config.ESP.TextScale or {
     Players = true;
     Foods = false;
-    Lakes = true;
-    NPCs = true;
-    GachaTokens = true;
+    Lakes = false;
+    NPCs = false;
+    GachaTokens = false;
 };
 Config.ESP.TextColor = Config.ESP.TextColor or {
     Players = RED;
@@ -90,16 +105,17 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "CoS_JYRS_V3_This_IsA_Force_V3_ToTheDate.01";
+    Version = "CoS_V3.02";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
 
+        local Pings             = 0;
         local PlayerList        = {};
-        local GObject           = {Mood={}};
-        local Util              = {};
-        local Nodes             = {};
         local Data              = {};
+        local Util              = {};
+        local GObject           = {Mood={}};
+        local Nodes             = {Shrines={}};
         local Cam               = W.CurrentCamera;
         local selff             = P.LocalPlayer;
         local PSG               = selff.PlayerGui;
@@ -118,7 +134,7 @@ return {
         local CombatCon         = Config.Combat;
         local TeleportCon       = Config.Teleport;
         local ESPCon            = Config.ESP;
-        local FoodList          = {"Grass", "Carcass", "Ribs", "Algae", "Grapes", "Seeweed", "Fruit"};
+        local FoodList          = {"Grass", "Carcass", "Ribs", "Algae", "Grapes", "Seaweed", "Fruit"};
 
         local dist              = CommonF.dist;
         local Tween             = CommonF.Tween;
@@ -134,8 +150,23 @@ return {
         CombatCon.Death.Escape = CombatCon.Death.Escape or 30;
         CombatCon.Death.Return = CombatCon.Death.Return or 80;
 
+        Functions.AntiAFK = function(self)
+            if self.AlreadyLoadAFK then return; end; self.AlreadyLoadAFK = true;
+            local AntiAFKClientHelper = WaitForChild(PSG.ClientScripts, "AntiAFKClientHelper", 9e9);
+            AntiAFKClientHelper.Enabled = false; if getconnections then
+                for _, v in ipairs(getconnections(selff.Idled)) do
+                    v:Disable();
+                end;
+            end;
+        end;
         Functions.Tp = function(Pos, cd)
             return selc.Parent and PivotTo(selc, Pos), cd and twait(cd);
+        end;
+        Functions.GetPing = function()
+            return S.Network.ServerStatsItem["Data Ping"]:GetValue() / 1000;
+        end;
+        Functions.WaitPing = function(t)
+            return t + mclamp(Pings, 0, 10);
         end;
         Functions.GCValidate = function(GCs)
             for i=1, #GCs do
@@ -148,9 +179,13 @@ return {
                         Util.WaterControl = v;
                     elseif rawget(v, "GetGroundPosition") then
                         Util.WayPointClient = v;
-                    elseif rawget(v, "GetFromModel") and not rawget(v, "NPCRemoved") then
-                        if not rawget(v, "CreateNestEgg") then
-                            Util.ResourceControl = v;
+                    elseif rawget(v, "GetFromModel") then
+                        if rawget(v, "NPCRemoved") then
+                            Util.NPCControl = v;
+                        else
+                            if not rawget(v, "CreateNestEgg") then
+                                Util.ResourceControl = v;
+                            end;
                         end;
                     end;
                 end;
@@ -160,6 +195,7 @@ return {
             Util.Stamina = require(R._replicationFolder.StaminaTracker);
             Util.Oxygen = require(R._replicationFolder.OxygenTracker);
             REQ.ShoomPile = require(R._replicationFolder.ShoomPile);
+            REQ.CharData = require(R._replicationFolder.CharacterData);
 
             local UPs = getupvalues(GObject.ClientCharacter.StartEat); for i=1, #UPs do
                 local v=UPs[i]; if type(v) == 'table' then
@@ -209,8 +245,13 @@ return {
             SKYPART.Parent = Cam;
 
             GObject.ShoomPile = REQ.ShoomPile.ALL_SHOOM_PILES;
+            Nodes.NPCs = getupvalue(Util.NPCControl.GetFromModel, 1);
             GObject.ProxActions = getupvalue(Util.ProxMenu.Destroy, 1);
+            RE.Drop = WaitForChild(R.Remotes, "Drop", 9e9);
+            RE.FoodChunk = WaitForChild(R.Remotes, "FoodChunk", 9e9);
+            RE.FoodPickup = WaitForChild(R.Remotes, "FoodPickup", 9e9);
             RE.StateAilment = WaitForChild(R.Remotes, "StateAilment", 9e9);
+            RE.WardenOffering = WaitForChild(R.Remotes, "WardenOffering", 9e9);
             RE.ResourceDamage = WaitForChild(R.Remotes, "ResourceDamageRemote", 9e9);
             RE.CharactersDamage = WaitForChild(R.Remotes, "CharactersDamageRemote", 9e9);
         end;
@@ -262,8 +303,47 @@ return {
             Data.CurrentSlot = GObject.LocalData:GetCurrentSlot();
             Data.CharacterData = CurrentCharacter.CharacterData;
 
-            GG.CurrentCharacter = Data.CharacterData;
+            GG.A = GObject.ProxActions;
             Data.Init = true;
+        end;
+        Functions.ShrineValidate = function()
+            local ShrineFolder = W.Interactions["Warden Shrines"];
+            local Shrines = {
+                ShrineFolder.Angelic;
+                ShrineFolder.Ardor;
+                ShrineFolder.Boreal;
+                ShrineFolder.Eigion;
+                ShrineFolder.Garra;
+                ShrineFolder.Hellion;
+                ShrineFolder.Novus;
+                ShrineFolder.Verdant;
+            };
+            
+            local MakePersistent = function(v, num)
+                if v.ClassName ~= "MeshPart" or Nodes.Shrines[v] then
+                    return;
+                end; Nodes.Shrines[v] = true;
+
+                local Model = Instancen("Model");
+                Model.Name = v.Parent.Name;
+                Model.ModelStreamingMode = PERSISTENT;
+                Model.Parent = v.Parent;
+
+                for i=1, num do
+                    v.Parent = Model;
+                    if num ~= 1 then twait(0.5); end;
+                end;
+            end;
+
+            for i=1, #Shrines do
+                local folder=Shrines[i]; if folder.Parent then
+                    local Part = FindFirstChildOfClass(folder, "MeshPart");
+                    if Part then MakePersistent(Part, 1); end;
+                    folder.ChildAdded:Connect(function(child)
+                        MakePersistent(child, 10);
+                    end);
+                end;
+            end;
         end;
         Functions.IsMaxFood = function(CurrentSlot, MaxFood, Percent)
             if not MaxFood then return false; end;
@@ -363,7 +443,7 @@ return {
         Functions.AutoShooms = function(self, Shooms)
             for object, data in pairs(Shooms) do
                 if not data:IsHidden() then
-                    self.Tp(GetPivot(object)*CF030, 0.3);
+                    self.Tp(GetPivot(object)*CF030, Functions.WaitPing(0.3));
                     data.ProximityMenu.Actions[1].Run();
                 end;
             end
@@ -372,6 +452,133 @@ return {
             for data, _ in pairs(GObject.ProxActions) do
                 if strfind(data.Object.Name, "Token") then
                     twait(0.3); data.Actions[1].Run();
+                end;
+            end;
+        end;
+        Functions.AutoFarmFood = function(self, Foods, whitelist)
+            if not whitelist or #whitelist == 0 then return false; end;
+            if (GetAttribute(selc, "HeldCount") or 0) >= 1 then
+                RE.Drop:FireServer();
+            end;
+
+            local tbl={}; for obj, data in pairs(Foods) do
+                if typeof(obj) == 'Instance' then
+                    if strfind(obj.Name, "Corrupted") then continue; end;
+                    if tblef(whitelist, obj.Name)
+                        or (strfind(obj.Name, "Grapes") and tblef(whitelist, "Grapes"))
+                        or (strfind(obj.Name, "Seaweed") and tblef(whitelist, "Seaweed"))
+                        or (strfind(obj.Name, "Carcass") and tblef(whitelist, "Carcass"))
+                    then
+                        if not data:IsBeingHeldByPlayer() then
+                            tblein(tbl, data);
+                        end;
+                    end;
+                end;
+            end;
+
+            local CurrentPos = GetPivot(selc); for i=1, #tbl do
+                if not AutomationCon.Farm.AutoFarm then break; end;
+                local v=tbl[i];
+                local Model = v.Model;
+                if Model and Model.Parent then
+                    local FoodAmount = GetAttribute(Model, "Value");
+                    if FoodAmount < 15 then continue; end;
+                    if not v.FoodData.GrabModel then
+                        self.Tp(GetPivot(Model), Functions.WaitPing(0.7));
+                        RE.FoodPickup:InvokeServer(Model);
+                    else
+                        self.Tp(GetPivot(Model), Functions.WaitPing(0.7));
+                        RE.FoodChunk:InvokeServer(Model);
+                    end; twait(Functions.WaitPing(0));
+                    self.Tp(CurrentPos, Functions.WaitPing(0.3));
+                    RE.Drop:FireServer(); twait(Functions.WaitPing(0.3));
+                end;
+            end;
+        end;
+        Functions.InitShrine = function(self)
+            for i,v in pairs(SHRINES) do
+                self.Tp(v, Functions.WaitPing(0.5));
+            end; self.ShrinePersistent = true;
+        end;
+        Functions.InCooldown = function(Name)
+            local ShrineName = Name:gsub("Tablet$", "");
+            if ShrineName == "Rabbit" then ShrineName = "Verdant"; end;
+            local LastCompleted = FindFirstChild(PSG.Data.WardenShrines.Cooldowns, ShrineName .. "LastCompleted")
+            if not LastCompleted then return false; end;
+            return GetServerTimeNow(W) < LastCompleted.Value + 1800;
+        end;
+        Functions.HasAvailableShrine = function(self)
+            for i = 1, 8 do
+                local data = self.ActiveShrines[i]; if data then
+                    local Object = data.Object;
+                    if Object and not self.InCooldown(Object.Name) then
+                        return true;
+                    end;
+                end;
+            end;
+            return false;
+        end;
+        Functions.AutoDonate = function(self, Foods, ProxActions, whitelist)
+            if not whitelist or #whitelist == 0 then return; end;
+            if not selc.Parent then return; end;
+            if not self.ShrinePersistent then
+                self.ActiveShrines = {};
+                Functions:InitShrine(); twait(1);
+                for data,_ in pairs(ProxActions) do
+                    local Model = data.Object; if Model then
+                        if strfind(Model.Name, "Tablet") then
+                            tblein(self.ActiveShrines, data);
+                        end;
+                    end;
+                end;
+            end; if not self:HasAvailableShrine() then return; end;
+
+            if (GetAttribute(selc, "HeldCount") or 0) >= 1 then
+                RE.Drop:FireServer();
+            end;
+
+            local tbl={}; for obj, data in pairs(Foods) do
+                if typeof(obj) == 'Instance' then
+                    if strfind(obj.Name, "Grass") then continue; end;
+                    if strfind(obj.Name, "Algae") then continue; end;
+                    if strfind(obj.Name, "Corrupted") then continue; end;
+                    if tblef(whitelist, obj.Name)
+                        or (strfind(obj.Name, "Grapes") and tblef(whitelist, "Grapes"))
+                        or (strfind(obj.Name, "Seaweed") and tblef(whitelist, "Seaweed"))
+                        or (strfind(obj.Name, "Carcass") and tblef(whitelist, "Carcass"))
+                    then
+                        if not data:IsBeingHeldByPlayer() then
+                            tblein(tbl, data);
+                        end;
+                    end;
+                end;
+            end;
+            
+            for i=1, #tbl do
+                if not AutomationCon.Farm.AutoDonateShrine then break; end;
+                local v=tbl[i];
+                local Model = v.Model;
+                if Model and Model.Parent then
+                    local FoodAmount = GetAttribute(Model, "Value");
+                    if FoodAmount < 15 then continue; end;
+                    if not v.FoodData.GrabModel then
+                        self.Tp(GetPivot(Model), Functions.WaitPing(0.7));
+                        RE.FoodPickup:InvokeServer(Model);
+                    else
+                        self.Tp(GetPivot(Model), Functions.WaitPing(0.7));
+                        RE.FoodChunk:InvokeServer(Model);
+                    end; twait(Functions.WaitPing(0));
+                    
+                    for i=1, 8 do
+                        if not AutomationCon.Farm.AutoDonateShrine then break; end;
+                        local data = self.ActiveShrines[i];
+                        if not data then continue; end;
+                        local Object = data.Object;
+                        if not Object then continue; end;
+                        if self.InCooldown(Object.Name) then continue; end;
+                        self.Tp(GetPivot(Object), Functions.WaitPing(0.3));
+                        data.Actions[1].Run(); twait(Functions.WaitPing(0.3)); break;
+                    end;
                 end;
             end;
         end;
@@ -510,6 +717,22 @@ return {
             ESPF.Size(POINTER, ESPCon.TextSize[POINTER]);
             ESPF.Color(POINTER, ESPCon.TextColor[POINTER]);
         end;
+        Functions.ESPNPCs = function(NPCs)
+            local POINTER = "NPCs"; for obj, data in pairs(NPCs) do
+                if data.IsDead then continue; end;
+                local ESPObject = ESPF.ESP(POINTER, obj, {
+                    Color = YELLOW;
+                    Size = VEC2;
+                    Text = data.Data.Name;
+                    NoStart = true;
+                });
+            end;
+
+            ESPF.Visible(POINTER, true, ESPCon.ShowText[POINTER]);
+            ESPF.Scale(POINTER, ESPCon.TextScale[POINTER]);
+            ESPF.Size(POINTER, ESPCon.TextSize[POINTER]);
+            ESPF.Color(POINTER, ESPCon.TextColor[POINTER]);
+        end;
         Functions.ESPGachaTokens = function(ProxActions)
             local POINTER = "GachaTokens"; for data, _ in pairs(ProxActions) do
                 if strfind(data.Object.Name, "Token") then
@@ -531,12 +754,37 @@ return {
             for _, data in pairs(PlayerList) do
                 if not (data.Character and data.Character.Parent) then continue; end;
                 if isPersis and data.Character.ModelStreamingMode ~= PERSISTENT then
-                    local HumR = FindFirstChild(data.Character, "HumanoidRootPart");
                     data.Character.ModelStreamingMode = PERSISTENT;
-                    if HumR then continue; end; warn("BEING PERSIS");
-                    selff:RequestStreamAroundAsync(GetPivot(data.Character).Position, 1);
+                    if FindFirstChild(data.Character, "HumanoidRootPart") then continue; end;
+                    selff:RequestStreamAroundAsync(GetPivot(data.Character).Position);
                 elseif not isPersis and data.Character.ModelStreamingMode == PERSISTENT then
                     data.Character.ModelStreamingMode = Enum.ModelStreamingMode.Default;
+                end;
+            end;
+        end;
+        Functions.FoodsPersistent = function(Foods, isPersis)
+            if not Foods then return; end; for obj,_ in pairs(Foods) do
+                if obj and obj.Parent then
+                    if isPersis and obj.ModelStreamingMode ~= PERSISTENT then
+                        obj.ModelStreamingMode = PERSISTENT;
+                        if FindFirstChildOfClass(obj, "BasePart") then continue; end;
+                        selff:RequestStreamAroundAsync(GetPivot(obj).Position);
+                    elseif not isPersis and obj.ModelStreamingMode == PERSISTENT then
+                        obj.ModelStreamingMode = Enum.ModelStreamingMode.Default;
+                    end;
+                end;
+            end;
+        end;
+        Functions.NPCsPersistent = function(NPCs, isPersis)
+            if not NPCs then return; end; for obj,_ in pairs(NPCs) do
+                if obj and obj.Parent then
+                    if isPersis and obj.ModelStreamingMode ~= PERSISTENT then
+                        obj.ModelStreamingMode = PERSISTENT;
+                        if FindFirstChildOfClass(obj, "BasePart") then continue; end;
+                        selff:RequestStreamAroundAsync(GetPivot(obj).Position);
+                    elseif not isPersis and obj.ModelStreamingMode == PERSISTENT then
+                        obj.ModelStreamingMode = Enum.ModelStreamingMode.Default;
+                    end;
                 end;
             end;
         end;
@@ -545,6 +793,14 @@ return {
             ClientTab = {
                 {type="Group", dats={
                     {dat={
+                        {type="Button", EN="No Fog", EN2="Remove fog.", TH1="ปิดหมอก", TH2="ลบหมอก", Callback=function()
+                            local Lighting = GetService(game, "Lighting");
+                            for i,v in pairs(Lighting:GetDescendants()) do
+                                if IsA(v, "Atmosphere") then
+                                    v:Destroy();
+                                end;
+                            end; Lighting.FogEnd = 100000;
+                        end},
                         {type="Toggle", EN="No Render", EN2="Change camera subject & disable 3D rendering", TH1="ปิดการ Render", TH2="เปลี่ยนกล้องและปิดการ render 3D", Bindable="+", Path="Client/No Render", Callback=function(state)
                             ClientCon["No Render"] = state;
                             H:Set3dRenderingEnabled(not state);
@@ -577,9 +833,11 @@ return {
                 {type="Toggle", EN="Auto Collect Shooms", EN2="Teleport & collect shooms.", TH1="ออโต้เก็บ Shooms", TH2="วาปและเก็บShooms", Path="Shooms", Bindable="+"};
                 {type="Toggle", EN="Auto Collect Gacha Tokens", EN2="Teleport & collect tokens.", TH1="ออโต้เก็บโทเคน Gacha", TH2="วาปและเก็บโทเคน", Path="GachaTokens", Bindable="+"};
                 {type="Space"}; {type="Divider"}; {type="Space"};
-                {type="Dropdown", EN="Select Food", EN2="Select food type that you are willing to farm.", TH1="เลือกอาหาร", TH2="เลือกประเภทอาหารที่จะฟาม", Path="Farm/SelectFood", Values={}, Locked=true};
-                {type="Toggle", EN="Auto Farm", EN2="Teleport & grab the food then drop at start position.", TH1="ออโต้ฟาม", TH2="วาปเก็บอาหารแล้วมาวางไว้ตรงที่เราเริ่มฟาม", Path="Farm/AutoFarm", Bindable="+", Locked=true};
-                {type="Toggle", EN="Auto Donate", EN2="Grab the food then donate to the Shrine.", TH1="ออโต้โดเนท", TH2="เก็บอาหารแล้วโดเนทไปที่ Shrine", Path="Farm/AutoDonateShrine", Bindable="+", Locked=true};
+                {type="Dropdown", EN="Select Food", EN2="Select food type that you are willing to farm.", TH1="เลือกอาหาร", TH2="เลือกประเภทอาหารที่จะฟาม", Path="Farm/SelectFood", Multi=true, Values=(function()
+                    return {"Grass", "Carcass", "Algae", "Grapes", "Seaweed", "Fruit"}
+                end)()};
+                {type="Toggle", EN="Auto Farm", EN2="Teleport & grab the food then drop at start position.", TH1="ออโต้ฟาม", TH2="วาปเก็บอาหารแล้วมาวางไว้ตรงที่เราเริ่มฟาม", Path="Farm/AutoFarm", Bindable="+"};
+                {type="Toggle", EN="Auto Donate", EN2="Grab the food then donate to the Shrine.", TH1="ออโต้โดเนท", TH2="เก็บอาหารแล้วโดเนทไปที่ Shrine", Path="Farm/AutoDonateShrine", Bindable="+"};
             };
             CombatTab = {
                 {type="Dropdown", EN="Select Target", EN2="Select a target to take actions with.", TH1="เลือกเป้าหมาย", TH2="เลือกเป้าหมายเพื่อดําเนินการ", Path="DMGAura/SelectTarget", Values={"All"}, RECall={
@@ -644,7 +902,7 @@ return {
                         ESPF.Visible("Lakes", false);
                     end;
                 end};
-                {type="Toggle", EN="NPCs", TH1="NPCs", Path="NPCs", Bindable="+", Locked=true, Callback=function(state)
+                {type="Toggle", EN="NPCs", TH1="NPCs", Path="NPCs", Bindable="+", Callback=function(state)
                     ESPCon.NPCs = state; if not state then
                         ESPF.Visible("NPCs", false);
                     end;
@@ -656,12 +914,14 @@ return {
                 end};
             };
             AFKTab = {
-                {type="Toggle", EN="Anti-AFK", TH1="กันโดนเตะAFK", Path="AntiAFK", Bindable="+"};
+                {type="Button", EN="Anti-AFK", TH1="กันโดนเตะAFK", Callback=function()
+                    Functions:AntiAFK();
+                end};
                 {type="Space"};
-                {type="Dropdown", EN="Select Type", EN2="Select Elder Type", TH1="เลือกประเภท", TH2="เลือกประเภทมังกรตอนโต", Path="ElderType", AllowNone=true, Values={}};
-                {type="Slider", EN="Eat At %", EN2="Teleport & eat food if the hunger bar is below the %", TH1="กินที่ %", TH2="วาปไปกินอาหารถ้าหลอดอาหารต่ำกว่า %", Path="EatAt", Value={Min=1, Max=100}};
-                {type="Slider", EN="Drink At %", EN2="Teleport & drink water if the water bar is below the %", TH1="ดื่มที่ %", TH2="คำอธิบาย Slider", Path="Client/NewSlider", Value={Min=1, Max=100}};
-                {type="Toggle", EN="AFK Grow", EN2="Teleport outside the map & afk growing.", TH1="AFK โต", TH2="วาปไปนอกแมพแล้ว AFK การเจริญเติบโต", Path="AFKGrow", Bindable="+"};
+                {type="Dropdown", EN="Select Type", EN2="Select Elder Type", TH1="เลือกประเภท", TH2="เลือกประเภทมังกรตอนโต", Path="ElderType", AllowNone=true, Values={}, Locked=true};
+                {type="Slider", EN="Eat At %", EN2="Teleport & eat food if the hunger bar is below the %", TH1="กินที่ %", TH2="วาปไปกินอาหารถ้าหลอดอาหารต่ำกว่า %", Path="EatAt", Value={Min=1, Max=100}, Locked=true};
+                {type="Slider", EN="Drink At %", EN2="Teleport & drink water if the water bar is below the %", TH1="ดื่มที่ %", TH2="คำอธิบาย Slider", Path="Client/NewSlider", Value={Min=1, Max=100}, Locked=true};
+                {type="Toggle", EN="AFK Grow", EN2="Teleport outside the map & afk growing.", TH1="AFK โต", TH2="วาปไปนอกแมพแล้ว AFK การเจริญเติบโต", Path="AFKGrow", Bindable="+", Locked=true};
             };
         };
 
@@ -670,6 +930,8 @@ return {
                 local shouldNotClose = (
                     AutomationCon.Shooms
                     or DragonCon.Life.AutoEat
+                    or AutomationCon.Farm.AutoFarm
+                    or AutomationCon.Farm.AutoDonateShrine
                     or CombatCon.Kill.AutoKill
                 ) and not CoreDestroyed;
 
@@ -677,25 +939,43 @@ return {
                     CoruTask.Close("RequiredMovement-Main");
                 end;
 
-                local ActiveNodes = Nodes;
                 local DataFt = Data.DataFt;
                 local CurrentSlot = Data.CurrentSlot;
                 local CharacterData = Data.CharacterData;
 
                 if DataFt and CharacterData and CurrentSlot then
+                    local Foods = Nodes.Foods;
                     local Shooms = GObject.ShoomPile;
+                    local ProxActions = GObject.ProxActions;
 
                     if AutomationCon.Shooms and Shooms then
                         Functions:AutoShooms(Shooms);
                     end;
 
-                    if DragonCon.Life.AutoEat and ActiveNodes.Foods then
-                        Functions:AutoEat(
-                            ActiveNodes.Foods,
-                            CurrentSlot,
-                            CharacterData,
-                            DataFt
-                        );
+                    if Foods then
+                        if DragonCon.Life.AutoEat then
+                            Functions:AutoEat(
+                                Foods,
+                                CurrentSlot,
+                                CharacterData,
+                                DataFt
+                            );
+                        end;
+
+                        if AutomationCon.Farm.AutoFarm then
+                            Functions:AutoFarmFood(
+                                Foods,
+                                AutomationCon.Farm.SelectFood
+                            );
+                        end;
+
+                        if AutomationCon.Farm.AutoDonateShrine and ProxActions then
+                            Functions:AutoDonate(
+                                Foods,
+                                ProxActions,
+                                AutomationCon.Farm.SelectFood
+                            );
+                        end;
                     end;
 
                     if CombatCon.Kill.AutoKill  then
@@ -743,8 +1023,8 @@ return {
                 local CharacterData = Data.CharacterData;
 
                 if CurrentSlot and CharacterData then
-                    local Ailment = Data.Ailment;
                     local Resources = Nodes.Resources;
+                    local Ailment = Data.Ailment;
 
                     if AutomationCon.GachaTokens then
                         Functions:AutoGachaToken();
@@ -802,6 +1082,7 @@ return {
                     CoruTask.Close("ESP-Main");
                 end;
 
+                local NPCs = Nodes.NPCs;
                 local Foods = Nodes.Foods;
                 local Lakes = Nodes.Lakes;
                 local ProxActions = GObject.ProxActions;
@@ -814,6 +1095,9 @@ return {
                 end;
                 if ESPCon.Lakes and Lakes then
                     Functions.ESPLakes(Lakes);
+                end;
+                if ESPCon.NPCs and NPCs then
+                    Functions.ESPNPCs(NPCs);
                 end;
                 if ESPCon.GachaTokens and ProxActions then
                     Functions.ESPGachaTokens(ProxActions);
@@ -841,15 +1125,17 @@ return {
             end; end));
         end);
         CoruTask.New("Persistence-Task", function()
-            warn(pcall(function() while true do
+            while true do
                 if CoreDestroyed then
                     CoruTask.Close("Persistence-Task");
                 end;
 
                 Functions.PlayersPersistence(LoaderSettings.CreatureOfSonaria.PlayersPersistent);
+                Functions.FoodsPersistent(Nodes.Foods, LoaderSettings.CreatureOfSonaria.FoodsPersistent);
+                Functions.NPCsPersistent(Nodes.NPCs, LoaderSettings.CreatureOfSonaria.NPCsPersistent);
 
                 twait(0.1);
-            end; end));
+            end;
         end);
 
         local LSecureUI = function()
@@ -886,7 +1172,7 @@ return {
                 Combat = Window:Tab({ Title = "Combat", Icon = "sword" }),
                 Teleport = Window:Tab({ Title = "Teleport", Icon = "map-pin" }),
                 ESP = Window:Tab({ Title = "ESP", Icon = "eye" }),
-                AFK = Window:Tab({ Title = "AFK", Icon = "user-round-check", Locked=true }),
+                AFK = Window:Tab({ Title = "AFK", Icon = "user-round-check" }),
 
                 ExtraDiv = Window:Divider(),
                 AddOn = LoaderSettings.AllowAddOn and Window:Tab({ Title = "AddOn", Icon = "box" }),
@@ -929,7 +1215,9 @@ return {
                     while not CoreDestroyed do
                         local RequiredMovementMain = AutomationCon.Shooms
                             or DragonCon.Life.AutoEat
-                            or CombatCon.Kill.AutoKill;
+                            or CombatCon.Kill.AutoKill
+                            or AutomationCon.Farm.AutoFarm
+                            or AutomationCon.Farm.AutoDonateShrine;
                         local RequiredMovementSub = CombatCon.Death.AntiDeath;
                         local NoneMovementMain = AutomationCon.GachaTokens
                             or DragonCon.Godmode.AdminImmunity
@@ -946,7 +1234,6 @@ return {
                             or ESPCon.GachaTokens;
                         local BannableTask = CombatCon.Kill.AutoKillEveryone
                             or CombatCon.Kill.AutoDestroyResources;
-                        local PersistentTask = LoaderSettings.CreatureOfSonaria.PlayersPersistent;
 
                         if RequiredMovementMain then
                             CoruTask.Handle("RequiredMovement-Main");
@@ -979,6 +1266,7 @@ return {
                     end;
 
                     ClientPackage.Brightness(ClientCon["Full Bright"]);
+                    Pings = Functions.GetPing();
                 end);
                 CoreConnection[2] = H.Heartbeat:Connect(function(delta)
                     if CoreDestroyed and CoreConnection[2] then
@@ -1028,9 +1316,16 @@ return {
                         Functions.OnPlayersValidate(CHs[i]);
                     end;
 
+                    local FadeGui = WaitForChild(PSG, "FadeGui", 3);
+                    local FadeFrame = FadeGui and WaitForChild(FadeGui, "FadeFrame", 9e9);
+                    if FadeFrame and FadeFrame.Visible then
+                        FadeFrame:GetPropertyChangedSignal("Visible"):Wait();
+                    end;
+
                     Functions.GCValidate(getgc(true));
                     Functions.GameValidate();
                     Functions.GameViolation();
+                    Functions.ShrineValidate();
                 end;
             end); if OneRunCallMain then
                 return true, GG.LoadingSignal:Fire(100);
