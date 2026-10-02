@@ -12608,6 +12608,7 @@ if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubu
 end;
 
 if GG.API_Only then return; end;
+if GameId == 1235188606 then return game:GetService("Players").LocalPlayer:Kick("Waiting for update"); end;
 
 local Resolve = FreeLoad[GameId] and FreeLoad[GameId].File .. ".lua";
 Resolve = Resolve or (KeyLoad[GameId] and KeyLoad[GameId].File .. ".lua");
