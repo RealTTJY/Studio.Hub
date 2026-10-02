@@ -175,6 +175,8 @@ elseif GameId == 5995470825 then
 elseif GameId == 1831550657 then
     LoaderSettings.CreatureOfSonaria = LoaderSettings.CreatureOfSonaria or {
         PlayersPersistent = false;
+        FoodsPersistent = false;
+        NPCsPersistent = false;
     };
 end;
 
@@ -1124,7 +1126,7 @@ AssetStorage.ESPPackage = function()
         DynamicU = function(self, Windy, tab, data)
             if not tab or not Windy then return; end;
 
-            if not CachedUData then
+            CachedUData = nil; if not CachedUData then
                 CachedUData = {}; for i=1, #data do
                     local head=data[i]; if head.Title then
                         CachedUData[i] = {
@@ -12434,8 +12436,14 @@ AssetStorage.CorePackage = function()
         end};
     elseif GameId == 1831550657 then
         Data[#Data+1] = {type="Space"}; Data[#Data+1] = {type="Divider"}; Data[#Data+1] = {type="Space"};
-        Data[#Data+1] = {type="Toggle", EN="Players Persistent", EN2="Keep all players and objects loaded in memory, prevents them from unloading when you are far away.", TH1="โหลดข้อมูลผู้เล่นค้างไว้", TH2="โหลดข้อมูลผู้เล่นค้างไว้ ป้องกันไม่ให้มันหายไปเมื่อคุณอยู่ไกล", P="CreatureOfSonaria", P2="PlayersPersistent", Callback=function(state)
+        Data[#Data+1] = {type="Toggle", EN="Players Persistent", EN2="Keep all players loaded in memory, prevents them from unloading when you are far away.", TH1="โหลดข้อมูลผู้เล่นค้างไว้", TH2="โหลดข้อมูลผู้เล่นค้างไว้ ป้องกันไม่ให้มันหายไปเมื่อคุณอยู่ไกล", P="CreatureOfSonaria", P2="PlayersPersistent", Callback=function(state)
             LoaderSettings.CreatureOfSonaria.PlayersPersistent = state;
+        end};
+        Data[#Data+1] = {type="Toggle", EN="Foods Persistent", EN2="Keep all foods loaded in memory, prevents them from unloading when you are far away.", TH1="โหลดข้อมูลอาหารค้างไว้", TH2="โหลดข้อมูลอาหารค้างไว้ ป้องกันไม่ให้มันหายไปเมื่อคุณอยู่ไกล", P="CreatureOfSonaria", P2="FoodsPersistent", Callback=function(state)
+            LoaderSettings.CreatureOfSonaria.FoodsPersistent = state;
+        end};
+        Data[#Data+1] = {type="Toggle", EN="NPCs Persistent", EN2="Keep all NPCs loaded in memory, prevents them from unloading when you are far away.", TH1="โหลดข้อมูล NPC ค้างไว้", TH2="โหลดข้อมูล NPC ค้างไว้ ป้องกันไม่ให้มันหายไปเมื่อคุณอยู่ไกล", P="CreatureOfSonaria", P2="NPCsPersistent", Callback=function(state)
+            LoaderSettings.CreatureOfSonaria.NPCsPersistent = state;
         end};
     end;
 
@@ -12551,7 +12559,7 @@ local FreeLoad, KeyLoad = {
 }, {
     [1831550657] = {
         File = "1831550657";
-        Version = "CoS_JYRS_V3_This_IsA_Force_V3_ToTheDate.01";
+        Version = "CoS_V3.02";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [1235188606] = {
