@@ -100,7 +100,7 @@ Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.77";
+    Version = "DA_V3.78";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -123,7 +123,7 @@ return {
         local ControlModule     = require(WaitForChild(WaitForChild(PSS, "PlayerModule", 9e9), "ControlModule", 9e9));
 
         local VOIDPART          = Instancen("Part");
-        local SData             = WaitForChild(selff, "Data", 9e9);
+        local SData             = WaitForChild(WaitForChild(PSG, "PlayerDataGui", 9e9), "Data", 9e9);
         local SDDragon          = WaitForChild(SData, "Dragons", 9e9);
         local SRemotes          = WaitForChild(selff, "Remotes", 9e9);
         local RRemotes          = WaitForChild(R, "Remotes", 9e9);
