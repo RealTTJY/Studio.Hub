@@ -12564,7 +12564,7 @@ local FreeLoad, KeyLoad = {
     };
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.77";
+        Version = "DA_V3.78";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
@@ -12608,7 +12608,6 @@ if (not LoaderSettings.SkipBypass) and not LoadFromVControl("https://raw.githubu
 end;
 
 if GG.API_Only then return; end;
-if GameId == 1235188606 then return game:GetService("Players").LocalPlayer:Kick("Waiting for update"); end;
 
 local Resolve = FreeLoad[GameId] and FreeLoad[GameId].File .. ".lua";
 Resolve = Resolve or (KeyLoad[GameId] and KeyLoad[GameId].File .. ".lua");
