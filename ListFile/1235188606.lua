@@ -100,7 +100,7 @@ Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 
 return {
-    Version = "DA_V3.78";
+    Version = "DA_V3.79";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -501,7 +501,9 @@ return {
             local Fire = FindFirstChild(Data, "Fire");
             local Fuel = FindFirstChild(Fire, "BreathFuel");
             if Fuel and Fuel.Value <= 2 and Fire.Value then
-                FireRE:FireServer(false);
+                if not DragonCon.InfiniteBreath then
+                    FireRE:FireServer(false);
+                end;
             elseif Fuel and Fuel.Value > 2 and not Fire.Value then
                 FireRE:FireServer(true);
             end; return Fire.Value, FindFirstChild(Remotes, "PlaySoundRemote");
@@ -862,7 +864,8 @@ return {
                 }};
             };
             DragonTab = {
-                {type="Toggle", EN="Godmode", EN2="Immune to mobs and 'some' boss.", TH1="อมตะ", TH2="มอนและบอสบางตัวตีไม่เข้า", Path="Godmode"},
+                {type="Toggle", EN="Godmode", EN2="Immune to mobs and 'some' boss.", TH1="อมตะ", TH2="มอนและบอสบางตัวตีไม่เข้า", Path="Godmode"}; {type="Space"};
+                {type="Toggle", EN="Infinite Breath", EN2="Infinite breath", TH1="หายใจไม่จำกัด", TH2="หายใจไม่จำกัด", Path="InfiniteBreath", Global="InfBreath", Locked=not LoaderSettings.DragonAdventure.ShowAllFeatures};
             };
             EconomyTab = {
                 {type="Dropdown", EN="Select Mode", EN2="Select which Mode you want to use.", TH1="เลือกโหมด", TH2="เลือกว่าจะใช้โหมดไหน", Values={"Food", "Resources"}, Path="SellMode"},
@@ -1304,6 +1307,8 @@ return {
 
                         local Common = BreathData and REQ.Riding and REQ.DragonClass;
 
+                        GG.Fuck = BreathData;
+
                         if CurrentWorld ~= "Solstice2026" then
                             if Common and FishingClient and NodeClass and UPs then break; end;
                         elseif Common then break; end; GCs = getgc(true); twait(3);
@@ -1377,6 +1382,14 @@ return {
                         for _, v in ipairs(getconnections(selff.Idled)) do
                             v:Disable();
                         end;
+                    end;
+
+                    if BreathData then
+                        local o;o=LowerC(BreathData.Stop, function(...)
+                            if DragonCon.InfiniteBreath then
+                                return;
+                            end; return o(...);
+                        end);
                     end;
 
                     local RewardFrame = FindFirstChild(PSG, "MinigamesGui");
