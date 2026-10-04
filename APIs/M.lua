@@ -12429,6 +12429,18 @@ AssetStorage.CorePackage = function()
         Data[#Data+1] = {type="Toggle", EN="Auto Join Private server", EN2="Give you free private server, this will auto join the private server after you teleport to other world that isn't lobby.", TH1="ออโต้เข้าPrivate server", TH2="จะวาปไป Private server ให้อัตโนมัติเมื่อไปยังแมพอื่นที่ไม่ใช่ล็อบบี้", P="DragonAdventure", P2="AutoJoinPrivateServer", Callback=function(state)
             LoaderSettings.DragonAdventure.AutoJoinPrivateServer = state;
         end};
+        Data[#Data+1] = {type="Toggle", EN="Show All Features", EN2="Show multiple hidden feature on the UI that might be at risk or untested or it's not even detected but we just don't want anyone use.", TH1="แสดงทุกฟีเจอร์", TH2="จะแสดงฟีเจอร์ทั้งหมดบน UI อาจมีฟีเจอร์ที่ไม่เสี่ยงหรือยังไม่ทดสอบหรืออาจจะยังไม่ถูกตรวจจับแต่เราแค่ไม่ต้องการให้ใครใช้", P="DragonAdventure", P2="ShowAllFeatures", Callback=function(state)
+            LoaderSettings.DragonAdventure.ShowAllFeatures = state;
+            if state then
+                if ScriptCache.InfBreath then
+                    ScriptCache.InfBreath:Unlock();
+                end;
+            else
+                if ScriptCache.InfBreath then
+                    ScriptCache.InfBreath:Lock();
+                end;
+            end;
+        end};
     elseif GameId == 10200395747 then
         Data[#Data+1] = {type="Space"}; Data[#Data+1] = {type="Divider"}; Data[#Data+1] = {type="Space"};
         Data[#Data+1] = {type="Toggle", EN="Allow TP Bypass", EN2="Instant teleport; You need to have low ping or this won't work.", TH1="วาปทันที", TH2="เวลาฟาม เวลาขโมยจะวาปทันทีแต่ต้องเน็ตแรงๆ ปิงน้อยๆ", Callback=function(state)
@@ -12564,7 +12576,7 @@ local FreeLoad, KeyLoad = {
     };
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.78";
+        Version = "DA_V3.79";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
