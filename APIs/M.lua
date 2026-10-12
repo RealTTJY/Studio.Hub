@@ -611,7 +611,7 @@ AssetStorage.CommonF = function()
                 TweenService, arg.primary,
                 arg.info or OriginalTw, arg.goal
             ); Tween:Play();
-            return Tween, Tween.Completed:Wait();
+            return Tween, arg.Wait and Tween.Completed:Wait();
         end;
         Anchored = function(HumRSelf, bool)
             if not HumRSelf.Parent then return; end;
@@ -12607,6 +12607,11 @@ local FreeLoad, KeyLoad = {
     [6739698191] = {
         File = "6739698191";
         Version = "VD_V3.02";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
+    };
+    [10512942223] = {
+        File = "10512942223";
+        Version = "AnimeZero_V3.01";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
 };
