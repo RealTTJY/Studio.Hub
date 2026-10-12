@@ -611,7 +611,7 @@ AssetStorage.CommonF = function()
                 TweenService, arg.primary,
                 arg.info or OriginalTw, arg.goal
             ); Tween:Play();
-            return Tween, arg.Wait and Tween.Completed:Wait();
+            return Tween, not arg.NoWait and Tween.Completed:Wait();
         end;
         Anchored = function(HumRSelf, bool)
             if not HumRSelf.Parent then return; end;
