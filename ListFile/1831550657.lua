@@ -105,7 +105,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "CoS_V3.03";
+    Version = "CoS_V3.04";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -503,7 +503,9 @@ return {
         Functions.InCooldown = function(Name)
             local ShrineName = Name:gsub("Tablet$", "");
             if ShrineName == "Rabbit" then ShrineName = "Verdant"; end;
-            local LastCompleted = FindFirstChild(PSG.Data.WardenShrines.Cooldowns, ShrineName .. "LastCompleted")
+            local DataGui = FindFirstChild(PSG, "PlayerDataGui") or FindFirstChild(PSG, "Data");
+            if DataGui and DataGui.Name == "PlayerDataGui" then DataGui = FindFirstChild(DataGui, "Data"); end;
+            local LastCompleted = DataGui and FindFirstChild(DataGui.WardenShrines.Cooldowns, ShrineName .. "LastCompleted")
             if not LastCompleted then return false; end;
             return GetServerTimeNow(W) < LastCompleted.Value + 1800;
         end;
