@@ -55,6 +55,7 @@ local SHRINES = {
     ["NovusTablet"] = CFr(1133, 859, 818);
     ["BorealTablet"] = CFr(-2259, 381, -1060);
     ["EigionTablet"] = CFr(1012, -509, 514);
+    ["ShadowTablet"] = CFr(237, 384, -135);
 };
 
 local ScriptData = {};
@@ -105,7 +106,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "CoS_V3.04";
+    Version = "CoS_V3.05";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -317,6 +318,7 @@ return {
                 ShrineFolder.Hellion;
                 ShrineFolder.Novus;
                 ShrineFolder.Verdant;
+                FindFirstChild(ShrineFolder, "Shadow");
             };
             
             local MakePersistent = function(v, num)
@@ -336,7 +338,7 @@ return {
             end;
 
             for i=1, #Shrines do
-                local folder=Shrines[i]; if folder.Parent then
+                local folder=Shrines[i]; if folder and folder.Parent then
                     local Part = FindFirstChildOfClass(folder, "MeshPart");
                     if Part then MakePersistent(Part, 1); end;
                     folder.ChildAdded:Connect(function(child)
@@ -510,7 +512,7 @@ return {
             return GetServerTimeNow(W) < LastCompleted.Value + 1800;
         end;
         Functions.HasAvailableShrine = function(self)
-            for i = 1, 8 do
+            for i = 1, 9 do
                 local data = self.ActiveShrines[i]; if data then
                     local Object = data.Object;
                     if Object and not self.InCooldown(Object.Name) then
@@ -571,7 +573,7 @@ return {
                         RE.FoodChunk:InvokeServer(Model);
                     end; twait(Functions.WaitPing(0));
                     
-                    for i=1, 8 do
+                    for i=1, 9 do
                         if not AutomationCon.Farm.AutoDonateShrine then break; end;
                         local data = self.ActiveShrines[i];
                         if not data then continue; end;
