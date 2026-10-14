@@ -12568,10 +12568,15 @@ local FreeLoad, KeyLoad = {
         Version = "HyperSV3.06";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack", "CirclePackage"};
     };
+    [6331902150] = {
+        File = "6331902150";
+        Version = "Forsaken_V3.01";
+        Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
+    };
 }, {
     [1831550657] = {
         File = "1831550657";
-        Version = "CoS_V3.04";
+        Version = "CoS_V3.05";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [1235188606] = {
