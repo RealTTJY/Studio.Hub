@@ -106,7 +106,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "CoS_V3.05";
+    Version = "CoS_V3.06";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -310,14 +310,14 @@ return {
         Functions.ShrineValidate = function()
             local ShrineFolder = W.Interactions["Warden Shrines"];
             local Shrines = {
-                ShrineFolder.Angelic;
-                ShrineFolder.Ardor;
-                ShrineFolder.Boreal;
-                ShrineFolder.Eigion;
-                ShrineFolder.Garra;
-                ShrineFolder.Hellion;
-                ShrineFolder.Novus;
-                ShrineFolder.Verdant;
+                FindFirstChild(ShrineFolder, "Angelic");
+                FindFirstChild(ShrineFolder, "Ardor");
+                FindFirstChild(ShrineFolder, "Boreal");
+                FindFirstChild(ShrineFolder, "Eigion");
+                FindFirstChild(ShrineFolder, "Garra");
+                FindFirstChild(ShrineFolder, "Hellion");
+                FindFirstChild(ShrineFolder, "Novus");
+                FindFirstChild(ShrineFolder, "Verdant");
                 FindFirstChild(ShrineFolder, "Shadow");
             };
             
