@@ -12576,7 +12576,7 @@ local FreeLoad, KeyLoad = {
 }, {
     [1831550657] = {
         File = "1831550657";
-        Version = "CoS_V3.05";
+        Version = "CoS_V3.06";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [1235188606] = {
