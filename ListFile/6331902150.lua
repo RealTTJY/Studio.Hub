@@ -12,6 +12,7 @@ local tble = table;
 local Col3 = Color3;
 local tk = task;
 
+local TextService = GetService(game, "TextChatService");
 local TweenService = GetService(game, "TweenService");
 local R = GetService(game, "ReplicatedStorage");
 local H = GetService(game, "RunService");
@@ -93,13 +94,14 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "Forsaken_V3.01";
+    Version = "Forsaken_V3.02";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
 
         local Map               = EMPTY_OBJECT;
         local CurrentGame       = {Map=nil};
+        local SMP               = EMPTY_OBJECT;
         local Killers,Survivors = nil, nil;
         local Cam               = W.CurrentCamera;
         local selff             = P.LocalPlayer;
@@ -125,6 +127,7 @@ return {
         local RE                = {};
         local Functions         = {};
 
+        ClientCon.JumpPower = ClientCon.JumpPower or 50;
         ClientCon["TeleportWalk Speed"] = ClientCon["TeleportWalk Speed"] or 1;
         SurvivorCon.Generator.Speed = SurvivorCon.Generator.Speed or 1.3;
         KillerCon.Killer.SelectSuvivor = KillerCon.Killer.SelectSuvivor or {};
@@ -178,6 +181,17 @@ return {
                 end;
             end);
         end;
+        Functions.GCValidate = function(self)
+            if not selc.Parent then return; end;
+            local GCs=getgc(true); for i=1, #GCs do
+                local v=GCs[i]; if type(v) == 'table' then
+                    if rawget(v, "StaminaLoss") and rawget(v, "Character") and v.Character == selc then
+                        self.StaminaOffSet = v;
+                        break;
+                    end;
+                end;
+            end;
+        end;
         Functions.GameValidate = function(self)
             W.Map.Ingame.ChildAdded:Connect(function(v)
                 if v.Name == "Map" then
@@ -213,6 +227,117 @@ return {
 
             Map = FindFirstChild(W.Map.Ingame, "Map") or EMPTY_OBJECT;
             if not Map.Parent then return; end; self.MapValidate(Map, true);
+        end;
+        Functions.OnCharValidate = function(char)
+            selc = char; Backpack = selff.Backpack;
+            HumSelf = WaitForChild(selc, "Humanoid", 9e9);
+            HumRSelf = WaitForChild(char, "HumanoidRootPart", 9e9);
+            SMP = WaitForChild(selc, "SpeedMultipliers", 9e9)
+            
+            tk.delay(1, function()
+                Functions.OnGuest1337(char, SMP);
+                Functions.OnCoolKidd(HumRSelf);
+            end);
+        end;
+        Functions.OnGuest1337 = function(char, smp)
+            selc:GetAttributeChangedSignal("TimesHit"):Connect(function()
+                if not SurvivorCon.Guest1337.AutoPunch
+                    or not FindFirstChild(SMP, "GuestBlocking")
+                    or not GetAttribute(HumSelf, "Overheal")
+                    or CoreDestroyed
+                then
+                    return;
+                end;
+
+                local CC,KL=nil,nil; tk.delay(0.3, function()
+                    REQ.Network:FireServerConnection("UseActorAbility", "REMOTE_EVENT", "Punch");
+                end);
+                
+                local CHs=GetChildren(Killers); for i=1, CHs do
+                    local v=CHs[i]; if v.Parent then
+                        if not P:GetPlayerFromCharacter(v) then
+                            KL = FindFirstChild(v, "QueryHitbox");
+                            break;
+                        end;
+                    end;
+                end; if not KL then return; end;
+
+                CC = H.RenderStepped:Connect(function()
+                    if not KL.Parent or CoreDestroyed or not SurvivorCon.Guest1337.AutoPunch then
+                        CC:Disconnect();
+                        CC = nil;
+                        return;
+                    end;
+
+                    local Pos, PosS = KL.Position, HumRSelf.Position;
+                    local PosN = Vec3(Pos.X, PosS.Y, Pos.Z);
+                    local CFN, Vel = CFr(PosS, PosN), nil;
+
+                    selc:SetPrimaryPartCFrame(CFN); if not Vel then
+                        HumRSelf.Velocity = CFN.LookVector * 32;
+                        Vel = HumRSelf.Velocity;
+                    else
+                        Vel = HumRSelf.Velocity:Lerp(Vel or HumRSelf.Velocity, 0.8);
+                        HumRSelf.Velocity = Vel;
+                    end;
+                    
+                    local PunchAbility = FindFirstChild(smp, "PunchAbility")
+                    if PunchAbility then
+                        repeat
+                            twait(0.1);
+                        until not PunchAbility.Parent;
+                    end; if CC then
+                        CC:Disconnect();
+                        CC = nil;
+                    end;
+                end);
+            end);
+        end;
+        Functions.OnCoolKidd = function(humrself)
+            humrself.ChildAdded:Connect(function(v)
+                if not KillerCon.Coolkidd.DashControl
+                    or v.Name ~= "LinearVelocity"
+                    or CoreDestroyed
+                then
+                    return;
+                end;
+
+                local DashPower = KillerCon.Coolkidd.DashPower;
+                local Original = v.LineDirection;
+                v.LineDirection = Vec3(0, 0, 0);
+
+                v:GetPropertyChangedSignal("LineVelocity"):Connect(function()
+                    if not KillerCon.Coolkidd.DashControl then return; end;
+                    if v.LineVelocity > 99 then return; end;
+                    v.LineVelocity = v.LineVelocity * DashPower;
+                end); v.LineVelocity = v.LineVelocity * DashPower;
+
+                local CC=nil;CC=H.RenderStepped:Connect(function()
+                    if not KillerCon.Coolkidd.DashControl
+                        or not v.Parent
+                        or CoreDestroyed
+                    then
+                        CC:Disconnect();
+                        CC = nil;
+                        return;
+                    end; if HumSelf.Parent then
+                        local Dir = HumSelf.MoveDirection;
+                        v.LineDirection = if Dir.Magnitude > 0 then
+                            Dir.Unit
+                        else Original;
+                    end;
+                end);
+            end);
+        end;
+        Functions.Ghost = function(bool)
+            if GetAttribute(W, "ExperimentalHitboxes") ~= bool then
+                SetAttribute(W, "ExperimentalHitboxes", bool);
+            end;
+        end;
+        Functions.ApplyStamina = function(self, num)
+            local StaminaOffSet = self.StaminaOffSet;
+            if not StaminaOffSet then return self:GCValidate(); end;
+            StaminaOffSet.StaminaLoss = num;
         end;
         Functions.GetGenerators = function()
             return Map.Parent and DesQueue(
@@ -457,6 +582,18 @@ return {
             ClientTab = {
                 {type="Group", dats={
                     {dat={
+                        {type="Toggle", EN="Ghost Mode", EN2="Invincible & godmode. Other player can attack you if they found your real character.", TH1="ถอดจิต", TH2="ล่องหนและอมตะ คนอื่นสามารถตีได้ปกติถ้าเจอร่างจริงเรา", Bindable="+", Path="Client/Ghost", Callback=function(state)
+                            ClientCon.Ghost = state; if not state then
+                                Functions.Ghost(true);
+                                if ClientCon.GhostBack then
+                                    local QueryHitbox = FindFirstChild(selc, "QueryHitbox");
+                                    if not QueryHitbox then return; end;
+                                    Tp(HumRSelf, QueryHitbox.CFrame);
+                                end;
+                            end;
+                        end},
+                        {type="Toggle", EN="Teleport Back", EN2="Teleport back to your real body after turn off 'Ghost'.", TH1="วาปกลับ", TH2="วาปกลับร่างจริงหลังจากปิด'ถอดจิต'", Bindable="+", Path="Client/GhostBack"}, {type="Space"};
+                        {type="Toggle", EN="Infinite Stamina", EN2="Change the cost of stamina.", TH1="มานาไม่จำกัด", TH2="เปลี่ยนค่าการใช้งานมานาให้เป็น 0", Bindable="+", Path="Client/InfiniteStamina"},
                         {type="Toggle", EN="No Render", EN2="Change camera subject & disable 3D rendering", TH1="ปิดการ Render", TH2="เปลี่ยนกล้องและปิดการ render 3D", Bindable="+", Path="Client/No Render", Callback=function(state)
                             ClientCon["No Render"] = state;
                             H:Set3dRenderingEnabled(not state);
@@ -465,8 +602,13 @@ return {
                         {type="Toggle", EN="Full Bright", EN2="Make the game brighter, easier to see or look around.", TH1="แมพสว่าง", TH2="มองเห็นง่ายขึ้น", Bindable="+", Path="Client/Full Bright"},
                         {type="Slider", EN="Teleport Walk Speed", EN2="Change the speed of teleport walk.", TH1="ความเร็วในการเดินแบบวาร์ป", TH2="ปรับความเร็วในการเดินแบบวาร์ป", Value={Min=1, Max=50}, Path="Client/TeleportWalk Speed"},
                         {type="Toggle", EN="Enable Teleport Walk", EN2="Enable teleport walk.", TH1="เปิดใช้งานเดินแบบวาร์ป", TH2="เปิดใช้งานเดินโดยการวาร์ปไปเรื่อยๆ", Bindable="+", Path="Client/Enable TeleportWalk"},
+                        {type="Slider", EN="Jump Power", EN2="Change the power of your jump.", TH1="ความแรงในการกระโดด", TH2="ปรับความแรงในการกระโดด", Value={Min=1, Max=300}, Path="Client/JumpPower"},
+                        {type="Toggle", EN="Enable Jump Power", EN2="Enable jump power modification.", TH1="เปิดใช้งานความแรงในการกระโดด", TH2="ปรับความแรงในการกระโดด", Bindable="+", Path="Client/Enable JumpPower"},
                     }, Title="Client", Open=true};
-                }};
+                }}; {type="Space"};
+                {type="Button", EN="Enable Roblox Chat", EN2="Show Roblox chat in the match.", TH1="แสดงแชท Roblox", TH2="แสดงช่องแชท Roblox ในเกม", Callback=function()
+                    TextService.ChatWindowConfiguration.Enabled = true;
+                end}; {type="Space"};
             };
             SurvivorTab = {
                 {type="Toggle", EN="Auto Generator", EN2="Fix generators, when you enter the generator.", TH1="ออโต้ปั่นไฟ", TH2="ซ่อมเครื่องปั่นไฟเมื่อคุณเข้าใกล้", Path="Generator/Auto", Bindable="+"};
@@ -525,6 +667,7 @@ return {
                 {type="Toggle", EN="Teleport", EN2="Teleport to selected players.", TH1="วาป", TH2="วาปไปหาผู้เล่นที่เลือก", Path="Killer/Teleport", Bindable="+"};
                 {type="Toggle", EN="ESP Survivors", EN2="Show survivor's box", TH1="ESP ผู้รอดชีวิต", TH2="มองเห็นผู้รอดชีวิต", Path="Killer/ESPSurvivors", Bindable="+"};
                 {type="Space"};
+                {type="Slider", EN="Coolkidd's Dash Power", EN2="Make dashing further.", TH1="มอดความเร็วแดช Coolkidd", TH2="ทำให้แดชไปไกลขึ้น", Value={Min=1; Max=3}, Path="Coolkidd/DashPower"};
                 {type="Toggle", EN="Coolkidd's Dash Mod", EN2="Make dashing controllable.", TH1="มอดการแดช Coolkidd", TH2="ทำให้ควบคุมการแดชได้", Path="Coolkidd/DashControl", Bindable="+"};
             };
         };
@@ -538,7 +681,8 @@ return {
                     or SurvivorCon.Visual.RemoveJohnTrails
                     or SurvivorCon.Visual.RemoveJohnFootprints
                     or SurvivorCon.Visual.SmallSpikeJohn
-                    or KillerCon.Killer.ESPSurvivors;
+                    or KillerCon.Killer.ESPSurvivors
+                    or ClientCon.Ghost
 
                 if not shouldNotClose or CoreDestroyed then
                     CoruTask.Close("FastThread-Main");
@@ -553,6 +697,10 @@ return {
                     local KillerOnly = CurrentGame.KillerOnly;
                     local JTrail = CurrentGame.JTrail;
                     local JFoot = CurrentGame.JFoot;
+
+                    if ClientCon.Ghost then
+                        Functions.Ghost(false);
+                    end;
 
                     local Gens = Functions.GetGenerators(); if #Gens>0 then
                         if SurvivorCon.Generator.ESP then
@@ -698,6 +846,7 @@ return {
         end; local LSecureLoad = function(AUTH_KEY)
             local OneRunCallMain, OneRunErrorMain = pcall(function()
                 CoreDestroyed = false; GG.ESPF_ChangeMode = ESPF.Method;
+                ClientCon.JumpPower = HumSelf and HumSelf.JumpPower or 50;
 
                 GG.Configs = Config;
                 LSecureUI();
@@ -713,7 +862,8 @@ return {
                             or SurvivorCon.Visual.RemoveJohnFootprints
                             or SurvivorCon.Visual.SmallSpikeJohn
                             or SurvivorCon.Visual.RemoveFakeNoli
-                            or KillerCon.Killer.ESPSurvivors;
+                            or KillerCon.Killer.ESPSurvivors
+                            or ClientCon.Ghost;
                         local RequiredMovement = KillerCon.Killer.Teleport;
 
                         if FastThread then
@@ -738,7 +888,14 @@ return {
                     end;
 
                     ClientPackage.Brightness(ClientCon["Full Bright"]);
+                    ClientPackage.SetJumpPower(ClientCon["Enable JumpPower"], ClientCon.JumpPower, HumSelf);
                     Pings = Functions.GetPing();
+
+                    Functions:ApplyStamina(
+                        if ClientCon.InfiniteStamina then
+                            -10
+                        else 10
+                    );
                 end);
                 CoreConnection[2] = H.Heartbeat:Connect(function(delta)
                     if CoreDestroyed and CoreConnection[2] then
@@ -750,81 +907,7 @@ return {
                         selc:TranslateBy(HumSelf.MoveDirection * ClientCon["TeleportWalk Speed"] * delta * 10);
                     end;
                 end);
-                CoreConnection[3] = selff.CharacterAdded:Connect(function(char)
-                    selc = char; Backpack = selff.Backpack;
-                    HumSelf = WaitForChild(selc, "Humanoid", 9e9);
-                    HumRSelf = WaitForChild(char, "HumanoidRootPart", 9e9);
-                    local SMP = WaitForChild(selc, "SpeedMultipliers", 9e9);
-                    selc:GetAttributeChangedSignal("TimesHit"):Connect(function()
-                        if not SurvivorCon.Guest1337.AutoPunch then return; end;
-                        if FindFirstChild(SMP, "GuestBlocking") and GetAttribute(HumSelf, "Overheal") then
-                            local CC=nil; tk.delay(0.3, function()
-                                REQ.Network:FireServerConnection("UseActorAbility", "REMOTE_EVENT", "Punch");
-                            end);
-
-                            local KL, CHs=nil, GetChildren(Killers); for i=1, #CHs do
-                                local v=CHs[i]; if v.Parent then
-                                    if P:GetPlayerFromCharacter(v) then
-                                        KL = FindFirstChild(v, "QueryHitbox");
-                                        break;
-                                    end;
-                                end;
-                            end;
-                            CC = H.RenderStepped:Connect(function()
-                                if not KL or CoreDestroyed or not SurvivorCon.Guest1337.AutoPunch then
-                                    CC:Disconnect(); CC = nil;
-                                    return;
-                                end;
-
-                                local Pos = KL.Position;
-                                local PosS = HumRSelf.Position;
-                                local PosN = Vec3(Pos.X, PosS.Y, Pos.Z);
-                                local CFN = CFr(PosS, PosN);
-                                local Vel = nil;
-
-                                selc:SetPrimaryPartCFrame(CFN); if not Vel then
-                                    HumRSelf.Velocity = CFN.LookVector * 32;
-                                    Vel = HumRSelf.Velocity;
-                                else
-                                    Vel = HumRSelf.Velocity:Lerp(Vel or HumRSelf.Velocity,0.8);
-                                    HumRSelf.Velocity = Vel;
-                                end;
-                            end); while twait(0.3) and FindFirstChild(SMP, "PunchAbility") do
-                                continue;
-                            end; if CC then
-                                CC:Disconnect(); CC = nil;
-                            end;
-                        end;
-                    end);
-
-                    HumRSelf.ChildAdded:Connect(function(v)
-                        if not KillerCon.Coolkidd.DashControl then return; end;
-                        if v.Name ~= "LinearVelocity" then return; end;
-                        local Original = v.LineDirection;
-                        v.LineDirection = Vec3(0, 0, 1);
-
-                        v:GetPropertyChangedSignal("LineVelocity"):Connect(function()
-                            if not KillerCon.Coolkidd.DashControl then return; end;
-                            if v.LineVelocity > 99 then return; end;
-                            v.LineVelocity = v.LineVelocity * 3;
-                        end); v.LineVelocity = v.LineVelocity * 3;
-
-                        local CC=nil;CC=H.RenderStepped:Connect(function()
-                            if not v.Parent or CoreDestroyed then
-                                CC:Disconnect(); CC = nil; return;
-                            end;
-
-                            if HumSelf.Parent then
-                                local Dir = HumSelf.MoveDirection;
-                                if Dir.Magnitude > 0 then
-                                    v.LineDirection = Dir.Unit;
-                                else
-                                    v.LineDirection = Original;
-                                end;
-                            end;
-                        end);
-                    end);
-                end);
+                CoreConnection[3] = selff.CharacterAdded:Connect(Functions.OnCharValidate);
                 CoreConnection[4] = H.RenderStepped:Connect(function()
                     if not GG.ESPObjects or LoaderSettings.ESPMode ~= "2D" then return; end;
                     for _, TargetClass in pairs(GG.ESPObjects) do
@@ -836,9 +919,7 @@ return {
                 end);
                 
                 if selff.Character then
-                    selc = selff.Character; Backpack = selff.Backpack;
-                    HumSelf = WaitForChild(selc, "Humanoid", 9e9);
-                    HumRSelf = WaitForChild(selc, "HumanoidRootPart", 9e9);
+                    Functions.OnCharValidate(selff.Character);
                 end;
 
                 if not CoruTask.Intialized then
@@ -849,6 +930,7 @@ return {
                     VOIDPART.Anchored = true;
                     VOIDPART.Parent = W;
 
+                    Functions:GCValidate();
                     Functions:GameValidate();
                 end;
             end); if OneRunCallMain then
