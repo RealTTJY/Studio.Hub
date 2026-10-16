@@ -12570,7 +12570,7 @@ local FreeLoad, KeyLoad = {
     };
     [6331902150] = {
         File = "6331902150";
-        Version = "Forsaken_V3.01";
+        Version = "Forsaken_V3.02";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
 }, {
