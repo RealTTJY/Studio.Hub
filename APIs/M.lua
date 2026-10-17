@@ -589,15 +589,12 @@ AssetStorage.CommonF = function()
             VIM = defineVIM;
         end;
         SKey = function(key)
-            warn("SKEY HAS", tostring(getthreadidentity()));
             return VIM:SendKeyEvent(true, key, false, game);
         end;
         OKey = function(key)
-            warn("OKEY HAS", tostring(getthreadidentity()));
             return VIM:SendKeyEvent(false, key, false, game);
         end;
         CKey = function(self, key, c)
-            warn("CKEY HAS", tostring(getthreadidentity()));
             return self.SKey(key), twait(c or 0), self.OKey(key);
         end;
         Tp = function(HumRSelf, cf, t)
@@ -12581,7 +12578,7 @@ local FreeLoad, KeyLoad = {
     };
     [1235188606] = {
         File = "1235188606";
-        Version = "DA_V3.79";
+        Version = "DA_V3.80";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
     [3647333358] = {
