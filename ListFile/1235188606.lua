@@ -103,7 +103,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.80";
+    Version = "DA_V3.83";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -379,6 +379,7 @@ return {
             end));
         end;
         Functions.HalloweenInit = function(self)
+            if CurrentWorld ~= "Halloween2026" then return; end; 
             self.Doors = GetChildren(GInteractions.HalloweenEvent.TrickOrTreatDoors);
             RE.TrickOrTreatDoor = RRemotes.TrickOrTreatDoorRemote;
         end;
@@ -849,15 +850,17 @@ return {
         Functions.Halloween_TrickOrTreat = function(self, CHs)
             for i=1, #CHs do
                 local v=CHs[i]; if v.Parent then
+                    if not EventsCon.Halloween.AutoTrickOrTreat then return; end;
                     local Highlight = FindFirstChild(v, "Highlight");
                     if not Highlight or not Highlight.Enabled then continue; end;
                     local Pos = GetPivot(v);
+                    if (Pos.Position-Vec3(1958, 707, -1208)).Magnitude < 1400 then continue; end;
                     if self.SetDFly(true) then
                         Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos);
-                        twait(0.2 + mclamp(self.GetPing(), 0, 1000));
+                        twait(0.3 + mclamp(self.GetPing(), 0, 1000));
                     end; if dist(Pos.Position) < 30 then
                         RE.TrickOrTreatDoor:InvokeServer(v.Name);
-                        twait(0.3 + mclamp(self.GetPing(), 0, 1000));
+                        twait(0.5 + mclamp(self.GetPing(), 0, 1000));
                     end;
                 end;
             end;
@@ -865,11 +868,12 @@ return {
         Functions.Halloween_AutoGhosts = function()
             local CHs = DesQueue(Cam, ">Model:has(#GhostMarkerGui)"); for i = 1, #CHs do
                 local v = CHs[i]; if v.Parent then
+                    if not EventsCon.Halloween.AutoGhost then return; end;
                     local PrimaryPart = v.PrimaryPart; if PrimaryPart then
                         for i = 1, 5 do
                             local Front = PrimaryPart.Position + PrimaryPart.CFrame.LookVector * 10;
                             Tp(Seat.Parent and Seat.Parent.PrimaryPart, CFr(Front, PrimaryPart.Position), 0.3);
-                        end;
+                        end; twait(math.max(0.3 + mclamp(self.GetPing(), 0, 100)));
                     end;
                 end;
             end;
@@ -877,17 +881,19 @@ return {
         Functions.Halloween_AutoEggs = function()
             local CHs = DesQueue(Cam, ">Model:has(#EggMarkerGui)"); for i = 1, #CHs do
                 local v = CHs[i]; if v.Parent then
+                    if not EventsCon.Halloween.AutoEgg then return; end;
                     local PrimaryPart = v.PrimaryPart; if PrimaryPart then
                         for i = 1, 5 do
                             local Front = PrimaryPart.Position + PrimaryPart.CFrame.LookVector * 10;
                             Tp(Seat.Parent and Seat.Parent.PrimaryPart, CFr(Front, PrimaryPart.Position), 0.3);
-                        end;
+                        end; twait(math.max(0.3 + mclamp(self.GetPing(), 0, 100)));
                     end;
                 end;
             end;
         end;
         Functions.Halloween_AutoPumpkins = function(self, Data)
             for i,v in pairs(Data) do
+                if not EventsCon.Halloween.AutoPumpkin then return; end;
                 local Dead = v.DeadValue;
                 if not Dead or Dead.Value then continue; end;
                 local PrimPart = v.PrimaryPart;
@@ -898,7 +904,9 @@ return {
                         Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos, 0.3);
                         self.Dash();
                     end; twait(0.1);
-                end;
+                end; for i=1, 10 do
+                    Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos, 0.135);
+                end; twait(math.max(1.7 + mclamp(self.GetPing(), 0, 100)));
             end;
         end;
 
@@ -1511,7 +1519,10 @@ return {
 
                     if RewardFrame then
                         RewardFrame.RewardsFrame.ChildAdded:Connect(function(v)
-                            if not (EventsCon.Solstice.AutoJoinMinigame) then
+                            if not (EventsCon.Solstice.AutoJoinMinigame)
+                                or EventsCon.Halloween.AutoPumpkin
+                                or EventsCon.Halloween.AutoGhost
+                            then
                                 return;
                             end; tk.delay(1, function()
                                 if IsA(v, "ImageButton") and v.Visible then
