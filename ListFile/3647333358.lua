@@ -49,7 +49,7 @@ Config.Ticket = Config.Ticket or {};
 Config.Game = Config.Game or {};
 
 return {
-    Version = "Evade_V3.50";
+    Version = "Evade_V3.51";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -189,7 +189,11 @@ return {
                 local v=Contexts[i]; if type(v) == 'table' then
                     for id, collectable in pairs(v.CollectableIDs) do
                         local Position = collectable.CollectableData.Position;
-                        Tp(HumRSelf, CFr(Position), math.max(0.5 + math.clamp(Functions.GetPing(), 0, 0.5)));
+                        if typeof(Position) == 'CFrame' then
+                            Tp(HumRSelf, Position, math.max(0.5 + math.clamp(Functions.GetPing(), 0, 0.5)));
+                        else
+                            Tp(HumRSelf, CFr(Position), math.max(0.5 + math.clamp(Functions.GetPing(), 0, 0.5)));
+                        end;
                     end;
                 end;
             end;
