@@ -15,6 +15,7 @@ local tk = task;
 local emptyfunction = function(...) return; end;
 local setthread = setthreadidentity or set_thread_identity or setthreadcontext or set_thread_context or emptyfunction;
 
+local VIM = GetService(game, "VirtualInputManager")
 local R = GetService(game, "ReplicatedStorage");
 local H = GetService(game, "RunService");
 local W = GetService(game, "Workspace");
@@ -103,7 +104,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.84";
+    Version = "DA_V3.85";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -174,6 +175,15 @@ return {
 
         local Functions = {};
 
+        Functions.SKey = function(key)
+            return VIM:SendKeyEvent(true, key, false, game);
+        end;
+        Functions.OKey = function(key)
+            return VIM:SendKeyEvent(false, key, false, game);
+        end;
+        Functions.CKey = function(self, key, c)
+            return self.SKey(key), twait(c or 0), self.OKey(key);
+        end;
         Functions.SetSync = function(self)
             if self.SetupSync then return; end; self.SetupSync = true;
             local SYNC_MODL = require(WaitForChild(RepFolder, "NotificationsClient"));
@@ -191,11 +201,9 @@ return {
                 REQ.DragonClass:SetFlying(true);
             end; return true;
         end;
-        Functions.Dash = function()
+        Functions.Dash = function(self)
             if not Seat.Parent or not REQ.DragonClass then return false; end;
-            tk.defer(function()
-                CommonF:CKey(Enum.KeyCode.LeftShift);
-            end);
+            self:CKey(Enum.KeyCode.LeftShift);
         end;
         Functions.Tp = function(Pos)
             if not selc.Parent then return; end;
@@ -902,7 +910,7 @@ return {
                 while not Dead.Value and EventsCon.Halloween.AutoPumpkin and not CoreDestroyed do
                     if self.SetDFly(true) then
                         Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos, 0.3);
-                        self.Dash();
+                        self:Dash();
                     end; twait(0.1);
                 end; for i=1, 10 do
                     Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos, 0.135);
@@ -1350,7 +1358,7 @@ return {
                     local isSyncedF = Functions.isSynced;
 
                     Functions:SetSync();
-                    CommonF.Init(GetService(game, "VirtualInputManager"));
+                    CommonF.Init(VIM);
 
                     if not isSyncedF() then
                         WindUI:Notify({
