@@ -103,7 +103,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.83";
+    Version = "DA_V3.84";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -516,7 +516,7 @@ return {
             local Fire = FindFirstChild(Data, "Fire");
             local Fuel = FindFirstChild(Fire, "BreathFuel");
             if Fuel and Fuel.Value <= 2 and Fire.Value then
-                if not DragonCon.InfiniteBreath then
+                if not DragonCon.InfiniteBreath and not Functions.ErrorBreath then
                     FireRE:FireServer(false);
                 end;
             elseif Fuel and Fuel.Value > 2 and not Fire.Value then
@@ -1429,8 +1429,6 @@ return {
 
                         local Common = BreathData and REQ.Riding and REQ.DragonClass;
 
-                        GG.Fuck = BreathData;
-
                         if CurrentWorld ~= "Solstice2026" then
                             if Common and FishingClient and NodeClass and UPs then break; end;
                         elseif Common then break; end; GCs = getgc(true); twait(3);
@@ -1506,12 +1504,14 @@ return {
                         end;
                     end;
 
-                    if BreathData then
-                        local o;o=LowerC(BreathData.Stop, function(...)
+                    if BreathData and rawget(BreathData, "Stop") then
+                        local o;o=LowerC(rawget(BreathData, "Stop"), function(...)
                             if DragonCon.InfiniteBreath then
                                 return;
                             end; return o(...);
                         end);
+                    else
+                        Functions.ErrorBreath = true;
                     end;
 
                     local RewardFrame = FindFirstChild(PSG, "MinigamesGui");
