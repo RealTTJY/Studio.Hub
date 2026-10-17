@@ -31,6 +31,8 @@ local mclamp = math.clamp;
 local PivotTo = W.PivotTo;
 local tblein = tble.insert;
 local TwInfo = TweenInfo.new;
+local GetPivot = W.GetPivot;
+local DesQueue = game.QueryDescendants;
 local GetChildren = game.GetChildren;
 local GetAttribute = game.GetAttribute;
 local WaitForChild = game.WaitForChild;
@@ -98,9 +100,10 @@ Config.Treasure = Config.Treasure or {};
 Config.Events = Config.Events or {};
 Config.Events.Solstice = Config.Events.Solstice or {};
 Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
+Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.79";
+    Version = "DA_V3.80";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -151,6 +154,7 @@ return {
         local NonAnalytics3     = {type="Button", EN="Analytics 3", EN2="Please enable 'Analytics 3' module to track game data, inventory, and player statistics for reports and webhook integrations.", TH1="Analytics 3", TH2="กรุณาเปิดใช้งานโมดูล 'Analytics 3' เพื่อติดตามข้อมูลเกม สินค้าคงคลัง และสถิติผู้เล่นสำหรับรายงานและเว็บฮุก"};
 
         local dist              = CommonF.dist;
+        local Tp                = CommonF.Tp;
         local Tween             = CommonF.Tween;
 
         local REQ               = {};
@@ -186,6 +190,12 @@ return {
             if not Seat.Parent.Data.Flying.Value then
                 REQ.DragonClass:SetFlying(true);
             end; return true;
+        end;
+        Functions.Dash = function()
+            if not Seat.Parent or not REQ.DragonClass then return false; end;
+            tk.defer(function()
+                CommonF:CKey(Enum.KeyCode.LeftShift);
+            end);
         end;
         Functions.Tp = function(Pos)
             if not selc.Parent then return; end;
@@ -367,6 +377,10 @@ return {
                     };
                 end); return Returned;
             end));
+        end;
+        Functions.HalloweenInit = function(self)
+            self.Doors = GetChildren(GInteractions.HalloweenEvent.TrickOrTreatDoors);
+            RE.TrickOrTreatDoor = RRemotes.TrickOrTreatDoorRemote;
         end;
         Functions.AutoLevel = function(where)
             if not Seat.Parent then return; end;
@@ -832,6 +846,61 @@ return {
                 });
             end;
         end;
+        Functions.Halloween_TrickOrTreat = function(self, CHs)
+            for i=1, #CHs do
+                local v=CHs[i]; if v.Parent then
+                    local Highlight = FindFirstChild(v, "Highlight");
+                    if not Highlight or not Highlight.Enabled then continue; end;
+                    local Pos = GetPivot(v);
+                    if self.SetDFly(true) then
+                        Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos);
+                        twait(0.2 + mclamp(self.GetPing(), 0, 1000));
+                    end; if dist(Pos.Position) < 30 then
+                        RE.TrickOrTreatDoor:InvokeServer(v.Name);
+                        twait(0.3 + mclamp(self.GetPing(), 0, 1000));
+                    end;
+                end;
+            end;
+        end;
+        Functions.Halloween_AutoGhosts = function()
+            local CHs = DesQueue(Cam, ">Model:has(#GhostMarkerGui)"); for i = 1, #CHs do
+                local v = CHs[i]; if v.Parent then
+                    local PrimaryPart = v.PrimaryPart; if PrimaryPart then
+                        for i = 1, 5 do
+                            local Front = PrimaryPart.Position + PrimaryPart.CFrame.LookVector * 10;
+                            Tp(Seat.Parent and Seat.Parent.PrimaryPart, CFr(Front, PrimaryPart.Position), 0.3);
+                        end;
+                    end;
+                end;
+            end;
+        end;
+        Functions.Halloween_AutoEggs = function()
+            local CHs = DesQueue(Cam, ">Model:has(#EggMarkerGui)"); for i = 1, #CHs do
+                local v = CHs[i]; if v.Parent then
+                    local PrimaryPart = v.PrimaryPart; if PrimaryPart then
+                        for i = 1, 5 do
+                            local Front = PrimaryPart.Position + PrimaryPart.CFrame.LookVector * 10;
+                            Tp(Seat.Parent and Seat.Parent.PrimaryPart, CFr(Front, PrimaryPart.Position), 0.3);
+                        end;
+                    end;
+                end;
+            end;
+        end;
+        Functions.Halloween_AutoPumpkins = function(self, Data)
+            for i,v in pairs(Data) do
+                local Dead = v.DeadValue;
+                if not Dead or Dead.Value then continue; end;
+                local PrimPart = v.PrimaryPart;
+                if not PrimPart then continue; end;
+                local Pos = PrimPart.CFrame;
+                while not Dead.Value and EventsCon.Halloween.AutoPumpkin and not CoreDestroyed do
+                    if self.SetDFly(true) then
+                        Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos, 0.3);
+                        self.Dash();
+                    end; twait(0.1);
+                end;
+            end;
+        end;
 
         ScriptData.AutoData = {
             ClientTab = {
@@ -881,6 +950,11 @@ return {
                 {type="Toggle", EN="Auto Star Catcher", EN2="Automatically catch stars.", TH1="ออโต้เก็บดาว", TH2="เก็บดาวอัตโนมัติ", Path="Solstice/AutoStarCatcher"}, {type="Space"},
                 {type="Dropdown", EN="Select Minigame", EN2="Select the minigame to join.", TH1="เลือกมินิเกม", TH2="เลือกมินิเกม", Values={"Whack", "Stars"}, Path="Solstice/Minigame"},
                 {type="Toggle", EN="Auto Join Minigame", EN2="Automatically join the selected minigame.", TH1="เข้าร่วมมินิเกมอัตโนมัติ", TH2="เข้าร่วมมินิเกมอัตโนมัติ", Path="Solstice/AutoJoinMinigame"},
+            }) or (CurrentWorld == "Halloween2026" and {
+                {type="Toggle", EN="Auto Trick Or Treat", EN2="Teleport to door & collect candies.", TH1="ออโต้หลอกหรือหลอน", TH2="วาปไปเก็บลูกอมตามประตู", Path="Halloween/AutoTrickOrTreat"},
+                {type="Toggle", EN="Auto Pumpkin", EN2="Automatically hit pumpkins.", TH1="ออโต้ฟักทอง", TH2="ตีฟักทองอัตโนมัติ", Path="Halloween/AutoPumpkin"},
+                {type="Toggle", EN="Auto Ghost", EN2="Automatically collect ghosts.", TH1="ออโต้ผี", TH2="เก็บผีอัตโนมัติ", Path="Halloween/AutoGhost"},
+                {type="Toggle", EN="Auto Egg", EN2="Automatically collect eggs.", TH1="ออโต้เก็บไข่", TH2="เก็บไข่อัตโนมัติ", Path="Halloween/AutoEgg"},
             }) or {};
             LevelTab = {
                 {type="Toggle", EN="Bond", EN2="You need to be in petting mode for it to work.", TH1="ความผูกพัน", TH2="ต้องอยู่ในโหมดลูบหัวมังกร", Path="Bond"}, {type="Space"},
@@ -1071,6 +1145,37 @@ return {
                 twait(0.1);
             end; end));
         end);
+        CoruTask.New("Halloween-Main", function()
+            if CurrentWorld ~= "Halloween2026" then
+                return;
+            end; warn(pcall(function() while true do
+                local shouldNotClose = EventsCon.Halloween.AutoTrickOrTreat
+                    or EventsCon.Halloween.AutoPumpkin
+                    or EventsCon.Halloween.AutoGhost
+                    or EventsCon.Halloween.AutoEgg;
+
+                if not shouldNotClose or CoreDestroyed then
+                    CoruTask.Close("Halloween-Main");
+                end;
+
+                local Doors = Functions.Doors;
+
+                if EventsCon.Halloween.AutoTrickOrTreat and Doors then
+                    Functions:Halloween_TrickOrTreat(Doors);
+                end;
+                if EventsCon.Halloween.AutoGhost then
+                    Functions.Halloween_AutoGhosts();
+                end;
+                if EventsCon.Halloween.AutoEgg then
+                    Functions.Halloween_AutoEggs();
+                end;
+                if EventsCon.Halloween.AutoPumpkin then
+                    Functions:Halloween_AutoPumpkins(REQ.Pumpkins);
+                end;
+
+                twait(0.1);
+            end; end));
+        end);
 
         local LSecureUI = function()
             local WindUI = WindLib();
@@ -1176,6 +1281,9 @@ return {
                         end;
                         if EventsCon.Solstice.AutoCollectWater or EventsCon.Solstice.AutoSunflower or EventsCon.Solstice.AutoStarCatcher or EventsCon.Solstice.AutoJoinMinigame or EventsCon.Solstice.AutoWhackAMole then
                             CoruTask.Handle("Solstice-Main");
+                        end; 
+                        if EventsCon.Halloween.AutoTrickOrTreat or EventsCon.Halloween.AutoPumpkin or EventsCon.Halloween.AutoGhost or EventsCon.Halloween.AutoEgg then
+                            CoruTask.Handle("Halloween-Main");
                         end; twait(0.1);
                     end;
                 end);
@@ -1292,6 +1400,12 @@ return {
                                         UPs = getupvalues(NodeClass.new);
                                     elseif not FishingClient and rawget(v, "ReelSignal") and rawget(v, "SnaggedSignal") then
                                         FishingClient = v;
+                                    end;
+                                end;
+
+                                if CurrentWorld == "Halloween2026" and not REQ.Pumpkins then
+                                    if rawget(v, "getMeteorFromParentModel") then
+                                        REQ.Pumpkins = getupvalue(v.getMeteorFromParentModel, 1);
                                     end;
                                 end;
 
@@ -1428,6 +1542,7 @@ return {
                     end);
 
                     Functions:SolsticeInit(); 
+                    Functions:HalloweenInit();
                     
                     EggNodes = getupvalue(HarvestClass.getNodeFromModel, 1);
                     SmoothX = AccelTween.new(3000);
