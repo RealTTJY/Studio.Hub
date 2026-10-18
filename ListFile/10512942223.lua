@@ -3,6 +3,7 @@ local GG=GG; if not GG then return game:GetService("Players").LocalPlayer:Kick("
 local ScriptCache = GG.ScriptCache;
 local LoaderSettings = GG.LoaderSettings;
 local userIdentify = ScriptCache.userIdentify;
+local ExecName = getexecutorname and getexecutorname();
 local LowerC = hookfunction or hookfunc;
 local GetService = game.GetService;
 local Instancen = Instance.new;
@@ -50,7 +51,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.04";
+    Version = "AnimeZero_V3.05";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -110,12 +111,20 @@ return {
             REQ.maps = maps;
             REQ.run = require(R.game.packets.runPackets);
             REQ.char = require(R.game.packets.characterPackets);
-            REQ.charCon = require(PSS.game.controllers.characterController);
 
             Mode = GetAttribute(W, "Mode"); if not Mode then
                 W:GetAttributeChangedSignal("Mode"):Once(function()
                     Mode = GetAttribute(W, "Mode");
                 end);
+            end;
+        end;
+        Functions.GCValidate = function()
+            local GCs=getgc(true); for i=1, #GCs do
+                local v=GCs[i]; if type(v) == 'table' then
+                    if rawget(v, "performSkill") and not rawget(v, "performM1") then
+                        REQ.charCon = v; break;
+                    end;
+                end;
             end;
         end;
         Functions.Tp = function(CF, ignoreATK)
@@ -610,6 +619,7 @@ return {
                     end;
 
                     Functions.GameValidate();
+                    Functions.GCValidate();
                 end;
             end); if OneRunCallMain then
                 return true, GG.LoadingSignal:Fire(100);
