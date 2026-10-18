@@ -52,7 +52,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.06";
+    Version = "AnimeZero_V3.07";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -293,7 +293,7 @@ return {
                     self.Tp(CFr(-173, 549, -2), true);
                 elseif strfind(Txt, "11/11") then
                     self.Tp(CFr(14, 635, -218), true);
-                elseif strfind(Txt, "Root") then
+                elseif strfind(Txt, "Roof") then
                     self.Tp(CFr(-163, 681, -247), true);
                 end;
             elseif strfind(Txt, "Pull") then
