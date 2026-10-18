@@ -14,6 +14,7 @@ local Col3 = Color3;
 local tk = task;
 
 local TweenService = GetService(game, "TweenService");
+local VIM = GetService(game, "VirtualInputManager");
 local R = GetService(game, "ReplicatedStorage");
 local H = GetService(game, "RunService");
 local W = GetService(game, "Workspace");
@@ -51,7 +52,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.05";
+    Version = "AnimeZero_V3.06";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -89,6 +90,15 @@ return {
         AutomationCon.TweenSpeed = AutomationCon.TweenSpeed or 60;
         AutomationCon.SelectBlessing = AutomationCon.SelectBlessing or "Damage";
 
+        Functions.SKey = function(VIM, key)
+            return VIM:SendKeyEvent(true, key, false, game);
+        end;
+        Functions.OKey = function(VIM, key)
+            return VIM:SendKeyEvent(false, key, false, game);
+        end;
+        Functions.CKey = function(self, VIM, key, c)
+            return self.SKey(VIM, key), twait(c or 0), self.OKey(VIM, key);
+        end;
         Functions.GetPing = function()
             return S.Network.ServerStatsItem["Data Ping"]:GetValue() / 1000;
         end;
@@ -160,7 +170,22 @@ return {
                 end;
             end;
         end;
-        Functions.Skill = function(self)
+        Functions.Skill = (ExecName == "Delta" and function(self)
+            local Pos = ATKOBJ and ATKOBJ.Position;
+            if not Pos then return; end;
+            if dist(Pos) <= 5 then
+                if not self.SKCD then
+                    self.SKCD = 0;
+                elseif time() - self.SKCD > 0.8 then
+                    tk.defer(function()
+                        Functions:CKey(VIM, Enum.KeyCode.One);
+                        Functions:CKey(VIM, Enum.KeyCode.Two);
+                        Functions:CKey(VIM, Enum.KeyCode.Three);
+                    end);
+                    self.SKCD = time();
+                end;
+            end;
+        end) or function(self)
             local Pos = ATKOBJ and ATKOBJ.Position;
             if not Pos then return; end;
             if dist(Pos) <= 5 then
