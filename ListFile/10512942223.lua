@@ -29,6 +29,7 @@ local tblein = tble.insert;
 local GetPivot = W.GetPivot;
 local PivotTo = W.PivotTo;
 local mclamp = math.clamp;
+local DesQueue = game.QueryDescendants;
 local GetChildren = game.GetChildren;
 local GetAttribute = game.GetAttribute;
 local SetAttribute = game.SetAttribute;
@@ -38,6 +39,7 @@ local FindFirstChildOfClass = game.FindFirstChildOfClass;
 
 local PlaceId = game.PlaceId;
 local QUEST = CFr(-297, 10, 150);
+local EMPTY_OBJECT = {Parent=nil, SeatPart=nil};
 
 local ScriptData = {};
 local Config = GG.Configs or {};
@@ -48,7 +50,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.01";
+    Version = "AnimeZero_V3.02";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -84,6 +86,7 @@ return {
         ClientCon["TeleportWalk Speed"] = ClientCon["TeleportWalk Speed"] or 1;
         AutomationCon.Height = AutomationCon.Height or 8.5;
         AutomationCon.TweenSpeed = AutomationCon.TweenSpeed or 60;
+        AutomationCon.SelectBlessing = AutomationCon.SelectBlessing or "Damage";
 
         Functions.GetPing = function()
             return S.Network.ServerStatsItem["Data Ping"]:GetValue() / 1000;
@@ -185,7 +188,7 @@ return {
         end;
         Functions.GetMob = function()
             for i,v in pairs(Mobs) do
-                if Mode == "sololevelingraid" then
+                if Mode == "sololevelingraid" or Mode == "fateraid" then
                     if #GetChildren(Enemies) ~= 1 then
                         if i.Name == 0 then
                             continue;
@@ -227,18 +230,84 @@ return {
                 self.Tp(CFr(Model.Blocker.RubbleBar.WorldPosition, nearest));
             end;
         end;
+        Functions.AutoFloodEscape = function(self, Mob, HumR)
+            local Txt = PSG.RoundHUD.Container.TopPart.RemainingFrame.EnemyCount.Text;
+            if strfind(Txt, "left") or Txt == "Get ready to climb!" then
+                if Mob and HumR then
+                    local target = HumR.Position + Vec3(0, AutomationCon.Height, 0);
+                    local CF = CFr(target, HumR.Position);
+                    return self.Tp(CF);
+                elseif strfind(Txt, "1/11") then
+                    self.Tp(CFr(-145, 124, 86), true);
+                elseif strfind(Txt, "2/11") then
+                    self.Tp(CFr(-107, 173, -208), true);
+                elseif strfind(Txt, "3/11") then
+                    self.Tp(CFr(-326, 220, -19), true);
+                elseif strfind(Txt, "4/11") then
+                    self.Tp(CFr(-87, 267, -189), true);
+                elseif strfind(Txt, "5/11") then
+                    self.Tp(CFr(-120, 314, -247), true);
+                elseif strfind(Txt, "6/11") then
+                    self.Tp(CFr(-314, 361, 5), true);
+                elseif strfind(Txt, "7/11") then
+                    self.Tp(CFr(-142, 408, -239), true);
+                elseif strfind(Txt, "8/11") then
+                    self.Tp(CFr(-111, 455, -31), true);
+                elseif strfind(Txt, "9/11") then
+                    self.Tp(CFr(-13, 502, -210), true);
+                elseif strfind(Txt, "10/11") then
+                    self.Tp(CFr(-173, 549, -2), true);
+                elseif strfind(Txt, "11/11") then
+                    self.Tp(CFr(14, 635, -218), true);
+                elseif strfind(Txt, "Root") then
+                    self.Tp(CFr(-163, 681, -247), true);
+                end;
+            elseif strfind(Txt, "Pull") then
+                local Object = DesQueue(
+                    W.World.Map,
+                    ">#CONS_LEVER:has(#LEVER:has(#FloodLeverPrompt[Enabled=true]))>#LEVER>#FloodLeverPrompt"
+                ); if Object[1] then
+                    return self.Tp(
+                        Object[1].Parent.CFrame,
+                        true
+                    ), fireproximityprompt(Object[1]);
+                end;
+            elseif strfind(Txt:lower(), "gate") then
+                local Floor = Txt:match("(%d+)/");
+                if strfind(Txt, "Clear") and HumR then
+                    local target = HumR.Position + Vec3(0, AutomationCon.Height, 0);
+                    local CF = CFr(target, HumR.Position);
+                    return self.Tp(CF);
+                elseif Floor then
+                    local Gate = W.World.Markers["Floor"..Floor].Barrier;
+                    local target = Gate.Position + Vec3(0, AutomationCon.Height, 0);
+                    local CF = CFr(target, Gate.Position);
+                    return self.Tp(CF);
+                end;
+            end;
+        end;
         Functions.AutomationMain = function(self)
             if PlaceId == 114574503491412 then return; end;
             if not selc.Parent or not HumRSelf.Parent or Tweening then return; end;
             local Mob, HumR = self.GetMob();
             if AutomationCon.AutoKillEnemy then
-                if Mob and HumR then
-                    local target = HumR.Position + Vec3(0, AutomationCon.Height, 0);
-                    local CF = CFr(target, HumR.Position);
-                    return self.Tp(CF);
-                elseif not Mob and Mode == "spiritedawayraid" then
-                    if dist(Vec3(-137, 5, -145)) < 201 then
-                        self.Tp(CFr(-137, 4, -47), true);
+                if Mode == "floodescape" then
+                    self:AutoFloodEscape(Mob, HumR);
+                else
+                    if Mob and HumR then
+                        local target = HumR.Position + Vec3(0, AutomationCon.Height, 0);
+                        local CF = CFr(target, HumR.Position);
+                        return self.Tp(CF);
+                    elseif not Mob then
+                        if Mode == "spiritedawayraid" then
+                            if dist(Vec3(-137, 5, -145)) < 201 then
+                                self.Tp(CFr(-137, 4, -47), true);
+                            end;
+                        elseif Mode == "fateraid" then
+                            if dist(Vec3(65, 282, -191)) > 80 then
+                                self.Tp(CFr(65, 282, -191), true);
+                            end;
+                        end;
                     end;
                 end;
             end;
@@ -273,6 +342,44 @@ return {
         Functions.AutoRetry = function()
             if PSG.EndScreen.Enabled then
                 REQ.run.endAction:fire(1);
+            end;
+        end;
+        Functions.AutoBless = function()
+            if Mode ~= "floodescape" and Mode ~= "fateraid" then return; end;
+            if not AutomationCon.AutoBlessing then return; end;
+            local Picker = PSG.FateBlessings.Picker;
+            if not Picker.Visible then return; end;
+            local CHs = GetChildren(Picker.Holder.List); for i=1, #CHs do
+                local v=CHs[i]; if v.Parent and v.ClassName=="ImageButton" and v.Visible then
+                    local Body = FindFirstChild(v, "Body");
+                    if not Body then continue; end;
+                    local Txt = Body.TextHolder.Description.Text;
+                    if AutomationCon.SelectBlessing ~= "Damage"
+                        or not (
+                            strfind(Txt, "Hit")
+                            or strfind(Txt, "shatter")
+                            or strfind(Txt, "damage")
+                        )
+                    then
+                        continue;
+                    elseif AutomationCon.SelectBlessing ~= "Health"
+                        or not (
+                            strfind(Txt, "life")
+                            or strfind(Txt, "heal")
+                        )
+                    then
+                        continue;
+                    elseif AutomationCon.SelectBlessing ~= "Speed"
+                        or not (
+                            strfind(Txt, "speed")
+                            or strfind(Txt, "Speed")
+                        )
+                    then
+                        continue;
+                    end; for i2,v2 in pairs(getconnections(v.Activated)) do
+                        v2.Function();
+                    end; return twait(1);
+                end;
             end;
         end;
         Functions.GetAreaHighlight = function()
@@ -336,7 +443,9 @@ return {
                 {type="Slider", EN="Tween Speed", EN2="Adjust the tween speed for 'Auto Kill Enemies' & 'Auto Destroy Border'.", TH1="ความเร็วในการวาป", TH2="ปรับความเร็วในการวาปซึ่งใช้กับ 'ออโต้ฆ่ามอน' และ 'ออโต้ทำลายสิ่งกีดขวาง'", Path="TweenSpeed", Value={Min=1, Max=60}}; {type="Space"};
                 {type="Toggle", EN="Auto Vote", EN2="Auto vote start in story mode.", TH1="ออโต้โหวต", TH2="ออโต้กดโหวตเริ่มเกมใหม่ในโหมดเนื้อเรื่อง", Path="AutoVote", Bindable="+"};
                 {type="Toggle", EN="Auto Retry", EN2="Auto retry at the end of the game.", TH1="ออโต้ลองอีกครั้ง", TH2="ออโต้กดลองอีกครั้งตอนจบเกม", Path="AutoRetry", Bindable="+"};
-                {type="Toggle", EN="Auto Next Room", EN2="Use in other gamemode ( Trial, Spirit, Shadow ).", TH1="ออโต้ห้องถัดไป", TH2="ใช้ในบางเกมโหมด ( Trial, Spirit, Shadow )", Path="AutoNextRoom", Bindable="+"};
+                {type="Toggle", EN="Auto Next Room", EN2="Use in other gamemode ( Trial, Spirit, Shadow ).", TH1="ออโต้ห้องถัดไป", TH2="ใช้ในบางเกมโหมด ( Trial, Spirit, Shadow )", Path="AutoNextRoom", Bindable="+"}; {type="Space"}; {type="Space"};
+                {type="Dropdown", EN="Select Blessing", EN2="Select type of card", TH1="เลือกพร", TH2="เลือกการ์ดที่จะหยิบ", Values={"Health", "Speed", "Damage"}, Path="SelectBlessing"};
+                {type="Toggle", EN="Auto Blessing", EN2="Auto select a card.", TH1="ออโต้พร", TH2="ออโต้เลือกการ์ด", Path="AutoBlessing", Bindable="+"}; 
             };
             QuestTab = {
                 {type="Toggle", EN="Auto Delivery", EN2="Teleport & complete delivery quest", TH1="ออโต้ส่งของ", TH2="วาปแล้วทำเควสส่งของ", Path="AutoDelivery", Bindable="+"};
@@ -411,6 +520,10 @@ return {
 
                             if AutomationCon.AutoRetry then
                                 Functions.AutoRetry();
+                            end;
+
+                            if AutomationCon.AutoBlessing then
+                                Functions.AutoBless();
                             end;
                         end;
                         
