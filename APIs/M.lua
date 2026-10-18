@@ -26,7 +26,6 @@
     
     Author: TTJY Studio
     Github: https://github.com/Yumiara/SSL-TTJY
-    Discord: https://discord.gg/G7CX2rD9p2
     License: ND ( No Derivatives )
     
      _____ ____  
@@ -75,7 +74,7 @@ local Kicks, KickReason, GG = {
     ["TTJY_ID7"]  = "[TTJY Studio] : Executor environment is not standard. Please try again or switch to a different executor.\n\n<font size=\"14\">Join our Discord server for recommendations or to report bugs.</font>",
     ["TTJY_IDVC"] = "[TTJY Studio] : VCache Failed.",
     ["TTJY_IDP"]  = "[TTJY Studio] : You are in public server but you set the script to auto leave public servers.";
-    ["TTJY_SolD"] = "[TTJY Studio] : Compatibility with Solara has been removed.\n\n<font size=\"14\">( You can get a free executor at https://projectreal.gg/ )</font>",
+    ["TTJY_SolD"] = "[TTJY Studio] : Compatibility with Solara has been removed.\n\n<font size=\"14\">( You can get a free executor at projectreal.gg )</font>",
     ["TTJY_INFO"] = "[TTJY Studio] : getinfo not found. Please change executor.",
     ["TTJY_IDXO"] = "Your executor is '<b>Xeno</b>'. Imagine using a virus.\n\nAnyway, This executor isn't supported.\n\n<font size=\"14\">Visit ttjy-studio.vercel.app to see the list of supported executors.</font>",
     ["TheMimicCOUNT9R1"] = "[TTJY Studio] : The Mimic Script has been temporary shutdown for Hall Of Fame update. \n\n<font size=\"14\">Visit our discord server for more info.</font>"
@@ -2657,7 +2656,6 @@ AssetStorage.LoadUILib = function()
                         ["lucide"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/Assets/lucide.lua", "lucide.lua", "2")(),
                         --["solar"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua"))(),  
                         --["craft"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/craft/dist/Icons.lua"))(),  
-                        --["geist"] = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/geist/dist/Icons.lua"))(),  
                         ["sfsymbols"] = LoadFromVControl("https://raw.githubusercontent.com/RealTTJY/Studio.Hub/refs/heads/main/Assets/sfsymbols.lua", "sfsymbols.lua", "2")(),  
                     },
                 };
@@ -12613,7 +12611,7 @@ local FreeLoad, KeyLoad = {
     };
     [10512942223] = {
         File = "10512942223";
-        Version = "AnimeZero_V3.03";
+        Version = "AnimeZero_V3.04";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
 };
