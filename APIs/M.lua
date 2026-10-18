@@ -12613,7 +12613,7 @@ local FreeLoad, KeyLoad = {
     };
     [10512942223] = {
         File = "10512942223";
-        Version = "AnimeZero_V3.01";
+        Version = "AnimeZero_V3.02";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
 };
