@@ -15,7 +15,7 @@ local tk = task;
 local emptyfunction = function(...) return; end;
 local setthread = setthreadidentity or set_thread_identity or setthreadcontext or set_thread_context or emptyfunction;
 
-local VIM = GetService(game, "VirtualInputManager")
+local VIM = GetService(game, "VirtualInputManager");
 local R = GetService(game, "ReplicatedStorage");
 local H = GetService(game, "RunService");
 local W = GetService(game, "Workspace");
@@ -104,7 +104,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.85";
+    Version = "DA_V3.86";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -900,7 +900,7 @@ return {
             end;
         end;
         Functions.Halloween_AutoPumpkins = function(self, Data)
-            for i,v in pairs(Data) do
+            if not Data then return; end; for i,v in pairs(Data) do
                 if not EventsCon.Halloween.AutoPumpkin then return; end;
                 local Dead = v.DeadValue;
                 if not Dead or Dead.Value then continue; end;
