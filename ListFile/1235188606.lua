@@ -104,7 +104,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.86";
+    Version = "DA_V3.88";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -175,14 +175,14 @@ return {
 
         local Functions = {};
 
-        Functions.SKey = function(key)
+        Functions.SKey = function(VIM, key)
             return VIM:SendKeyEvent(true, key, false, game);
         end;
-        Functions.OKey = function(key)
+        Functions.OKey = function(VIM, key)
             return VIM:SendKeyEvent(false, key, false, game);
         end;
-        Functions.CKey = function(self, key, c)
-            return self.SKey(key), twait(c or 0), self.OKey(key);
+        Functions.CKey = function(self, VIM, key, c)
+            return self.SKey(VIM, key), twait(c or 0), self.OKey(VIM, key);
         end;
         Functions.SetSync = function(self)
             if self.SetupSync then return; end; self.SetupSync = true;
@@ -203,7 +203,9 @@ return {
         end;
         Functions.Dash = function(self)
             if not Seat.Parent or not REQ.DragonClass then return false; end;
-            self:CKey(Enum.KeyCode.LeftShift);
+            tk.defer(function()
+                Functions:CKey(VIM, Enum.KeyCode.LeftShift);
+            end);
         end;
         Functions.Tp = function(Pos)
             if not selc.Parent then return; end;
