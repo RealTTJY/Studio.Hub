@@ -50,7 +50,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.03";
+    Version = "AnimeZero_V3.04";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
