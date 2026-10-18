@@ -50,7 +50,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.02";
+    Version = "AnimeZero_V3.03";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -353,7 +353,7 @@ return {
                 local v=CHs[i]; if v.Parent and v.ClassName=="ImageButton" and v.Visible then
                     local Body = FindFirstChild(v, "Body");
                     if not Body then continue; end;
-                    local Txt = Body.TextHolder.Description.Text;
+                    local Skip, Txt = true, Body.TextHolder.Description.Text;
                     if AutomationCon.SelectBlessing ~= "Damage"
                         or not (
                             strfind(Txt, "Hit")
@@ -361,22 +361,23 @@ return {
                             or strfind(Txt, "damage")
                         )
                     then
-                        continue;
+                        Skip = false;
                     elseif AutomationCon.SelectBlessing ~= "Health"
                         or not (
                             strfind(Txt, "life")
                             or strfind(Txt, "heal")
                         )
                     then
-                        continue;
+                        Skip = false;
                     elseif AutomationCon.SelectBlessing ~= "Speed"
                         or not (
                             strfind(Txt, "speed")
                             or strfind(Txt, "Speed")
                         )
                     then
-                        continue;
-                    end; for i2,v2 in pairs(getconnections(v.Activated)) do
+                        Skip = false;
+                    end; if Skip then continue; end;
+                    for i2,v2 in pairs(getconnections(v.Activated)) do
                         v2.Function();
                     end; return twait(1);
                 end;
