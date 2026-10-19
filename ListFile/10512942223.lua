@@ -52,7 +52,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.07";
+    Version = "AnimeZero_V3.08";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -129,12 +129,47 @@ return {
             end;
         end;
         Functions.GCValidate = function()
-            local GCs=getgc(true); for i=1, #GCs do
-                local v=GCs[i]; if type(v) == 'table' then
-                    if rawget(v, "performSkill") and not rawget(v, "performM1") then
-                        REQ.charCon = v; break;
+            if PlaceId == 114574503491412 then
+                return;
+            end; while not REQ.charCon do
+                local GCs=getgc(true); for i=1, #GCs do
+                    if REQ.AimCon and REQ.charCon then
+                        break;
                     end;
-                end;
+
+                    local v=GCs[i]; if type(v) == 'table' then
+                        if not REQ.charCon and rawget(v, "performSkill") and not rawget(v, "performM1") then
+                            REQ.charCon = v;
+                        elseif not REQ.AimCon and rawget(v, "Get") and rawget(v, "IsAiming") then
+                            REQ.AimCon = v;
+                        end;
+                    end;
+                end; twait(3);
+            end;
+        end;
+        Functions.GameViolation = function()
+            if not REQ.AimCon then return; end;
+            if type(REQ.AimCon.Get) == 'function' then
+                local o;o=LowerC(REQ.AimCon.Get, function(...)
+                    if not AutomationCon.AutoAim then return o(...); end;
+                    local Mob, HumR = Functions.GetMob(true);
+                    if not Mob or not HumR then return o(...); end;
+
+                    local Position = HumR.Position;
+                    local Point = Position;
+                    local Origin = HumRSelf.Position;
+                    local Dist = dist(Position);
+                    local Hit = HumR;
+                    local Direction = (Position - Origin).Unit;
+
+                    return {
+                        Point = Point;
+                        Direction = Direction;
+                        Distance = Dist;
+                        Hit = Hit;
+                        Origin = Origin;
+                    };
+                end);
             end;
         end;
         Functions.Tp = function(CF, ignoreATK)
@@ -180,9 +215,9 @@ return {
                     tk.defer(function()
                         Functions:CKey(VIM, Enum.KeyCode.One);
                         Functions:CKey(VIM, Enum.KeyCode.Two);
+                        Functions:CKey(VIM, Enum.KeyCode.G);
                         Functions:CKey(VIM, Enum.KeyCode.Three);
-                    end);
-                    self.SKCD = time();
+                    end); self.SKCD = time();
                 end;
             end;
         end) or function(self)
@@ -194,6 +229,7 @@ return {
                 elseif time() - self.SKCD > 0.8 then
                     REQ.charCon.performSkill(1);
                     REQ.charCon.performSkill(2);
+                    REQ.charCon.performSkill(4);
                     REQ.charCon.performSkill(3);
                     self.SKCD = time();
                 end;
@@ -220,19 +256,32 @@ return {
                 end; if i==5 then self:ToArea(i); end;
             end; return nil;
         end;
-        Functions.GetMob = function()
-            for i,v in pairs(Mobs) do
+        Functions.GetMob = function(near)
+            local Nearest, NearestData, NearestDist;
+            for i, v in pairs(Mobs) do
+                local D = dist(v.Position); if near then
+                    if D >= 120 then continue; end;
+                    if NearestDist and D >= NearestDist then
+                        continue;
+                    end;
+                end;
+
                 if Mode == "sololevelingraid" or Mode == "fateraid" then
                     if #GetChildren(Enemies) ~= 1 then
                         if i.Name == 0 then
                             continue;
                         end;
                     end;
+                end; if i.Parent and v.Parent then
+                    if near then
+                        Nearest = i;
+                        NearestData = v;
+                        NearestDist = D;
+                    else
+                        return i, v;
+                    end;
                 end;
-                if i.Parent and v.Parent then
-                    return i,v;
-                end;
-            end;
+            end; return Nearest, NearestData;
         end;
         Functions.GoToPlane = function(self, Rubble, Model)
             local nearest, Dist = nil, math.huge;
@@ -271,7 +320,7 @@ return {
                     local target = HumR.Position + Vec3(0, AutomationCon.Height, 0);
                     local CF = CFr(target, HumR.Position);
                     return self.Tp(CF);
-                elseif strfind(Txt, "1/11") then
+                elseif strfind(Txt, "1/11") and not strfind(Txt, "11/11") then
                     self.Tp(CFr(-145, 124, 86), true);
                 elseif strfind(Txt, "2/11") then
                     self.Tp(CFr(-107, 173, -208), true);
@@ -292,7 +341,7 @@ return {
                 elseif strfind(Txt, "10/11") then
                     self.Tp(CFr(-173, 549, -2), true);
                 elseif strfind(Txt, "11/11") then
-                    self.Tp(CFr(14, 635, -218), true);
+                    self.Tp(CFr(-7, 635, -206), true);
                 elseif strfind(Txt, "Roof") then
                     self.Tp(CFr(-163, 681, -247), true);
                 end;
@@ -308,7 +357,7 @@ return {
                 end;
             elseif strfind(Txt:lower(), "gate") then
                 local Floor = Txt:match("(%d+)/");
-                if strfind(Txt, "Clear") and HumR then
+                if Mob and HumR then
                     local target = HumR.Position + Vec3(0, AutomationCon.Height, 0);
                     local CF = CFr(target, HumR.Position);
                     return self.Tp(CF);
@@ -316,7 +365,7 @@ return {
                     local Gate = W.World.Markers["Floor"..Floor].Barrier;
                     local target = Gate.Position + Vec3(0, AutomationCon.Height, 0);
                     local CF = CFr(target, Gate.Position);
-                    return self.Tp(CF);
+                    return self.Tp(CF, true);
                 end;
             end;
         end;
@@ -474,6 +523,7 @@ return {
                         Tweening = nil;
                     end;
                 end};
+                {type="Toggle", EN="Auto Aim ( Ability )", EN2="Auto aim at enemies when the ability required aiming.", TH1="ออโต้เล็ง", TH2="ออโต้เล็งศัตรูเวลาใช้สกิวที่ต้องเล็ง", Path="AutoAim", Bindable="+"};
                 {type="Slider", EN="Anchore Height", EN2="Adjust the height from you and mob.", TH1="ปรับความสูง", TH2="ปรับความสูงจากมอน", Path="Height", Value={Min=-15, Max=15}, Step=0.1}; {type="Space"};
                 {type="Slider", EN="Tween Speed", EN2="Adjust the tween speed for 'Auto Kill Enemies' & 'Auto Destroy Border'.", TH1="ความเร็วในการวาป", TH2="ปรับความเร็วในการวาปซึ่งใช้กับ 'ออโต้ฆ่ามอน' และ 'ออโต้ทำลายสิ่งกีดขวาง'", Path="TweenSpeed", Value={Min=1, Max=60}}; {type="Space"};
                 {type="Toggle", EN="Auto Vote", EN2="Auto vote start in story mode.", TH1="ออโต้โหวต", TH2="ออโต้กดโหวตเริ่มเกมใหม่ในโหมดเนื้อเรื่อง", Path="AutoVote", Bindable="+"};
@@ -645,6 +695,7 @@ return {
 
                     Functions.GameValidate();
                     Functions.GCValidate();
+                    Functions.GameViolation();
                 end;
             end); if OneRunCallMain then
                 return true, GG.LoadingSignal:Fire(100);
