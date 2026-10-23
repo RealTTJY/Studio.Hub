@@ -104,7 +104,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.88";
+    Version = "DA_V3.89";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -292,7 +292,7 @@ return {
                 end; tblein(WorldResources[v.Origin], i);
             end; Items.WorldFood = WorldFood; Items.WorldResources = WorldResources;
             Items.SDResource = WaitForChild(SData, "Resources", 9e9);
-            Items.IsMaxValue = function(varbase) return varbase.Value > 6000; end;
+            Items.IsMaxValue = function(varbase) return varbase.Value > 9000; end;
             Items.SRE = game.PlaceId == 3475397644 and WaitForChild(RRemotes, "SellItemRemote", 9e9); REQ.Items = Items;
         end;
         Functions.SolsticeInit = function(self)
@@ -867,7 +867,7 @@ return {
                     if (Pos.Position-Vec3(1958, 707, -1208)).Magnitude < 1400 then continue; end;
                     if self.SetDFly(true) then
                         Tp(Seat.Parent and Seat.Parent.PrimaryPart, Pos);
-                        twait(0.3 + mclamp(self.GetPing(), 0, 1000));
+                        twait(2.5 + mclamp(self.GetPing(), 0, 1000));
                     end; if dist(Pos.Position) < 30 then
                         RE.TrickOrTreatDoor:InvokeServer(v.Name);
                         twait(0.5 + mclamp(self.GetPing(), 0, 1000));
