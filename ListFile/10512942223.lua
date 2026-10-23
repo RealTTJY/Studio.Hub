@@ -52,7 +52,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.08";
+    Version = "AnimeZero_V3.09";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -344,6 +344,8 @@ return {
                     self.Tp(CFr(-7, 635, -206), true);
                 elseif strfind(Txt, "Roof") then
                     self.Tp(CFr(-163, 681, -247), true);
+                elseif not Mob and Txt == "Get ready to climb!" then
+                    self.Tp(CFr(-145, 124, 86), true);
                 end;
             elseif strfind(Txt, "Pull") then
                 local Object = DesQueue(
@@ -466,6 +468,12 @@ return {
                 end;
             end;
         end;
+        Functions.AutoRevive = function()
+            if Mode ~= "floodescape" then return; end;
+            if not PSG.FloodRevive.Enabled then return; end;
+            R.FloodReviveAsk:FireServer("Coins");
+            twait(1 + mclamp(Pings, 0, 100));
+        end;
         Functions.GetAreaHighlight = function()
             local start = time(); while time()-start < 1.5 do
                 local Human = FindFirstChild(W.effects, "DeliveryTrail");
@@ -530,7 +538,8 @@ return {
                 {type="Toggle", EN="Auto Retry", EN2="Auto retry at the end of the game.", TH1="ออโต้ลองอีกครั้ง", TH2="ออโต้กดลองอีกครั้งตอนจบเกม", Path="AutoRetry", Bindable="+"};
                 {type="Toggle", EN="Auto Next Room", EN2="Use in other gamemode ( Trial, Spirit, Shadow ).", TH1="ออโต้ห้องถัดไป", TH2="ใช้ในบางเกมโหมด ( Trial, Spirit, Shadow )", Path="AutoNextRoom", Bindable="+"}; {type="Space"}; {type="Space"};
                 {type="Dropdown", EN="Select Blessing", EN2="Select type of card", TH1="เลือกพร", TH2="เลือกการ์ดที่จะหยิบ", Values={"Health", "Speed", "Damage"}, Path="SelectBlessing"};
-                {type="Toggle", EN="Auto Blessing", EN2="Auto select a card.", TH1="ออโต้พร", TH2="ออโต้เลือกการ์ด", Path="AutoBlessing", Bindable="+"}; 
+                {type="Toggle", EN="Auto Blessing", EN2="Auto select a card.", TH1="ออโต้พร", TH2="ออโต้เลือกการ์ด", Path="AutoBlessing", Bindable="+"};
+                {type="Toggle", EN="Auto Revive", EN2="Auto revive in the floor mode.", TH1="ออโต้ชุบชีวิต", TH2="ชุบชีวิตในด่านน้ำ", Path="AutoRevive", Bindable="+"};
             };
             QuestTab = {
                 {type="Toggle", EN="Auto Delivery", EN2="Teleport & complete delivery quest", TH1="ออโต้ส่งของ", TH2="วาปแล้วทำเควสส่งของ", Path="AutoDelivery", Bindable="+"};
@@ -609,6 +618,10 @@ return {
 
                             if AutomationCon.AutoBlessing then
                                 Functions.AutoBless();
+                            end;
+
+                            if AutomationCon.AutoRevive then
+                                Functions.AutoRevive();
                             end;
                         end;
                         
