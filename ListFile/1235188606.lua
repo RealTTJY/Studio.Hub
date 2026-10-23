@@ -104,7 +104,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.89";
+    Version = "DA_V3.90";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -875,7 +875,7 @@ return {
                 end;
             end;
         end;
-        Functions.Halloween_AutoGhosts = function()
+        Functions.Halloween_AutoGhosts = function(self)
             local CHs = DesQueue(Cam, ">Model:has(#GhostMarkerGui)"); for i = 1, #CHs do
                 local v = CHs[i]; if v.Parent then
                     if not EventsCon.Halloween.AutoGhost then return; end;
@@ -888,7 +888,7 @@ return {
                 end;
             end;
         end;
-        Functions.Halloween_AutoEggs = function()
+        Functions.Halloween_AutoEggs = function(self)
             local CHs = DesQueue(Cam, ">Model:has(#EggMarkerGui)"); for i = 1, #CHs do
                 local v = CHs[i]; if v.Parent then
                     if not EventsCon.Halloween.AutoEgg then return; end;
@@ -1182,10 +1182,10 @@ return {
                     Functions:Halloween_TrickOrTreat(Doors);
                 end;
                 if EventsCon.Halloween.AutoGhost then
-                    Functions.Halloween_AutoGhosts();
+                    Functions:Halloween_AutoGhosts();
                 end;
                 if EventsCon.Halloween.AutoEgg then
-                    Functions.Halloween_AutoEggs();
+                    Functions:Halloween_AutoEggs();
                 end;
                 if EventsCon.Halloween.AutoPumpkin then
                     Functions:Halloween_AutoPumpkins(REQ.Pumpkins);
