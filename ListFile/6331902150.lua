@@ -94,7 +94,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "Forsaken_V3.03";
+    Version = "Forsaken_V3.04";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -353,6 +353,7 @@ return {
             ) or {};
         end;
         Functions.AutoFixGenerator = function(self, Gens)
+            if true then return; end;
             if not HumRSelf.Parent then return; end;
             local Gui = FindFirstChild(PSG, "PuzzleUI");
             if not Gui then return; end;
@@ -387,15 +388,12 @@ return {
                 local Gen = v.Parent;
 
                 if Gen then
-                    local Progress = FindFirstChild(Gen, "Progress");
-                    local ESPObject = ESPF.ESP(POINTER, Gen, {
+                    ESPF.ESP(POINTER, Gen, {
                         Color = GREEN;
                         Size = VECGEN;
-                        Text = Gen.Name;
+                        Text = "Generator";
                         NoStart = true;
-                    }); if ESPObject and ESPObject.Label and Progress then
-                        ESPObject.Label.Text = "Generator\n(" .. tostring(Progress.Value) .. "/100)"; 
-                    end;
+                    });
                 end;
             end;
 
@@ -607,7 +605,7 @@ return {
                 end}; {type="Space"};
             };
             SurvivorTab = {
-                {type="Toggle", EN="Auto Generator", EN2="Fix generators, when you enter the generator.", TH1="ออโต้ปั่นไฟ", TH2="ซ่อมเครื่องปั่นไฟเมื่อคุณเข้าใกล้", Path="Generator/Auto", Bindable="+"};
+                {type="Toggle", EN="Auto Generator", EN2="Fix generators, when you enter the generator.", TH1="ออโต้ปั่นไฟ", TH2="ซ่อมเครื่องปั่นไฟเมื่อคุณเข้าใกล้", Path="Generator/Auto", Locked=true, Bindable="+"};
                 {type="Toggle", EN="ESP Generator", EN2="Show generator's box.", TH1="ESP เครื่องปั่นไฟ", TH2="แสดงเครื่องปั่นไฟ", Path="Generator/ESP", Bindable="+"};
                 {type="Slider", EN="Speed", EN2="Time taken to complete each generator", TH1="ความเร็ว", TH2="เวลาที่ใช้ในการปั่นไฟ", Path="Generator/Speed", Value={Min=1.3, Max=2}, Step=0.1};
                 {type="Button", EN="Teleport", EN2="Teleport to the generator.", TH1="วาป", TH2="วาปไปหาเครื่องปั่นไฟ", Callback=function()
