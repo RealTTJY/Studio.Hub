@@ -106,7 +106,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "CoS_V3.06";
+    Version = "CoS_V3.07";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -593,9 +593,9 @@ return {
 
             local Selected = CombatCon.DMGAura.SelectTarget;
             local Distance = forceDist or CombatCon.DMGAura.CreatureRange;
-            local AttackingTable = {}; for _, data in pairs(PlayerList) do
+            local AttackingTable = {}; for plr, data in pairs(PlayerList) do
                 if not (data.Character and data.Character.Parent) then continue; end;
-                if (Selected == "All" or Selected == plr.Name) then
+                if (Selected == "All" or (plr and Selected == plr.Name)) then
                     if dist(GetPivot(data.Character).Position) <= Distance then
                         tblein(AttackingTable, data.Character);
                     end;
