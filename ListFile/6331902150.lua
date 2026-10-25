@@ -94,7 +94,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "Forsaken_V3.02";
+    Version = "Forsaken_V3.03";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -127,7 +127,7 @@ return {
         local RE                = {};
         local Functions         = {};
 
-        ClientCon.JumpPower = ClientCon.JumpPower or 50;
+        ClientCon.JumpPower = ClientCon.JumpPower or 0;
         ClientCon["TeleportWalk Speed"] = ClientCon["TeleportWalk Speed"] or 1;
         SurvivorCon.Generator.Speed = SurvivorCon.Generator.Speed or 1.3;
         KillerCon.Killer.SelectSuvivor = KillerCon.Killer.SelectSuvivor or {};
@@ -181,16 +181,28 @@ return {
                 end;
             end);
         end;
-        Functions.GCValidate = function(self)
-            if not selc.Parent then return; end;
+        Functions.GCValidate = function(self, ignoreSelc)
+            if not selc.Parent and not ignoreSelc then return; end;
             local GCs=getgc(true); for i=1, #GCs do
                 local v=GCs[i]; if type(v) == 'table' then
                     if rawget(v, "StaminaLoss") and rawget(v, "Character") and v.Character == selc then
                         self.StaminaOffSet = v;
-                        break;
+                    elseif rawget(v, "Serialize") and rawget(v, "Start") then
+                        self.ReplicateOffSet = v;
                     end;
                 end;
             end;
+        end;
+        Functions.GameViolate = function(self)
+            if not self.ReplicateOffSet then return; end;
+            local o;o=LowerC(self.ReplicateOffSet.Serialize, function(...)
+                if not HumRSelf.Parent or not ClientCon.Ghost then return o(...); end;
+                local args={...}; if typeof(args[1]) == 'CFrame' and typeof(args[2]) == 'Vector3' and type(args[3]) == 'nil' then
+                    local Position = HumRSelf.CFrame;
+                    args[1] = CFr(Position.X, Position.Y - 10, Position.Z);
+                    return o(unpack(args));
+                end; return o(...);
+            end);
         end;
         Functions.GameValidate = function(self)
             W.Map.Ingame.ChildAdded:Connect(function(v)
@@ -329,11 +341,6 @@ return {
                 end);
             end);
         end;
-        Functions.Ghost = function(bool)
-            if GetAttribute(W, "ExperimentalHitboxes") ~= bool then
-                SetAttribute(W, "ExperimentalHitboxes", bool);
-            end;
-        end;
         Functions.ApplyStamina = function(self, num)
             local StaminaOffSet = self.StaminaOffSet;
             if not StaminaOffSet then return self:GCValidate(); end;
@@ -454,31 +461,21 @@ return {
                 ESPF.Color(v, ESPCon.TextColor[v]);
             end;
         end;
-        Functions.GetKDoors = function()
-            local Doors = CurrentGame.KillerDoors;
-            if not Doors or not Doors.Parent then return {}; end;
-            return DesQueue(
-                Doors,
-                ">#Part[Material=Plastic],>Part:not(#Part):has(SpecialMesh)"
-            );
-        end;
-        Functions.SetKDoors = function(KDoors, bool)
-            for i=1, #KDoors do
-                local v = KDoors[i]; if v.Parent then
-                    if v.CanCollide == bool then
-                        continue;
-                    end; v.CanCollide = bool;
-                end;
-            end;
-        end;
         Functions.ClearSession = function()
             CurrentGame.Map = nil;
             CurrentGame.KillerOnly = nil;
             CurrentGame.KillerDoors = nil;
         end;
+        Functions.SetKDoors = function(KOnly, bool)
+            local Target = if bool then nil else CurrentGame.Bound;
+            if CurrentGame.KillerDoors.Parent == Target then return; end;
+            pcall(function()
+                CurrentGame.KillerDoors.Parent = if bool then nil else CurrentGame.Bound;
+            end);
+        end;
         Functions.SetKOnly = function(KOnly, bool)
             local Target = if bool then nil else CurrentGame.Bound;
-            if not Target or not Target.Parent or CurrentGame.KillerOnly.Parent == Target then return; end;
+            if CurrentGame.KillerOnly.Parent == Target then return; end;
             pcall(function()
                 CurrentGame.KillerOnly.Parent = if bool then nil else CurrentGame.Bound;
             end);
@@ -584,7 +581,6 @@ return {
                     {dat={
                         {type="Toggle", EN="Ghost Mode", EN2="Invincible & godmode. Other player can attack you if they found your real character.", TH1="ถอดจิต", TH2="ล่องหนและอมตะ คนอื่นสามารถตีได้ปกติถ้าเจอร่างจริงเรา", Bindable="+", Path="Client/Ghost", Callback=function(state)
                             ClientCon.Ghost = state; if not state then
-                                Functions.Ghost(true);
                                 if ClientCon.GhostBack then
                                     local QueryHitbox = FindFirstChild(selc, "QueryHitbox");
                                     if not QueryHitbox then return; end;
@@ -629,13 +625,7 @@ return {
                 {type="Toggle", EN="Auto Block", EN2="Guest 1337.", TH1="ออโต้บล็อค", TH2="Guest 1337", Path="Guest1337/AutoBlock", Bindable="+"};
                 {type="Toggle", EN="Auto Punch", EN2="After Guest 1337 successfully blocked.", TH1="ออโต้ต่อย", TH2="หลังจาก Guest 1337 บล็อกได้สำเร็จ", Path="Guest1337/AutoPunch", Bindable="+"};
                 {type="Space"}; {type="Divider"}; {type="Space"};
-                {type="Toggle", EN="Remove Killer Walls", EN2="Hide the red walls.", TH1="ลบกำแพงฆาตกร", TH2="ซ่อนกำแพงสีแดง", Path="Visual/RemoveKillerWalls", Bindable="+", Callback=function(state)
-                    SurvivorCon.Visual.RemoveKillerWalls = state; if not state then
-                        twait(1); local KDoors = Functions.GetKDoors(); if #KDoors>0 then
-                            Functions.SetKDoors(KDoors, true);
-                        end;
-                    end;
-                end};
+                {type="Toggle", EN="Remove Killer Walls", EN2="Hide the red walls.", TH1="ลบกำแพงฆาตกร", TH2="ซ่อนกำแพงสีแดง", Path="Visual/RemoveKillerWalls"};
                 {type="Toggle", EN="Remove Trails", EN2="John Doe's.", TH1="ลบ Trails", TH2="ของ John Doe", Path="Visual/RemoveJohnTrails", Bindable="+", Callback=function(state)
                     SurvivorCon.Visual.RemoveJohnTrails = state; if not state then
                         local JTrail = CurrentGame.JTrail; if JTrail then
@@ -681,10 +671,24 @@ return {
                     or SurvivorCon.Visual.RemoveJohnTrails
                     or SurvivorCon.Visual.RemoveJohnFootprints
                     or SurvivorCon.Visual.SmallSpikeJohn
-                    or KillerCon.Killer.ESPSurvivors
-                    or ClientCon.Ghost
+                    or KillerCon.Killer.ESPSurvivors;
+                
+                local KDoors = CurrentGame.KillerDoors;
+                local KillerOnly = CurrentGame.KillerOnly;
 
                 if not shouldNotClose or CoreDestroyed then
+                    if KillerOnly then
+                        Functions.SetKOnly(
+                            KillerOnly,
+                            SurvivorCon.Visual.RemoveKillerWalls
+                        );
+                    end; if KDoors then
+                        Functions.SetKDoors(
+                            KDoors,
+                            SurvivorCon.Visual.RemoveKillerWalls
+                        );
+                    end;
+
                     CoruTask.Close("FastThread-Main");
                 end;
 
@@ -694,13 +698,8 @@ return {
                         twait(0.1); continue;
                     end;
 
-                    local KillerOnly = CurrentGame.KillerOnly;
                     local JTrail = CurrentGame.JTrail;
                     local JFoot = CurrentGame.JFoot;
-
-                    if ClientCon.Ghost then
-                        Functions.Ghost(false);
-                    end;
 
                     local Gens = Functions.GetGenerators(); if #Gens>0 then
                         if SurvivorCon.Generator.ESP then
@@ -717,10 +716,11 @@ return {
                         end;
                     end;
 
-                    local KDoors = Functions.GetKDoors(); if #KDoors>0 then
-                        if SurvivorCon.Visual.RemoveKillerWalls then
-                            Functions.SetKDoors(KDoors, false);
-                        end;
+                    if KDoors then
+                        Functions.SetKDoors(
+                            KDoors,
+                            SurvivorCon.Visual.RemoveKillerWalls
+                        );
                     end; if KillerOnly then
                         Functions.SetKOnly(
                             KillerOnly,
@@ -846,7 +846,7 @@ return {
         end; local LSecureLoad = function(AUTH_KEY)
             local OneRunCallMain, OneRunErrorMain = pcall(function()
                 CoreDestroyed = false; GG.ESPF_ChangeMode = ESPF.Method;
-                ClientCon.JumpPower = HumSelf and HumSelf.JumpPower or 50;
+                ClientCon.JumpPower = HumSelf and HumSelf.JumpPower or 0;
 
                 GG.Configs = Config;
                 LSecureUI();
@@ -862,8 +862,7 @@ return {
                             or SurvivorCon.Visual.RemoveJohnFootprints
                             or SurvivorCon.Visual.SmallSpikeJohn
                             or SurvivorCon.Visual.RemoveFakeNoli
-                            or KillerCon.Killer.ESPSurvivors
-                            or ClientCon.Ghost;
+                            or KillerCon.Killer.ESPSurvivors;
                         local RequiredMovement = KillerCon.Killer.Teleport;
 
                         if FastThread then
@@ -930,8 +929,9 @@ return {
                     VOIDPART.Anchored = true;
                     VOIDPART.Parent = W;
 
-                    Functions:GCValidate();
+                    Functions:GCValidate(true);
                     Functions:GameValidate();
+                    Functions:GameViolate();
                 end;
             end); if OneRunCallMain then
                 return true, GG.LoadingSignal:Fire(100);
