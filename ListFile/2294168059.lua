@@ -188,7 +188,7 @@ Config.HalloweenTrial = Config.HalloweenTrial or {};
 Config.HalloweenTrial.ESP = Config.HalloweenTrial.ESP or {};
 
 return {
-    Version = "TheMimicV3.D12";
+    Version = "TheMimicV3.D13";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -4525,7 +4525,7 @@ return {
             if Chapter ~= "NMCS" then
                 return;
             end; while true do
-                if not (NMCSCon.AutoClowns or NMCSCon.AutoHammer or NMCSCon.AutoStatue or NMCS.AutoBoss) or CoreDestroyed then
+                if not (NMCSCon.AutoClowns or NMCSCon.AutoHammer or NMCSCon.AutoStatue or NMCSCon.AutoBoss) or CoreDestroyed then
                     CoruTask.Close("NMCS@Main");
                 end;
 
@@ -4679,7 +4679,7 @@ return {
                             end;
                         end;
                         if Chapter == "NMCS" then
-                            if NMCSCon.AutoClowns or NMCSCon.AutoHammer or NMCSCon.AutoStatue or NMCS.AutoBoss then
+                            if NMCSCon.AutoClowns or NMCSCon.AutoHammer or NMCSCon.AutoStatue or NMCSCon.AutoBoss then
                                 CoruTask.Handle("NMCS@Main");
                             end;
                         end;
