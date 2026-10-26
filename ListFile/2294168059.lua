@@ -178,6 +178,7 @@ Config.B3C1.IJO = Config.B3C1.IJO or {};
 Config.B3C1.IJO.ESP = Config.B3C1.IJO.ESP or {};
 Config.B3C1.Water = Config.B3C1.Water or {};
 Config.B3C1.Water.ESP = Config.B3C1.Water.ESP or {};
+Config.NMCS = Config.NMCS or {};
 Config.Jigoku = Config.Jigoku or {};
 Config.Jigoku.ESP = Config.Jigoku.ESP or {};
 Config.Egao = Config.Egao or {};
@@ -187,7 +188,7 @@ Config.HalloweenTrial = Config.HalloweenTrial or {};
 Config.HalloweenTrial.ESP = Config.HalloweenTrial.ESP or {};
 
 return {
-    Version = "TheMimicV3.D11";
+    Version = "TheMimicV3.D12";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -213,6 +214,7 @@ return {
         local B2C3Con           = Config.B2C3;
         local B2C4Con           = Config.B2C4;
         local B3C1Con           = Config.B3C1;
+        local NMCSCon           = Config.NMCS;
         local NonAnalytics3     = {type="Button", EN="Analytics 3", EN2="Please enable 'Analytics 3' module to track game data, inventory, and player statistics for reports and webhook integrations.", TH1="Analytics 3", TH2="กรุณาเปิดใช้งานโมดูล 'Analytics 3' เพื่อติดตามข้อมูลเกม สินค้าคงคลัง และสถิติผู้เล่นสำหรับรายงานและเว็บฮุก"};
         local ArgsCraft         = {[1] = 0;[2] = {["__args"] = {};["__tree"] = {[1] = "CraftingService";[2] = "Interact"};["__callType"] = 0}};
 
@@ -228,6 +230,7 @@ return {
                                   elseif PlaceId == 7618863566 then "Jigoku"
                                   elseif PlaceId == 7068738088 or PlaceId == 7068951438 or PlaceId == 7068739000 or PlaceId == 7068951914 or PlaceId == 7068740106 or PlaceId == 7068952294 then "WitchTrial"
                                   elseif PlaceId == 7633631103 or PlaceId == 7633631351 or PlaceId == 7633631511 then "HalloweenTrial"
+                                  elseif PlaceId == 11126398230 then "NMCS"
                                   elseif PlaceId == 6243699076 then "Lobby"
                                   elseif PlaceId == 7068737459 then "GLobby"
                                   else nil;
@@ -2732,6 +2735,118 @@ return {
                 });
             end; ESPF.Visible(where, true, true);
         end;
+        Functions.NMCSFunc = function(self, where, tbl)
+            local REs = R.modules.Packet.Reliable;
+            if where == "1/Darts" then
+                local Cords = {
+                    {-0.88143342681816828,  0.87117157036754522},
+                    {-0.40142137418766055,  0.91716707364216832},
+                    { 0.041346730334789528, 0.8769210384745052},
+                    { 0.39722330242307746,  0.87692111900152425},
+                    { 0.91447760427951508,  0.93441523638199131},
+                    { 0.88964793123131491,  0.17548872773929206},
+                    { 0.46343281770698325,  0.071998462868049354},
+                    {-0.074516259216243566, 0.066249321902104238},
+                    {-0.35176052119367995,  0.049001199425790821},
+                    {-0.89798600124604222,  0.16398952981256001},
+                    {-0.90212515911099733, -0.84791254881688827},
+                    {-0.41797322414554394, -0.84791254881688827},
+                    { 0.086870269239940817, -0.84791287092496448},
+                    { 0.3848092483265671,  -0.84791279039794543},
+                    { 0.85654341990915883, -0.8594110018686939},
+                }; for i=1, #Cords do
+                    local v=Cords[i]; REs:FireServer(
+                        "Section1/DartsThrow",
+                        v[1],
+                        v[2]
+                    ); twait(0.3);
+                end;
+            elseif where == "1/Ring" then
+                local Cords = {
+                    { 0.025000014497587892,  0.075852090323513199},
+                    {-0.48124999568487214,   0.090211719613183625},
+                    { 0.43541668060546079,   0.089783043685284517},
+                    { 0.0083333444781597057, 0.4083325663073496},
+                    {-0.35625002564241487,   0.43911111371761014},
+                    { 0.45416664673636364,   0.39147921583869238},
+                }; for i=1, #Cords do
+                    local v=Cords[i]; REs:FireServer(
+                        "Section1/RingThrow",
+                        v[1],
+                        v[2]
+                    ); twait(1);
+                end;
+            elseif where == "1/Clowns" then
+                for i=1, #tbl do
+                    local v=tbl[i]; if v.Parent then
+                        if GetAttribute(v, "Active") then
+                            REs:FireServer("Section1/Whack", v);
+                        end;
+                    end;
+                end; return;
+            elseif where == "1/Hammer" then
+                return REs:FireServer("Section1/HighStrikerClick");
+            elseif where == "1/Dunk" then
+                return REs:FireServer(
+                    "Section1/DunkThrow",
+                    0.27402551854143786,
+                    -0.0085155691596274265
+                );
+            elseif where == "1/Basketball" then
+                REs:FireServer(
+                    "Section1/BasketballHold"
+                ); twait(0.997) REs:FireServer(
+                    "Section1/BasketballRelease",
+                    0.997
+                );
+            elseif where == "1/Golf" then
+                W.Section1.Games.MiniGolf.GolfBall.CFrame = W.Section1.Games.MiniGolf.Hole.CFrame;
+            elseif where == "2/Moon" then
+                local P3 = W.Section2.MainObjective.Puzzle3;
+                if GetAttribute(P3, "Complete") then return; end;
+                local Prox = P3.PromptPart.ProximityPrompt;
+                Tp(HumRSelf, Prox.Parent.CFrame, 0.3);
+                fireproximityprompt(Prox); for i=1, 8 do
+                    REs:FireServer("Section2/MoonPuzzleProgress", i);
+                end; REs:FireServer("Section2/MoonPuzzleComplete");
+            elseif where == "2/Star" then
+                local P4 = W.Section2.MainObjective.Puzzle1;
+                if GetAttribute(P4, "Complete") then return; end;
+                local Prox = P4.PromptPart.ProximityPrompt;
+                Tp(HumRSelf, Prox.Parent.CFrame, 0.3);
+                fireproximityprompt(Prox); for i=1, 5 do
+                    REs:FireServer("Section2/StarPuzzleProgress", i);
+                end; REs:FireServer("Section2/StarPuzzleComplete");
+            elseif where == "2/Tarrot" then
+                local P4 = W.Section2.MainObjective.Puzzle4;
+                if GetAttribute(P4, "Complete") then return; end;
+                local Prox = P4.PromptPart.ProximityPrompt;
+                Tp(HumRSelf, Prox.Parent.CFrame, 0.3);
+                fireproximityprompt(Prox); twait(0.3); for i=1, 5 do
+                    REs:FireServer("Section2/TarotPuzzleProgress", i);
+                end; REs:FireServer("Section2/TarotPuzzleComplete");
+            elseif where == "2/Statue" then
+                local CProx = self.EYEConduct;
+                local Orders = self.Orders;
+                local Eyes = self.Eyes;
+                if not CProx or not CProx.Enabled then return; end;
+                if #Orders ~= 0 then
+                    for i=1,#Orders do
+                        local v=Orders[i]; if v then
+                            local Eye = Eyes[v]; if Eye then
+                                Tp(HumRSelf, Eye.S.Part.CFrame, 0.3);
+                                fireproximityprompt(Eye.S.Prompt.ProximityPrompt);
+                            end;
+                        end;
+                    end; tble.clear(Orders); twait(2);
+                end;
+            elseif where == "3/Boss" then
+                for i=1, 50 do
+                    Tp(HumRSelf, W.Section3.DimitraBOSS.PlayerHitbox.CFrame * CFr(0,20,0));
+                    REs:FireServer("MagicAxe/SwingHit");
+                end;
+            end;
+        end;
         Functions.JigokuFunc = function(self, where)
             if where == "AutoFind" then
                 if Chapter == "Lobby" then
@@ -3058,6 +3173,80 @@ return {
             };
             PlaceholderTab = (Chapter == "Lobby" and {
                 {type="Paragraph", Title="Information", Desc="The Mimic script is now Internal Base which make it smoother and safer to use. To unlock other tab like Control I or Rage I, you must join the main game first. There are a few settings in Core Settings that you can use for The Mimic."},
+            });
+            PackNMCS = (Chapter == "NMCS" and {
+                Tabs={
+                    {Tab={at="NMCS", Title="Clown", Icon="skull", Path="NMCS"}, Data={
+                        {type="Button", EN="Auto Darts", EN2="Auto complete darts puzzle.", TH1="ออโต้เกมปาลูกดอก", TH2="ทำเควสปาลูกดอกให้เสร็จ", Callback=function()
+                            return Functions:NMCSFunc("1/Darts");
+                        end};
+                        {type="Button", EN="Auto Ring", EN2="You must enter the minigame first.", TH1="ออโต้เกมโยนห่วง", TH2="คุณต้องเข้าไปในมินิเกมก่อน", Callback=function()
+                            return Functions:NMCSFunc("1/Ring");
+                        end};
+                        {type="Button", EN="Auto Dunk", EN2="You must enter the minigame first.", TH1="ออโต้เกมโยนห่วง", TH2="คุณต้องเข้าไปในมินิเกมก่อน", Callback=function()
+                            return Functions:NMCSFunc("1/Dunk");
+                        end};
+                        {type="Button", EN="Auto Basketball", EN2="You must enter the minigame first.", TH1="ออโต้เกมบาสเกตบอล", TH2="คุณต้องเข้าไปในมินิเกมก่อน", Callback=function()
+                            return Functions:NMCSFunc("1/Basketball");
+                        end};
+                        {type="Button", EN="Auto Golf", EN2="You must enter the minigame first.", TH1="ออโต้เกมกอล์ฟ", TH2="คุณต้องเข้าไปในมินิเกมก่อน", Callback=function()
+                            return Functions:NMCSFunc("1/Golf");
+                        end};
+                        {type="Toggle", EN="Auto Clowns", EN2="Auto complete clown puzzle. This will only work while in the minigame.", TH1="ออโต้ทุบหัวตัวตลก", TH2="ทำเควสทุบหัวตัวตลกให้เสร็จ เมื่ออยู่ในมินิเกม", Bindable="+", Path="AutoClowns"};
+                        {type="Toggle", EN="Auto Hammer", EN2="Auto complete hammer puzzle. This will only work while in the minigame.", TH1="ออโต้ค้อน", TH2="ทำเควสค้อนให้เสร็จ เมื่ออยู่ในมินิเกม", Bindable="+", Path="AutoHammer"};
+                    }};
+                    {Tab={at="NMCS", Title="Dimitra", Icon="skull", Path="NMCS"}, Data={
+                        {type="Button", EN="Auto Moon Puzzle", EN2="Teleport & complete moon puzzle. You have to atleast enter the game once.", TH1="ออโต้พระจันทร์", TH2="วาปแล้วทำเควสให้เสร็จ โดยจะต้องเข้ามินิเกมเองอย่างน้อย1ครั้ง", Callback=function()
+                            return Functions:NMCSFunc("2/Moon");
+                        end};
+                        {type="Button", EN="Auto Star Puzzle", EN2="Teleport & complete star puzzle. You have to atleast enter the game once.", TH1="ออโต้ดวงดาว", TH2="วาปแล้วทำเควสให้เสร็จ โดยจะต้องเข้ามินิเกมเองอย่างน้อย1ครั้ง", Callback=function()
+                            return Functions:NMCSFunc("2/Star");
+                        end};
+                        {type="Button", EN="Auto Tarrot Puzzle", EN2="Teleport & complete tarrot puzzle. You have to atleast enter the game once..", TH1="ออโต้ไพ่", TH2="วาปแล้วทำเควสให้เสร็จ โดยจะต้องเข้ามินิเกมเองอย่างน้อย1ครั้ง", Callback=function()
+                            return Functions:NMCSFunc("2/Tarrot");
+                        end};
+                        {type="Toggle", EN="Auto Statues", EN2="Teleport & complete statue puzzle. You have to atleast click all of the statue once. You also have to start the game or fail the game while this is running.", TH1="ออโต้รูปปั้น", TH2="วาปแล้วทำเควสให้เสร็จ โดยจะต้องกดรูปปั้นทุกอันอย่างน้อย1ครั้ง วิธีใช้คือต้องเปิดอันนี้ทิ้งไว้ก่อนเริ่มหรือต้องพลาดในมินิเกมก่อน", Bindable="+", Path="AutoStatue", Callback=function(state)
+                            NMCSCon.AutoStatue = state; if not state or Functions.EYEConduct then return; end;
+                            local Statues = W.Section2.MainObjective.Puzzle2.EyeStatues;
+                            local Mirrors = W.Section2.MainObjective.Puzzle2.Mirrors;
+                            local Eyes = {
+                                [1] = {
+                                    S = Statues.Eye4;
+                                    M = Mirrors.Mirror4.Eye.Part;
+                                };
+                                [2] = {
+                                    S = Statues.Eye3;
+                                    M = Mirrors.Mirror3.Eye.Part;
+                                };
+                                [3] = {
+                                    S = Statues.Eye2;
+                                    M = Mirrors.Mirror2.Eye.Part;
+                                };
+                                [4] = {
+                                    S = Statues.Eye1;
+                                    M = Mirrors.Mirror1.Eye.Part;
+                                };
+                            };
+
+                            local Orders = {}; for i=1, 4 do
+                                local v=Eyes[i]; if v then
+                                    PropChangeSignal(v.M, "Transparency"):Connect(function()
+                                        if v.M.Transparency ~= 1 then
+                                            if not tblef(Orders, i) then
+                                                tblein(Orders, i);
+                                            end;
+                                        end;
+                                    end);
+                                end;
+                            end;
+
+                            Functions.Orders = Orders;
+                            Functions.Eyes = Eyes;
+                            Functions.EYEConduct = W.Section2.MainObjective.Puzzle2.EyeStatues.Eye1.Prompt.ProximityPrompt;
+                        end}; {type="Space"};
+                        {type="Toggle", EN="Auto Kill Dimitra", EN2="Teleport & kill Dimitra", TH1="ออโต้ฆ่า", TH2="วาปไปฆ่า Dimitra", Bindable="+", Path="AutoBoss"};
+                    }};
+                };
             });
             PackJigoku = (Chapter == "Lobby" and {
                 Tabs={
@@ -4332,6 +4521,44 @@ return {
                 end; twait(0.1);
             end;
         end);
+        CoruTask.New("NMCS@Main", function()
+            if Chapter ~= "NMCS" then
+                return;
+            end; while true do
+                if not (NMCSCon.AutoClowns or NMCSCon.AutoHammer or NMCSCon.AutoStatue or NMCS.AutoBoss) or CoreDestroyed then
+                    CoruTask.Close("NMCS@Main");
+                end;
+
+                local Section1 = FindFirstChild(W, "Section1");
+                local Section2 = FindFirstChild(W, "Section2");
+                local Section3 = FindFirstChild(W, "Section3");
+
+                if Section1 then
+                    if NMCSCon.AutoClowns then
+                        local Clowns = Section1.Games.WhackAClown.Clowns:QueryDescendants(
+                            ">#Clown"
+                        ); Functions:NMCSFunc("1/Clowns", Clowns);
+                    end;
+                    if NMCSCon.AutoHammer then
+                        Functions:NMCSFunc("1/Hammer");
+                    end;
+                end;
+
+                if Section2 then
+                    if NMCSCon.AutoStatue then
+                        Functions:NMCSFunc("2/Statue");
+                    end;
+                end;
+
+                if Section3 then
+                    if NMCSCon.AutoBoss then
+                        Functions:NMCSFunc("3/Boss");
+                    end;
+                end;
+
+                twait(0.1);
+            end;
+        end);
 
         local LSecureUI = function()
             local WindUI = WindLib();
@@ -4364,6 +4591,7 @@ return {
                 
                 Div1 = Window:Divider(),
                 Placeholder = if ScriptData.AutoData.PlaceholderTab then Window:Tab({ Title = "Information", Icon = "star" }) else false,
+                NMCS = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackNMCS),
                 Jigoku = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackJigoku),
                 Egao = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackEgao),
                 B1C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C1),
@@ -4448,6 +4676,11 @@ return {
                         if Chapter == "B3C1" then
                             if B3C1Con.IJO.ValvesAura then
                                 CoruTask.Handle("B3C1@IJO");
+                            end;
+                        end;
+                        if Chapter == "NMCS" then
+                            if NMCSCon.AutoClowns or NMCSCon.AutoHammer or NMCSCon.AutoStatue or NMCS.AutoBoss then
+                                CoruTask.Handle("NMCS@Main");
                             end;
                         end;
                         if YenCon.ESP or YenCon.Aura or YenCon.Auto then
