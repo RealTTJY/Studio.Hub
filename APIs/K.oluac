@@ -100,7 +100,7 @@ local KeyProcessor = function(script_key)
             if isfunctionhooked ~= "[C]" and isfunctionhooked ~= "C" then
                 if not protecthook then
                     local serve1=tick(); isfunctionhooked(print); local serve2=tick();
-                    local serve3 = serve2 - serve1; if serve3 > 0.00000250928955078125 and ExecName ~= "Delta" and ExecName ~= "kawaii" then
+                    local serve3 = serve2 - serve1; if serve3 > 0.00000250928955078125 and ExecName ~= "Delta" and ExecName ~= "Kawaii" then
                         return 7, Kick(selff, "TTJY_ID7");
                     end;
                 end;
@@ -241,7 +241,7 @@ local KeyProcessor = function(script_key)
         end;
     else
         if LowerC and ResetC then
-            if getexecutorname and (ExecName == "Volt" or ExecName == "Wave" or ExecName == "OpiumwareMac" or ExecName == "kawaii") then
+            if getexecutorname and (ExecName == "Volt" or ExecName == "Wave" or ExecName == "OpiumwareMac" or ExecName == "Kawaii") then
                 return writefile("SecurityVoltSharp.txt", "AnyTrue"), Kick(selff, "ID500:V");
             end;
         end; return 500;
@@ -249,7 +249,7 @@ local KeyProcessor = function(script_key)
 end;
 
 return {
-    Version = "KAuth3.84",
+    Version = "KAuth3.85",
     Function = function(version, KeyPackage, ...)
         local ToGo = {...}; GG.InKey = function()
             local GlobCrLoad = KeyPackage();
