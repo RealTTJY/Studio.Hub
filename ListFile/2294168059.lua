@@ -15,6 +15,7 @@ local tk = task;
 
 local TextChatService = GetService(game, "TextChatService");
 local TeleportService = GetService(game, "TeleportService");
+local VIM = GetService(game, "VirtualInputManager");
 local R = GetService(game, "ReplicatedStorage");
 local H = GetService(game, "RunService");
 local W = GetService(game, "Workspace");
@@ -188,12 +189,13 @@ Config.HalloweenTrial = Config.HalloweenTrial or {};
 Config.HalloweenTrial.ESP = Config.HalloweenTrial.ESP or {};
 
 return {
-    Version = "TheMimicV3.D13";
+    Version = "TheMimicV3.D14";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
         local ForceFloat        = "None";
 
+        local CAMERAOBJECT      = EMPTY_OBJECT;
         local Cam               = W.CurrentCamera;
         local selff             = P.LocalPlayer;
         local PSG               = selff.PlayerGui;
@@ -231,6 +233,7 @@ return {
                                   elseif PlaceId == 7068738088 or PlaceId == 7068951438 or PlaceId == 7068739000 or PlaceId == 7068951914 or PlaceId == 7068740106 or PlaceId == 7068952294 then "WitchTrial"
                                   elseif PlaceId == 7633631103 or PlaceId == 7633631351 or PlaceId == 7633631511 then "HalloweenTrial"
                                   elseif PlaceId == 11126398230 then "NMCS"
+                                  elseif PlaceId == 16750505007 then "Ken"
                                   elseif PlaceId == 6243699076 then "Lobby"
                                   elseif PlaceId == 7068737459 then "GLobby"
                                   else nil;
@@ -252,6 +255,15 @@ return {
         ClientCon.SpeedMultiplier = ClientCon.SpeedMultiplier or 1;
         ClientCon["TeleportWalk Speed"] = ClientCon["TeleportWalk Speed"] or 1;
 
+        Functions.SKey = function(VIM, key)
+            return VIM:SendKeyEvent(true, key, false, W);
+        end;
+        Functions.OKey = function(VIM, key)
+            return VIM:SendKeyEvent(false, key, false, W);
+        end;
+        Functions.CKey = function(self, VIM, key, c, c2)
+            return self.SKey(VIM, key), twait(c or 0), self.OKey(VIM, key), twait(c2 or 0);
+        end;
         Functions.PairingSections = function(self, data)
             if not self.PackSections and data[Chapter] then
                 local PackSections = {Tabs={}};
@@ -2847,6 +2859,29 @@ return {
                 end;
             end;
         end;
+        Functions.KenFunc = function(self, where)
+            if where == "Lever" then
+                local Base = W.Intro.Task.Lever.Base; CAMERAOBJECT = Base;
+                Tp(HumRSelf, Base.CFrame, 0.3); tk.delay(0.5, function()
+                    fireproximityprompt(Base.ProximityPrompt);
+                end); Functions:CKey(VIM, Enum.KeyCode.E);
+                CAMERAOBJECT = EMPTY_OBJECT;
+            elseif where == "Note" then
+                local Note = W.Note.Note; CAMERAOBJECT = Note;
+                Tp(HumRSelf, Note.CFrame, 0.3); tk.delay(0.5, function()
+                    fireproximityprompt(Note.ProximityPrompt);
+                end); Functions:CKey(VIM, Enum.KeyCode.E);
+                CAMERAOBJECT = EMPTY_OBJECT;
+            elseif where == "TpLab" then
+                Tp(HumRSelf, CFr(27, 3, 104));
+            elseif where == "TpWire" then
+                Tp(HumRSelf, CFr(105, 3, -133));
+            elseif where == "TpExit" then
+                Tp(HumRSelf, CFr(16, 3, -214));
+            elseif where == "RealExit" then
+                Tp(HumRSelf, CFr(340, 4, -513));
+            end;
+        end;
         Functions.JigokuFunc = function(self, where)
             if where == "AutoFind" then
                 if Chapter == "Lobby" then
@@ -3245,6 +3280,30 @@ return {
                             Functions.EYEConduct = W.Section2.MainObjective.Puzzle2.EyeStatues.Eye1.Prompt.ProximityPrompt;
                         end}; {type="Space"};
                         {type="Toggle", EN="Auto Kill Dimitra", EN2="Teleport & kill Dimitra", TH1="ออโต้ฆ่า", TH2="วาปไปฆ่า Dimitra", Bindable="+", Path="AutoBoss"};
+                    }};
+                };
+            });
+            PackKen = (Chapter == "Ken" and {
+                Tabs={
+                    {Tab={at="Ken", Title="Main", Icon="skull", Path="Ken"}, Data={
+                        {type="Button", EN="Pull Lever", EN2="Teleport & pull lever.", TH1="ดึงคันโยก", TH2="วาปและดึงคันโยก", Callback=function()
+                            Functions:KenFunc("Lever");
+                        end};
+                        {type="Button", EN="Read Note", EN2="Teleport & read note.", TH1="อ่านโน๊ต", TH2="วาปและอ่านโน๊ต", Callback=function()
+                            Functions:KenFunc("Note");
+                        end};
+                        {type="Button", EN="Teleport To Lab", EN2="Teleport to the lab room because you don't need fuse.", TH1="วาปไปที่แล็บ", TH2="วาปไปที่ห้องแล็บ เพราะไม่จำเป็นต้องใช้ฟิว", Callback=function()
+                            Functions:KenFunc("TpLab");
+                        end};
+                        {type="Button", EN="Teleport To Wire", EN2="Teleport to the objective wire room.", TH1="วาปไปที่ห้อง", TH2="วาปไปที่ห้องต่อสายไฟ", Callback=function()
+                            Functions:KenFunc("TpWire");
+                        end};
+                        {type="Button", EN="Teleport To Exit Door", EN2="Teleport to the exit door room.", TH1="วาปไปที่ประตู", TH2="วาปไปที่ประตูทางออก", Callback=function()
+                            Functions:KenFunc("TpExit");
+                        end}; {type="Space"};
+                        {type="Button", EN="Teleport To White Door", EN2="Teleport to the real exit door.", TH1="วาปไปที่ประตูสีขาว", TH2="วาปไปที่ประตูทางออกสีขาว", Callback=function()
+                            Functions:KenFunc("RealExit");
+                        end};
                     }};
                 };
             });
@@ -4592,6 +4651,7 @@ return {
                 Div1 = Window:Divider(),
                 Placeholder = if ScriptData.AutoData.PlaceholderTab then Window:Tab({ Title = "Information", Icon = "star" }) else false,
                 NMCS = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackNMCS),
+                Ken = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackKen),
                 Jigoku = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackJigoku),
                 Egao = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackEgao),
                 B1C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C1),
@@ -4736,6 +4796,16 @@ return {
                             if not Data.Visualize then continue; end;
                             Data:Visualize(Cam);
                         end;
+                    end;
+                end);
+                CoreConnection[5] = PropChangeSignal(Cam, "CFrame"):Connect(function()
+                    if CoreDestroyed and CoreConnection[5] then
+                        CoreConnection[5]:Disconnect(); CoreConnection[5] = nil;
+                        return;
+                    end;
+
+                    if CAMERAOBJECT.Parent then
+                        Cam.CFrame = CFr(Cam.CFrame.Position, CAMERAOBJECT.Position);
                     end;
                 end);
                 
