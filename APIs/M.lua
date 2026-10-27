@@ -742,7 +742,7 @@ AssetStorage.PromptPackage = function()
         if not Validation(v) or not GG.Configs then return; end;
         if not Prompts[v] then Prompts[v] = v.HoldDuration; end;
         if GG.Configs.Client.Client["InstantPrompt"] and not IsPause then
-            v.HoldDuration = 0;
+            v.HoldDuration = 0.03;
         else
             v.HoldDuration = Prompts[v];
         end;
@@ -12586,7 +12586,7 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.D13";
+        Version = "TheMimicV3.D14";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack"};
     };
     [5527989791] = {
