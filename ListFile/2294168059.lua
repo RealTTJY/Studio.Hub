@@ -189,7 +189,7 @@ Config.HalloweenTrial = Config.HalloweenTrial or {};
 Config.HalloweenTrial.ESP = Config.HalloweenTrial.ESP or {};
 
 return {
-    Version = "TheMimicV3.D14";
+    Version = "TheMimicV3.D15";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -2853,10 +2853,9 @@ return {
                     end; tble.clear(Orders); twait(2);
                 end;
             elseif where == "3/Boss" then
-                for i=1, 50 do
-                    Tp(HumRSelf, W.Section3.DimitraBOSS.PlayerHitbox.CFrame * CFr(0,20,0));
-                    REs:FireServer("MagicAxe/SwingHit");
-                end;
+                local Boss = W.Section3.DimitraBOSS.PlayerHitbox;
+                Tp(HumRSelf, Boss.CFrame);
+                REs:FireServer("MagicAxe/SwingHit");
             end;
         end;
         Functions.KenFunc = function(self, where)
@@ -3244,24 +3243,47 @@ return {
                             NMCSCon.AutoStatue = state; if not state or Functions.EYEConduct then return; end;
                             local Statues = W.Section2.MainObjective.Puzzle2.EyeStatues;
                             local Mirrors = W.Section2.MainObjective.Puzzle2.Mirrors;
-                            local Eyes = {
-                                [1] = {
-                                    S = Statues.Eye4;
-                                    M = Mirrors.Mirror4.Eye.Part;
+                            local Eyes = nil;
+                            
+                            if GetAttribute(W, "MimicEvent") == "TheHollow" then
+                                Eyes = {
+                                    [1] = {
+                                        S = Statues.Eye1;
+                                        M = Mirrors.Mirror4.Eye.Part;
+                                    };
+                                    [2] = {
+                                        S = Statues.Eye2;
+                                        M = Mirrors.Mirror3.Eye.Part;
+                                    };
+                                    [3] = {
+                                        S = Statues.Eye3;
+                                        M = Mirrors.Mirror2.Eye.Part;
+                                    };
+                                    [4] = {
+                                        S = Statues.Eye4;
+                                        M = Mirrors.Mirror1.Eye.Part;
+                                    };
                                 };
-                                [2] = {
-                                    S = Statues.Eye3;
-                                    M = Mirrors.Mirror3.Eye.Part;
+                            else
+                                Eyes = {
+                                    [1] = {
+                                        S = Statues.Eye4;
+                                        M = Mirrors.Mirror4.Eye.Part;
+                                    };
+                                    [2] = {
+                                        S = Statues.Eye3;
+                                        M = Mirrors.Mirror3.Eye.Part;
+                                    };
+                                    [3] = {
+                                        S = Statues.Eye2;
+                                        M = Mirrors.Mirror2.Eye.Part;
+                                    };
+                                    [4] = {
+                                        S = Statues.Eye1;
+                                        M = Mirrors.Mirror1.Eye.Part;
+                                    };
                                 };
-                                [3] = {
-                                    S = Statues.Eye2;
-                                    M = Mirrors.Mirror2.Eye.Part;
-                                };
-                                [4] = {
-                                    S = Statues.Eye1;
-                                    M = Mirrors.Mirror1.Eye.Part;
-                                };
-                            };
+                            end;
 
                             local Orders = {}; for i=1, 4 do
                                 local v=Eyes[i]; if v then
