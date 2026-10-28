@@ -106,7 +106,7 @@ local KeyProcessor = function(script_key)
                 end;
             end;
 
-            if isfunctionhooked(Request) or isfunctionhooked(EnCodeJ) or isfunctionhooked(DeCodeJ) or isfunctionhooked(require) or isfunctionhooked(getinfo) or isfunctionhooked(newcclosure) or isfunctionhooked(newlclosure) then
+            if isfunctionhooked(Request) or isfunctionhooked(EnCodeJ) or isfunctionhooked(DeCodeJ) or isfunctionhooked(require) or isfunctionhooked(getinfo) or isfunctionhooked(newcclosure) then
                 return 6;
             end;
         end;
@@ -174,7 +174,7 @@ local KeyProcessor = function(script_key)
             if wDeCodeJ ~= "[C]" and wDeCodeJ ~= "C" then
                 return 18;
             end;
-            if isfunctionhooked(Request) or isfunctionhooked(EnCodeJ) or isfunctionhooked(DeCodeJ) or isfunctionhooked(infor) or isfunctionhooked(getinfo) or isfunctionhooked(newcclosure) or isfunctionhooked(newlclosure) then
+            if isfunctionhooked(Request) or isfunctionhooked(EnCodeJ) or isfunctionhooked(DeCodeJ) or isfunctionhooked(infor) or isfunctionhooked(getinfo) or isfunctionhooked(newcclosure) then
                 return 19;
             end;
         end;
@@ -249,7 +249,7 @@ local KeyProcessor = function(script_key)
 end;
 
 return {
-    Version = "KAuth3.85",
+    Version = "KAuth3.86",
     Function = function(version, KeyPackage, ...)
         local ToGo = {...}; GG.InKey = function()
             local GlobCrLoad = KeyPackage();
