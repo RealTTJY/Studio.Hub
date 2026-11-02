@@ -49,7 +49,7 @@ Config.Ticket = Config.Ticket or {};
 Config.Game = Config.Game or {};
 
 return {
-    Version = "Evade_V3.51";
+    Version = "Evade_V3.52";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -71,7 +71,7 @@ return {
         local GameCon           = Config.Game;
         local NonAnalytics3     = {type="Button", EN="Analytics 3", EN2="Please enable 'Analytics 3' module to track game data, inventory, and player statistics for reports and webhook integrations.", TH1="Analytics 3", TH2="กรุณาเปิดใช้งานโมดูล 'Analytics 3' เพื่อติดตามข้อมูลเกม สินค้าคงคลัง และสถิติผู้เล่นสำหรับรายงานและเว็บฮุก"};
 
-        local REvents           = WaitForChild(R, "Events", 9e9);
+        local REvents           = WaitForChild(R, "Remotes", 9e9);
 
         local dist              = nil;
         local Tp                = CommonF.Tp;
@@ -90,8 +90,8 @@ return {
         ClientCon["TeleportWalk Speed"] = ClientCon["TeleportWalk Speed"] or 1;
         GameCon.ReviveTime = GameCon.ReviveTime or 1.5;
         
-        RE.Interact              = WaitForChild(REvents, "Interact", 9e9);
-        RE.SetPlayerMode      = WaitForChild(REvents, "SetPlayerMode", 9e9);
+        RE.Interact              = WaitForChild(WaitForChild(REvents, "Character", 9e9), "Interact", 9e9);
+        RE.SetPlayerMode         = WaitForChild(WaitForChild(REvents, "Session", 9e9), "SetPlayerMode", 9e9);
 
         Functions.GameDataInit = function(self)
             if self.AlreadyInit then return end; self.AlreadyInit = true;
