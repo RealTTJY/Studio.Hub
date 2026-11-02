@@ -52,7 +52,7 @@ Config.Automation = Config.Automation or {};
 Config.Quest = Config.Quest or {};
 
 return {
-    Version = "AnimeZero_V3.09";
+    Version = "AnimeZero_V3.11";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -205,7 +205,7 @@ return {
                 end;
             end;
         end;
-        Functions.Skill = (ExecName == "Delta" and function(self)
+        Functions.Skill = function(self)
             local Pos = ATKOBJ and ATKOBJ.Position;
             if not Pos then return; end;
             if dist(Pos) <= 5 then
@@ -218,20 +218,6 @@ return {
                         Functions:CKey(VIM, Enum.KeyCode.G);
                         Functions:CKey(VIM, Enum.KeyCode.Three);
                     end); self.SKCD = time();
-                end;
-            end;
-        end) or function(self)
-            local Pos = ATKOBJ and ATKOBJ.Position;
-            if not Pos then return; end;
-            if dist(Pos) <= 5 then
-                if not self.SKCD then
-                    self.SKCD = 0;
-                elseif time() - self.SKCD > 0.8 then
-                    REQ.charCon.performSkill(1);
-                    REQ.charCon.performSkill(2);
-                    REQ.charCon.performSkill(4);
-                    REQ.charCon.performSkill(3);
-                    self.SKCD = time();
                 end;
             end;
         end;
