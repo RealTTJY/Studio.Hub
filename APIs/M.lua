@@ -11931,6 +11931,12 @@ AssetStorage.IntroLib = function()
                     Icon = "circle-alert",
                     Content = "Script passed RSA Simulation Test which mean it is undetected. So, do not use other script while in HOF except TTJY Studio. The punishment including <font color='rgb(255, 255, 0)'>bans, lantern removal</font> are after event ended so you won't know if you just got detected or not."
                 }) or {},
+                (PlaceId == 91058462594174 and {
+                    Key = "TheMimicNewRSA",
+                    Title = "<font color='rgb(255, 0, 0)'>Roblox Server Authority</font>",
+                    Icon = "circle-alert",
+                    Content = "<font color='rgb(255, 0, 0)'>The Mimic now uses this new system as their anti cheat for this chapter. Please wait until the script update or use the script correctly to not get detected ( You can use it but some feature will trigger the anti cheat and TTJY is lazy to lock it )</font>"
+                }) or {},
             }; StackPop(wind, tutorialList, 1);
         end,
         Init = function(wind, tab)
@@ -12586,7 +12592,7 @@ local FreeLoad, KeyLoad = {
     };
     [2294168059] = {
         File = "2294168059";
-        Version = "TheMimicV3.D15";
+        Version = "TheMimicV3.D16";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage", "PromptPackage", "DownloadPackage", "QueuePack"};
     };
     [5527989791] = {
@@ -12611,7 +12617,7 @@ local FreeLoad, KeyLoad = {
     };
     [10512942223] = {
         File = "10512942223";
-        Version = "AnimeZero_V3.09";
+        Version = "AnimeZero_V3.11";
         Included = {"CorePackage", "LoadUILib", "IntroLib", "Windy", "ClientPackage", "CoruTask", "CommonF", "ESPPackage"};
     };
 };
