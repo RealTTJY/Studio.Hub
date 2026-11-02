@@ -189,7 +189,7 @@ Config.HalloweenTrial = Config.HalloweenTrial or {};
 Config.HalloweenTrial.ESP = Config.HalloweenTrial.ESP or {};
 
 return {
-    Version = "TheMimicV3.D15";
+    Version = "TheMimicV3.D16";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -229,6 +229,7 @@ return {
                                   elseif PlaceId == 15962819441 then "B2C3"
                                   elseif PlaceId == 96354063422506 then "B2C4"
                                   elseif PlaceId == 128715637193371 then "B3C1"
+                                  elseif PlaceId == 91058462594174 then "B3C1"
                                   elseif PlaceId == 7618863566 then "Jigoku"
                                   elseif PlaceId == 7068738088 or PlaceId == 7068951438 or PlaceId == 7068739000 or PlaceId == 7068951914 or PlaceId == 7068740106 or PlaceId == 7068952294 then "WitchTrial"
                                   elseif PlaceId == 7633631103 or PlaceId == 7633631351 or PlaceId == 7633631511 then "HalloweenTrial"
