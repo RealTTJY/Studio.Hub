@@ -269,6 +269,15 @@ local Start = function(Out_M)
         end;
     end;
 
+    local execname = getexecutorname or function()
+        return "Does not have a name??";
+    end;
+    local getthread = getthreadcontext or getthreadidentity or getthreadcaps or get_thread_context or get_thread_identity or function()
+        return "Unknown";
+    end;
+
+    warn(Out_M.."Executor: " .. tostring(execname()));
+    warn(Out_M.."Thread: " .. tostring(getthread()));
     warn(Out_M.."MissingFunc: "..tostring(#Erros.MissingFunc));
     warn(Out_M.."MissingC: "..tostring(#Erros.MissingC));
     warn(Out_M.."FailedCall: "..tostring(#Erros.Called));
