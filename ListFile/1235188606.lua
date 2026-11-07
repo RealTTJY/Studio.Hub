@@ -104,7 +104,7 @@ Config.Events.Solstice.Minigame = Config.Events.Solstice.Minigame or "Stars";
 Config.Events.Halloween = Config.Events.Halloween or {};
 
 return {
-    Version = "DA_V3.92";
+    Version = "DA_V3.93";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -190,7 +190,7 @@ return {
             SYNC_UPVS = getupvalues(SYNC_MODL.Notify);
         end;
         Functions.isSynced = function()
-            return SYNC_UPVS[1] and SYNC_UPVS[1].DataSync or GG.ForceSync;
+            return SYNC_UPVS[2] and SYNC_UPVS[2].DataSync or GG.ForceSync;
         end;
         Functions.GetPing = function()
             return S.Network.ServerStatsItem["Data Ping"]:GetValue() / 1000;
