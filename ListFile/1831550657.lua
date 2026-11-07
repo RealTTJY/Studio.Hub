@@ -106,7 +106,7 @@ Config.ESP.TextColor = Config.ESP.TextColor or {
 };
 
 return {
-    Version = "CoS_V3.07";
+    Version = "CoS_V3.08";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
@@ -216,7 +216,7 @@ return {
 
             local UPs = getupvalues(GObject.LocateFood.new); for i=1, #UPs do
                 local v=UPs[i]; if type(v) == 'table' then
-                    if rawget(v, "_runActions") then
+                    if rawget(v, "IsMenuOpen") then
                         Util.ProxMenu = v; continue;
                     elseif rawget(v, "MinigamesData") then
                         GObject.ClientGameData = v; continue;
@@ -444,7 +444,7 @@ return {
         end;
         Functions.AutoShooms = function(self, Shooms)
             for object, data in pairs(Shooms) do
-                if not data:IsHidden() then
+                if not data:IsHidden() and AutomationCon.Shooms then
                     self.Tp(GetPivot(object)*CF030, Functions.WaitPing(0.3));
                     data.ProximityMenu.Actions[1].Run();
                 end;
