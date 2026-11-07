@@ -149,7 +149,7 @@ local Start = function(Out_M)
         end;
 
         local Success, Response = pcall(function()
-            return request({
+            return Request({
                 Url = "https://httpbin.org/get",
                 Method = "GET"
             });
