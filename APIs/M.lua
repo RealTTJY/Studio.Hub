@@ -365,12 +365,495 @@ if not LoaderSettings.BadNetwork then
         }); if pngfile.Success then
             writefile(FOLBASE.."/TTJYStudio.png", pngfile.Body);
         end;
+    end; if not isfile(FOLBASE.."/TTJYBanner.png") then
+        local pngfile = Request({
+            Url = GITBASE.."/TJYS.png";
+            Method = "GET";
+        }); if pngfile.Success then
+            writefile(FOLBASE.."/TTJYBanner.png", pngfile.Body);
+        end;
     end;
 end;
 
-local TTJYLogo = if not LoaderSettings.BadNetwork and isfile(FOLBASE.."/TTJYStudio.png") then
+local TTJYLogo = if getcustomasset and not LoaderSettings.BadNetwork and isfile(FOLBASE.."/TTJYStudio.png") then
     getcustomasset(FOLBASE.."/TTJYStudio.png")
 else "";
+
+local TTJYBanner = if getcustomasset and not LoaderSettings.BadNetwork and isfile(FOLBASE.."/TTJYBanner.png") then
+    getcustomasset(FOLBASE.."/TTJYBanner.png")
+else "";
+
+local Rmine = nil; tspawn(function()
+    local function TTJYMenu()
+        local setc = setclipboard or toclipboard;
+        local UDim2s = UDim2.fromScale;
+        local UDim2o = UDim2.fromOffset;
+
+        local DirHorizontal = Enum.FillDirection.Horizontal;
+        local VAlignMiddle = Enum.VerticalAlignment.Center;
+        local SizeXY = Enum.AutomaticSize.XY;
+        local SizeY = Enum.AutomaticSize.Y;
+        local AlignLeft = Enum.TextXAlignment.Left;
+        local AlignTop = Enum.TextYAlignment.Top;
+        local AlignMiddle = Enum.TextYAlignment.Center;
+        local StrokeBorder = Enum.ApplyStrokeMode.Border;
+        local ScaleCrop = Enum.ScaleType.Crop;
+
+        local ColButton = fromRGB(32, 33, 36);
+        local ColButtonHover = fromRGB(46, 47, 52);
+        local ColPrimary = fromRGB(25, 40, 110);
+        local ColPrimaryHover = fromRGB(34, 54, 140);
+        local ColText = fromRGB(255, 255, 255);
+        local ColSub = fromRGB(190, 190, 195);
+        local ColLine = fromRGB(58, 59, 64);
+        local FontMain = Enum.Font.GothamMedium;
+        local FontBold = Enum.Font.GothamBold;
+        local Gap, Height = 8, 52;
+
+        local New = function(class, props, kids)
+            local inst, parent = Instancen(class), nil;
+            for k, v in pairs(props or {}) do
+                if k == "Parent" then
+                    parent = v;
+                else
+                    inst[k] = v;
+                end;
+            end; for _, c in ipairs(kids or {}) do
+                c.Parent = inst;
+            end; inst.Parent = parent; return inst;
+        end;
+        local Merge = function(base, props)
+            for k, v in pairs(props) do
+                base[k] = v;
+            end; return base;
+        end;
+        local Wait = function(inst, ...)
+            for _, name in ipairs({ ... }) do
+                inst = inst:WaitForChild(name, 9e9);
+            end; return inst;
+        end;
+        local Hover = function(inst, fn)
+            inst.MouseEnter:Connect(function() fn(true); end);
+            inst.MouseLeave:Connect(function() fn(false); end);
+        end;
+        local Corner = function(px)
+            return New("UICorner", {CornerRadius = Dim(0, px)});
+        end;
+        local Stroke = function(thickness, enabled)
+            return New("UIStroke", {
+                Thickness = thickness,
+                Color = ColText,
+                Enabled = enabled,
+                ApplyStrokeMode = StrokeBorder,
+            });
+        end;
+        local List = function(props)
+            return New("UIListLayout", Merge({
+                SortOrder = Enum.SortOrder.LayoutOrder
+            }, props or {}));
+        end;
+        local Label = function(props)
+            return New("TextLabel", Merge({
+                BackgroundTransparency = 1,
+                Font = FontMain,
+                TextColor3 = ColText,
+                TextSize = 16,
+            }, props));
+        end;
+        local MakeButton = function(o)
+            local primary = o.Primary == true;
+            local base = primary and ColPrimary or ColButton;
+            local over = primary and ColPrimaryHover or ColButtonHover;
+            local stroke = Stroke(2, false);
+            local parts = {
+                List({ FillDirection = DirHorizontal, VerticalAlignment = VAlignMiddle, Padding = Dim(0, 12) }),
+                Label({ Text = o.Text, Font = FontBold, AutomaticSize = SizeXY, LayoutOrder = 2 }),
+            }; if o.Key then
+                local long = #o.Key > 1
+                tblein(parts, New("Frame", {
+                    Size = UDim2o(long and 34 or 24, 24),
+                    BackgroundTransparency = 1,
+                    LayoutOrder = 1,
+                }, {
+                    Corner(4),
+                    Stroke(1.5, true),
+                    Label({ Text = o.Key, Font = FontBold, TextSize = long and 11 or 14, Size = UDim2s(1, 1) }),
+                }));
+            end; local btn = New("TextButton", {
+                Text = "",
+                AutoButtonColor = false,
+                BorderSizePixel = 0,
+                BackgroundColor3 = base,
+                Size = o.Size or Dim2(1, 0, 0, Height),
+            }, {
+                Corner(8),
+                stroke,
+                New("Frame", {
+                    AnchorPoint = Vec2(0.5, 0.5),
+                    Position = UDim2s(0.5, 0.5),
+                    AutomaticSize = SizeXY,
+                    BackgroundTransparency = 1,
+                }, parts),
+            }); Hover(btn, function(on)
+                btn.BackgroundColor3 = on and over or base
+                stroke.Enabled = on
+            end); if o.Callback then
+                btn.Activated:Connect(o.Callback);
+            end; return btn;
+        end;
+
+        local Page = {}; Page.__index = Page;
+        local function Add(self, inst)
+            self.Order += 1;
+            inst.LayoutOrder = self.Order;
+            inst.Parent = self.Root;
+            return inst;
+        end;
+        local Wire = function(self, o)
+            local go, cb = o.Goto, o.Callback;
+            if go or o.Back then
+                o.Callback = function()
+                    if cb then
+                        cb();
+                    end; if go then
+                        self.Router:Go(go);
+                    else
+                        self.Router:Back();
+                    end;
+                end;
+            end; return o;
+        end;
+
+        Page.new = function(parent)
+            local root = New("ScrollingFrame", {
+                Size = UDim2s(1, 1),
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                ScrollBarThickness = 4,
+                CanvasSize = Dim2(),
+                AutomaticCanvasSize = SizeY,
+                Parent = parent,
+            }, {
+                List({Padding = Dim(0, Gap)}),
+                New("UIPadding", {
+                    PaddingTop = Dim(0, 5),
+                    PaddingLeft = Dim(0, 4),
+                    PaddingRight = Dim(0, 10)
+                }),
+            }); return setmetatable({Root = root, Order = 0}, Page);
+        end;
+        Page.Text = function(self, o)
+            local size = o.Size or 22;
+            return Add(self, Label({
+                Text = o.Text,
+                Font = FontBold,
+                TextSize = size,
+                TextXAlignment = AlignLeft,
+                Size = Dim2(1, 0, 0, size + 10),
+            }));
+        end;
+        Page.Paragraph = function(self, o)
+            return Add(self, Label({
+                Text = o.Text,
+                TextSize = o.Size or 14,
+                TextColor3 = o.Color or ColSub,
+                TextWrapped = true,
+                RichText = o.Rich == true,
+                TextXAlignment = AlignLeft,
+                TextYAlignment = AlignTop,
+                AutomaticSize = SizeY,
+                Size = Dim2(1, 0, 0, 0),
+            }));
+        end;
+        Page.Divider = function(self, o)
+            o = o or {}; return Add(self, New("Frame", {
+                BackgroundColor3 = o.Color or ColLine,
+                BorderSizePixel = 0,
+                Size = Dim2(1, 0, 0, o.Thickness or 1),
+            }));
+        end;
+        Page.Image = function(self, o)
+            local img = o.Image; if type(img) == "number" then
+                img = "rbxassetid://" .. img;
+            end; local label = Add(self, New("ImageLabel", {
+                Image = img,
+                ScaleType = o.Scale or ScaleCrop,
+                BackgroundColor3 = ColButton,
+                BorderSizePixel = 0,
+                ImageTransparency = o.Transparency or 0,
+                Size = Dim2(1, 0, 0, o.Height or 120),
+            }, {Corner(o.Radius or 8)}));
+            return label;
+        end;
+        Page.Spacer = function(self, px)
+            return Add(self, New("Frame", {
+                BackgroundTransparency = 1,
+                Size = Dim2(1, 0, 0, px or 8)
+            }));
+        end;
+        Page.Button = function(self, o)
+            return Add(self, MakeButton(Wire(self, o)));
+        end;
+        Page.ButtonGroup = function(self, list)
+            local n, buttons = #list, {};
+            local holder = New("Frame", {
+                BackgroundTransparency = 1,
+                Size = Dim2(1, 0, 0, Height),
+            }, {List({ FillDirection = DirHorizontal, Padding = Dim(0, Gap)})})
+            for i, o in ipairs(list) do
+                o.Size = Dim2(1 / n, -Gap * (n - 1) / n, 1, 0);
+                buttons[i] = MakeButton(Wire(self, o));
+                buttons[i].LayoutOrder = i;
+                buttons[i].Parent = holder;
+            end; Add(self, holder);
+            return {Frame = holder, Buttons = buttons};
+        end;
+        Page.Selector = function(self, o)
+            local options, index = o.Options, o.Default or 1;
+            local left = { Size = UDim2s(0.4, o.Desc and 0.45 or 1), TextXAlignment = AlignLeft };
+            local row = New("Frame", { BackgroundTransparency = 1, Size = Dim2(1, 0, 0, o.Desc and 64 or 48) }, {
+                Label(Merge({ Text = o.Text, Font = FontBold, TextSize = 17, TextYAlignment = o.Desc and AlignTop or AlignMiddle }, left)),
+            }); if o.Desc then
+                Label({
+                    Text = o.Desc,
+                    TextSize = 12,
+                    TextColor3 = ColSub,
+                    TextWrapped = true,
+                    TextXAlignment = AlignLeft,
+                    TextYAlignment = AlignTop,
+                    Position = UDim2s(0, 0.45),
+                    Size = UDim2s(0.4, 0.55),
+                    Parent = row,
+                });
+            end; local control = New("Frame", {
+                AnchorPoint = Vec2(1, 0.5),
+                Position = UDim2s(1, 0.5),
+                Size = UDim2s(0.58, 1),
+                BackgroundTransparency = 1,
+                Parent = row,
+            }); local value = Label({
+                Text = tostring(options[index]),
+                AnchorPoint = Vec2(0.5, 0.5),
+                Position = UDim2s(0.5, 0.5),
+                Size = Dim2(1, -90, 1, 0),
+                Parent = control,
+            }); local set = function(i)
+                index = (i - 1) % #options + 1;
+                value.Text = tostring(options[index]);
+                if o.Callback then
+                    tspawn(o.Callback, options[index], index);
+                end;
+            end; for _, a in ipairs({ { "‹", 0, -1 }, { "›", 1, 1 } }) do
+                local arrow = Label({
+                    Text = a[1],
+                    Font = FontBold,
+                    TextSize = 34,
+                    AnchorPoint = Vec2(a[2], 0.5),
+                    Position = UDim2s(a[2], 0.5),
+                    Size = UDim2o(40, 40),
+                    Parent = control,
+                }); local hit = New("TextButton", {
+                    Text = "",
+                    BackgroundTransparency = 1,
+                    Size = UDim2s(1, 1),
+                    Parent = arrow
+                }) Hover(hit, function(on)
+                    arrow.TextColor3 = on and ColSub or ColText;
+                end); hit.Activated:Connect(function() set(index + a[3]); end);
+            end; Add(self, row); return {
+                Frame = row,
+                Set = function(_, i) set(i) end,
+                Get = function() return options[index], index end,
+            };
+        end;
+
+        local Router = {}; Router.__index = Router;
+
+        Router.new = function(parent)
+            return setmetatable({
+                Parent = parent,
+                Pages = {},
+                History = {}
+            }, Router);
+        end;
+        Router.Page = function(self, name)
+            local page = Page.new(self.Parent);
+            page.Root.Visible = false;
+            page.Router = self;
+            self.Pages[name] = page;
+            return page;
+        end;
+        Router.Go = function(self, name, back)
+            local nxt = self.Pages[name];
+            if not nxt then return; end;
+            local current = self.Current;
+            if current then
+                self.Pages[current].Root.Visible = false;
+                if not back then tblein(self.History, current); end;
+            end; self.Current = name;
+            nxt.Root.Visible = true;
+        end;
+        Router.Back = function(self)
+            local previous = tble.remove(self.History);
+            if previous then self:Go(previous, true) end;
+        end;
+
+        local menu = Wait(CoreGui, "RobloxGui", "SettingsClippingShield", "SettingsShield", "MenuContainer", "Page");
+        local tabs = Wait(menu, "HubBar", "TabHeaderContainer", "HubBarContainer");
+        local clipper, peopleTab = Wait(menu, "PageViewClipper"), Wait(tabs, "PeopleTab");
+
+        local fit = function(t)
+            local apply = function()
+                local size = t.Size
+                if math.abs(size.X.Scale - 0.174) > 0.001 or size.X.Offset ~= 0 then
+                    t.Size = Dim2(0.174, 0, size.Y.Scale, size.Y.Offset);
+                end;
+            end; apply();
+            t:GetPropertyChangedSignal("Size"):Connect(apply);
+        end;
+        
+        local tab = peopleTab:Clone();
+        tab.Name = "TTJYTab";
+        tab.LayoutOrder = -1;
+        tab.TabLabel.Icon.Text = "x";
+        tab.TabLabel.Title.Text = "TJYS";
+        tab.TabSelection.Visible = false;
+        fit(tab); tab.Parent = tabs;
+
+        local mine = clipper:Clone();
+        mine.Visible = false;
+        mine:ClearAllChildren();
+        mine.Name = "TTJYClipper";
+        mine.Size = Dim2(0, 800, 0, 600);
+        mine.Parent = menu; Rmine = mine;
+
+        local show = function(on)
+            mine.Visible = on; clipper.Visible = not on;
+            for _, t in ipairs(tabs:GetChildren()) do
+                local mark = FindFirstChild(t, "TabSelection")
+                if mark and (on or t == tab) then
+                    mark.Visible = on and t == tab;
+                end;
+            end;
+        end;
+        local hook = function(t)
+            if t ~= tab and IsA(t, "GuiButton") then
+                fit(t); t.Activated:Connect(function()
+                    show(false);
+                end);
+            end;
+        end; tab.Activated:Connect(function()
+            show(true);
+        end); for _, t in ipairs(tabs:GetChildren()) do
+            hook(t);
+        end; tabs.ChildAdded:Connect(hook);
+
+        local Nav = Router.new(mine);
+        local Tabs, AutoData = {
+            Home = Nav:Page("home");
+            Tut = Nav:Page("tut");
+            Bug = Nav:Page("bug");
+            YTV = Nav:Page("ytvid");
+            Com = Nav:Page("community");
+            Settings = Nav:Page("settings")
+        }, {
+            Home = {
+                {Type="Text", Text="Script not working?"},
+                {Type="Paragraph", Text="Find the answer by scrolling down."},
+                {Type="Divider"},
+                {Type="Image", Image=TTJYBanner, File="jy.png", Height=400},
+                {Type="ButtonGroup", Buttons={
+                    {Text="Help", Goto="tut"},
+                    {Text="Check Bug", Goto="bug"},
+                    {Text="Settings", Primary=true, Goto="settings"},
+                }},
+            },
+            Tut = {
+                {Type="Text", Text="Please Select"},
+                {Type="ButtonGroup", Buttons={
+                    {Text="YouTube Video", Goto="ytvid"},
+                    {Text="Community Hub", Goto="community"},
+                }},
+                {Type="Button", Text="Back", Back=true},
+            },
+            YTV = {
+                {Type="Button", Text="Back", Back=true},
+            };
+            Com = {
+                {Type="Button", Text="Back", Back=true},
+            };
+            Bug = {
+                {Type="Text", Text="Key System Error"},
+                {Type="Paragraph", Text="Continue button not working - Report Bug."},
+                {Type="Paragraph", Text="300 - Invalid Key/Expire. Try copy the key again."},
+                {Type="Paragraph", Text="500 - Report Bug with Compatability Test on Discord."},
+                {Type="Paragraph", Text="7 - Rare case of executor runtime. If it happen multiple times, just report bug."},
+                {Type="Paragraph", Text="Others - Security check failed. Report bug"},
+                {Type="Divider"},
+                {Type="Text", Text="Report Bug"},
+                {Type="Paragraph", Text="Please follow these step by step"},
+                {Type="Paragraph", Text="1. /console in the roblox chat or press F9"},
+                {Type="Paragraph", Text="2. Screenshot/Record what are inside the step 1 and make sure to scroll down/up if possible"},
+                {Type="Paragraph", Text="3. Press 'Copy Informations' below then game data & executor data will be in your clipboard"},
+                {Type="Paragraph", Text="4. Join Discord Server -> Go to Support Channal at the script category -> Create a post"},
+                {Type="Paragraph", Text="5. @ttjy in your post and send the screenshot/video you got including the Informations that you copied"},
+                {Type="ButtonGroup", Buttons={
+                    {Text="Copy Informations", Callback=function()
+                        local Base = strformat("G:%s\nP:%s\nX:%s\nD:%s",
+                            tostring(GameId), tostring(PlaceId),
+                            getexecutorname and tostring(getexecutorname()) or "Unknown",
+                            ScriptCache.userIdentify.device
+                        )
+                        return setc and setc(Base)
+                    end},
+                    {Text="Copy Discord Link", Callback=function()
+                        return setc and setc("https://discord.gg/G7CX2rD9p2")
+                    end},
+                }},
+                {Type="Divider"},
+                {Type="Text", Text="Can't find Support Channal?"},
+                {Type="Paragraph", Text="Click server settings -> Enable 'Show All Channals'"},
+                {Type="Button", Text="Back", Back=true},
+            },
+            Settings = {
+                {Type="Text", Text="Settings"},
+                {Type="Selector", Text="Auto Execute", Options={"On", "Off"}, Callback=function(v) end},
+                {Type="Selector", Text="Notifications", Desc="Show a popup when something happens.", Options={"All", "Errors only", "Off"}, Callback=function(v) end},
+                {Type="Button", Text="Back", Key="ESC", Back=true},
+            },
+        }; for TabName, Elements in pairs(AutoData) do
+            local Tab = Tabs[TabName]; for i = 1, #Elements do
+                local Data = Elements[i];
+                local Type = Data.Type;
+                if Type == "Text" then
+                    Tab:Text(Data);
+                elseif Type == "Paragraph" then
+                    Tab:Paragraph(Data);
+                elseif Type == "Divider" then
+                    Tab:Divider();
+                elseif Type == "Image" then
+                    Tab:Image(Data);
+                elseif Type == "ButtonGroup" then
+                    Tab:ButtonGroup(Data.Buttons);
+                elseif Type == "Button" then
+                    Tab:Button(Data);
+                elseif Type == "Selector" then
+                    Tab:Selector(Data);
+                end;
+            end;
+        end; Nav:Go("home");
+
+        local shield = menu.Parent.Parent; show(true);
+        if shield.Visible then return; end;
+        local opened=nil; opened = shield:GetPropertyChangedSignal("Visible"):Connect(function()
+            if not shield.Visible then return; end;
+            opened:Disconnect();
+            tk.defer(show, true);
+        end);
+    end; if not Workspace:GetAttribute("TJYS_RC") then
+        return pcall(TTJYMenu) and Workspace:SetAttribute("TJYS_RC");
+    end;
+end);
 
 do (function()
     local TWEENINFO = TwInfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
@@ -12317,8 +12800,9 @@ AssetStorage.CorePackage = function()
 
         local function Refresh()
             if not LoaderSettings.StreamerMode then
-                PageViewClipper.Visible = true;
-                return;
+                if not Rmine or not Rmine.Visible then
+                    PageViewClipper.Visible = true;
+                end; return;
             end; if peoplepage.Visible then
                 PageViewClipper.Visible = false;
             end;
