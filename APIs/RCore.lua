@@ -1,39 +1,41 @@
-local GetService = game.GetService
-local Instancen = Instance.new
-local UDimn = UDim.new
-local UDim2n = UDim2.new
-local UDim2s = UDim2.fromScale
-local UDim2o = UDim2.fromOffset
-local Vec2 = Vector2.new
-local Col3 = Color3.fromRGB
-local setmt = setmetatable
-local tble = table
-local tk = task
-
-local CoreGui = GetService(game, "CoreGui")
-
-local SortLayout = Enum.SortOrder.LayoutOrder
-local DirHorizontal = Enum.FillDirection.Horizontal
-local VAlignMiddle = Enum.VerticalAlignment.Center
-local SizeXY = Enum.AutomaticSize.XY
-local SizeY = Enum.AutomaticSize.Y
-local AlignLeft = Enum.TextXAlignment.Left
-local AlignTop = Enum.TextYAlignment.Top
-local AlignMiddle = Enum.TextYAlignment.Center
-local StrokeBorder = Enum.ApplyStrokeMode.Border
-
-local ColButton = Col3(32, 33, 36)
-local ColButtonHover = Col3(46, 47, 52)
-local ColPrimary = Col3(25, 40, 110)
-local ColPrimaryHover = Col3(34, 54, 140)
-local ColText = Col3(255, 255, 255)
-local ColSub = Col3(190, 190, 195)
-local FontMain = Enum.Font.GothamMedium
-local FontBold = Enum.Font.GothamBold
-local Gap = 8
-local Height = 52
-
 local function TTJYMenu()
+    local GetService = game.GetService
+    local Instancen = Instance.new
+    local UDimn = UDim.new
+    local UDim2n = UDim2.new
+    local UDim2s = UDim2.fromScale
+    local UDim2o = UDim2.fromOffset
+    local Vec2 = Vector2.new
+    local Col3 = Color3.fromRGB
+    local setmt = setmetatable
+    local tble = table
+    local tk = task
+
+    local CoreGui = GetService(game, "CoreGui")
+
+    local SortLayout = Enum.SortOrder.LayoutOrder
+    local DirHorizontal = Enum.FillDirection.Horizontal
+    local VAlignMiddle = Enum.VerticalAlignment.Center
+    local SizeXY = Enum.AutomaticSize.XY
+    local SizeY = Enum.AutomaticSize.Y
+    local AlignLeft = Enum.TextXAlignment.Left
+    local AlignTop = Enum.TextYAlignment.Top
+    local AlignMiddle = Enum.TextYAlignment.Center
+    local StrokeBorder = Enum.ApplyStrokeMode.Border
+    local ScaleCrop = Enum.ScaleType.Crop
+
+    local ColButton = Col3(32, 33, 36)
+    local ColButtonHover = Col3(46, 47, 52)
+    local ColPrimary = Col3(25, 40, 110)
+    local ColPrimaryHover = Col3(34, 54, 140)
+    local ColText = Col3(255, 255, 255)
+    local ColSub = Col3(190, 190, 195)
+    local ColLine = Col3(58, 59, 64)
+    local FontMain = Enum.Font.GothamMedium
+    local FontBold = Enum.Font.GothamBold
+    local Gap = 8
+    local Height = 52
+
     local function New(class, props, kids)
         local inst = Instancen(class)
         local parent
@@ -58,6 +60,14 @@ local function TTJYMenu()
     local function Kill(parent, name)
         local old = parent:FindFirstChild(name)
         if old then old:Destroy() end
+    end
+
+    local function Fetch(url, file)
+        url = url:gsub("^https://github%.com/(.-)/blob/(.+)$", "https://raw.githubusercontent.com/%1/%2")
+        local res = request({ Url = url, Method = "GET" })
+        if not res.Success then error("image request failed: " .. tostring(res.StatusCode)) end
+        writefile(file, res.Body)
+        return getcustomasset(file)
     end
 
     local function Hover(inst, fn)
@@ -182,6 +192,49 @@ local function TTJYMenu()
             TextXAlignment = AlignLeft,
             Size = UDim2n(1, 0, 0, size + 10),
         }))
+    end
+
+    function Page:Paragraph(o)
+        return Add(self, Label({
+            Text = o.Text,
+            TextSize = o.Size or 14,
+            TextColor3 = o.Color or ColSub,
+            TextWrapped = true,
+            RichText = o.Rich == true,
+            TextXAlignment = AlignLeft,
+            TextYAlignment = AlignTop,
+            AutomaticSize = SizeY,
+            Size = UDim2n(1, 0, 0, 0),
+        }))
+    end
+
+    function Page:Divider(o)
+        o = o or {}
+        return Add(self, New("Frame", {
+            BackgroundColor3 = o.Color or ColLine,
+            BorderSizePixel = 0,
+            Size = UDim2n(1, 0, 0, o.Thickness or 1),
+        }))
+    end
+
+    function Page:Image(o)
+        local img = o.Image
+        if type(img) == "number" then img = "rbxassetid://" .. img end
+        local label = Add(self, New("ImageLabel", {
+            Image = img,
+            ScaleType = o.Scale or ScaleCrop,
+            BackgroundColor3 = ColButton,
+            BorderSizePixel = 0,
+            ImageTransparency = o.Transparency or 0,
+            Size = UDim2n(1, 0, 0, o.Height or 120),
+        }, { Corner(o.Radius or 8) }))
+        if o.Url then
+            tk.spawn(function()
+                local ok, asset = pcall(Fetch, o.Url, o.File or "jy.png")
+                if ok then label.Image = asset else warn(asset) end
+            end)
+        end
+        return label
     end
 
     function Page:Spacer(px)
@@ -331,7 +384,7 @@ local function TTJYMenu()
     local mine = clipper:Clone()
     mine:ClearAllChildren()
     mine.Name = "TTJYClipper"
-    mine.Size = UDim2n(0, 800, 0, 600)
+    New("UISizeConstraint", { MaxSize = Vec2(800, 600), Parent = mine })
     mine.Visible = false
     mine.Parent = menu
 
@@ -360,7 +413,10 @@ local function TTJYMenu()
     local Home = Nav:Page("home")
     local Settings = Nav:Page("settings")
 
+    Home:Image({ Url = "https://github.com/RealTTJY/Studio.Hub/blob/main/TJYS.png", File = "jy.png", Height = 160 })
     Home:Text({ Text = "Script not working?" })
+    Home:Paragraph({ Text = "Try Status first. If the game still feels stuck, use Rejoin." })
+    Home:Divider()
     Home:ButtonGroup({
         { Text = "Status", Key = "S", Callback = function() print("status") end },
         { Text = "Rejoin", Key = "J", Callback = function() print("rejoin") end },
@@ -378,6 +434,16 @@ local function TTJYMenu()
     Settings:Button({ Text = "Back", Key = "ESC", Back = true })
 
     Nav:Go("home")
+
+    local shield = menu.Parent.Parent
+    show(true)
+    if shield.Visible then return end
+    local opened
+    opened = shield:GetPropertyChangedSignal("Visible"):Connect(function()
+        if not shield.Visible then return end
+        opened:Disconnect()
+        tk.defer(show, true)
+    end)
 end
 
-tk.spawn(function() xpcall(TTJYMenu, function(e) warn(debug.traceback(e)) end) end)
+xpcall(TTJYMenu, function(e) warn(debug.traceback(e)) end)
