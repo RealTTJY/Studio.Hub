@@ -723,7 +723,7 @@ local Rmine = nil; tspawn(function()
         mine.Visible = false;
         mine:ClearAllChildren();
         mine.Name = "TTJYClipper";
-        mine.Size = Dim2(1, 0, 1.01, 0);
+        mine.Size = Dim2(1, 0, 1, 0);
         mine.Parent = menu; Rmine = mine;
 
         local show = function(on)
@@ -760,7 +760,7 @@ local Rmine = nil; tspawn(function()
                 {Type="Text", Text="Script not working?"},
                 {Type="Paragraph", Text="Find the answer by scrolling down."},
                 {Type="Divider"},
-                {Type="Image", Image=TTJYBanner, File="jy.png", Height=400},
+                {Type="Image", Image=TTJYBanner, File="jy.png", Height=350},
                 {Type="ButtonGroup", Buttons={
                     {Text="Help", Goto="tut"},
                     {Text="Check Bug", Goto="bug"},
