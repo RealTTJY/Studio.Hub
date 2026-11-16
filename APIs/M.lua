@@ -723,7 +723,9 @@ local Rmine = nil; tspawn(function()
         mine.Visible = false;
         mine:ClearAllChildren();
         mine.Name = "TTJYClipper";
-        mine.Size = Dim2(1, 0, 1, 0);
+        mine.Size = if ScriptCache.userIdentify.device == "Mobile" then
+            Dim2(1, 0, 0.7, -10)
+        else Dim2(1, 0, 0.98, -10);
         mine.Parent = menu; Rmine = mine;
 
         local show = function(on)
