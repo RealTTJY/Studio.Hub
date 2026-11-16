@@ -378,7 +378,6 @@ end;
 local TTJYLogo = if getcustomasset and not LoaderSettings.BadNetwork and isfile(FOLBASE.."/TTJYStudio.png") then
     getcustomasset(FOLBASE.."/TTJYStudio.png")
 else "";
-
 local TTJYBanner = if getcustomasset and not LoaderSettings.BadNetwork and isfile(FOLBASE.."/TTJYBanner.png") then
     getcustomasset(FOLBASE.."/TTJYBanner.png")
 else "";
@@ -724,7 +723,7 @@ local Rmine = nil; tspawn(function()
         mine.Visible = false;
         mine:ClearAllChildren();
         mine.Name = "TTJYClipper";
-        mine.Size = Dim2(0, 800, 0, 600);
+        mine.Size = Dim2(1, 0, 1.01, 0);
         mine.Parent = menu; Rmine = mine;
 
         local show = function(on)
