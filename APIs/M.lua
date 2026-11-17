@@ -12883,7 +12883,7 @@ AssetStorage.CorePackage = function()
             LoaderSettings.TheMimicLoader.Load_Sections = state;
         end};
         Data[#Data+1] = {type="Space"}; Data[#Data+1] = {type="Divider"}; Data[#Data+1] = {type="Space"};
-        Data[#Data+1] = {type="Dropdown", EN="Installer", EN2="Select a package.", TH1="โหลดส่วนเสริม", TH2="เลือกสิ่งที่จะโหลด", Values={"Paintings", "MapComputing"}, P="TheMimicLoader", P2="Installer", Callback=function(value)
+        Data[#Data+1] = {type="Dropdown", EN="Installer", EN2="Select a package.", TH1="โหลดส่วนเสริม", TH2="เลือกสิ่งที่จะโหลด", Values={"Paintings", "ATF@B2C3"}, P="TheMimicLoader", P2="Installer", Callback=function(value)
             LoaderSettings.TheMimicLoader.Installer = value;
         end};
         Data[#Data+1] = {type="Button", EN="Install", EN2="Download the package.", TH1="โหลด", TH2="โหลดส่วนเสริม", Callback=function(value)
@@ -12970,6 +12970,11 @@ AssetStorage.DownloadPackage = function()
             FileName = "Paintings.lua";
             Version = "TheMimicV3.Extra.Paintings";
             Target = "Paintings.lua";
+        };
+        ["ATF@B2C3"] = {
+            FileName = "ATF@B2C3.lua";
+            Version = "TheMimicV3.Extra.ATF@B2C3";
+            Target = "ATF@B2C3.lua";
         };
     };
 
