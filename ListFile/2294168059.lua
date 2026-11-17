@@ -187,6 +187,7 @@ Config.WitchTrial = Config.WitchTrial or {};
 Config.WitchTrial.ESP = Config.WitchTrial.ESP or {};
 Config.HalloweenTrial = Config.HalloweenTrial or {};
 Config.HalloweenTrial.ESP = Config.HalloweenTrial.ESP or {};
+Config.AFKPlays = Config.AFKPlays or {};
 
 return {
     Version = "TheMimicV3.D16";
@@ -210,6 +211,7 @@ return {
         local cmdm              = selff:GetMouse();
         local ClientCon         = Config.Client.Client;
         local YenCon            = Config.Yen;
+        local AFKCon            = Config.AFKPlays;
         local B1C4Con           = Config.B1C4;
         local B2C1Con           = Config.B2C1;
         local B2C2Con           = Config.B2C2;
@@ -306,7 +308,7 @@ return {
                     Katana = WaitForChild(BP, "Katana", 9e9);
                 end; self.Katana = Katana;
             end; if Chapter == "B2C3" then
-                local GrabbedUI = FindFirstChild(PSG, "QuickTime");
+                local GrabbedUI = WaitForChild(PSG, "QuickTime", 9e9);
                 local BoneSword = FindFirstChild(BP, "Bone Sword") or FindFirstChild(selc, "Bone Sword");
                 if not BoneSword then
                     tk.defer(function() self.BoneSword = WaitForChild(BP, "Bone Sword", 9e9); end);
@@ -443,11 +445,62 @@ return {
                 return Tool:Activate();
             end; return;
         end;
+        Functions.JoinChapter = function(chapter, isATF)
+            if isATF then QueuePack.SetInfo("ATFPlay", true); end;
+            QueuePack.SetInfo(chapter, true); QueuePack.Init();
+
+            local book, chapterNumber = chapter:sub(1, 1), chapter:sub(2, 2);
+            local books = {J = "Jealousy", R = "Rage", C = "Control"};
+            R.LobbyInterface.Networking.Lobby:FireServer(
+                "SingleplayerTeleport", {
+                    Chapter = chapterNumber,
+                    Book = books[book] or "Control",
+                    Mode = AFKCon.NightmareMode and "Nightmare" or "Normal"
+                }
+            ); twait(10);
+        end;
+        Functions.GetGameProcess = function(self)
+            if self.AlwaysFalseProcess then
+                return false;
+            end; if Chapter == "B1C1" then
+                if PlaceId == 6301638949 or PlaceId == 6480994221 then
+                    if dist(Vec3(2139, 263, -2742)) <= 30 then
+                        self.AlwaysFalseProcess = true;
+                        return false;
+                    end;
+                end; return true;
+            elseif Chapter == "B1C2" then
+                if PlaceId == 6425178683 or PlaceId == 6485056556 then
+                    if dist(Vec3(829.97, 72.49, -353.46)) <= 30 then
+                        self.AlwaysFalseProcess = true;
+                        return false;
+                    end;
+                end; return true;
+            elseif Chapter == "B1C3" then
+                if PlaceId == 6682164423 or PlaceId == 6688734395 then
+                    if dist(Vec3(-644.07, 947.82, -1490)) <= 30 then
+                        self.AlwaysFalseProcess = true;
+                        return false;
+                    end;
+                end; return true;
+            elseif Chapter == "B1C4" then
+                if PlaceId == 7251867574 or PlaceId == 7265397848 then
+                    local SAMASPAWN = self.SAMASPAWN;
+                    if PSG.Status.Enabled or (SAMASPAWN and dist(SAMASPAWN) <= 30) then
+                        return "Sama";
+                    else
+                        return "Saigomo";
+                    end;
+                end; return "InstantWin";
+            end;
+        end;
         Functions.AutoCompleteBook1 = function()
             if PlaceId == 6296321810 or PlaceId == 6479231833 then
                 return Tp(HumRSelf, CFr(3507, 37.65, -1539.45));
             elseif PlaceId == 6301638949 or PlaceId == 6480994221 then
-                return Tp(HumRSelf, CFr(1274.95, 199.54, -2537.93));
+                return Tp(HumRSelf, CFr(1274.95, 199.54, -2537.93)),
+                    twait(1 + math.clamp(Functions.GetPing(), 0, 100)),
+                    Tp(HumRSelf, CFr(2139, 263, -2742));
             end;
             if PlaceId == 6373539583 or PlaceId == 6485055338 then
                 return Tp(HumRSelf, CFr(64.88, 55.28, -1590));
@@ -1268,7 +1321,7 @@ return {
                 }); twait();
             end;
         end;
-        Functions.B2C3Func = function(self, where)
+        Functions.B2C3Func = function(self, where, ...)
             if where == "Gozu" then
                 Tp(HumRSelf, CFr(-582, 38, 417));
             elseif where == "Heart/Talk" then
@@ -1292,6 +1345,14 @@ return {
                             HumanoidEquip(HumSelf, BPHeart);
                         end; Tp(HumRSelf, Heart.CFrame, 0.3); fireproximityprompt(Prox);
                     end;
+                end;
+            elseif where == "Heart/TriggerChase" then
+                local Chase = ... or W.Section1.Chase;
+                local GhostOrb = Chase and FindFirstChild(Chase, "GhostOrb");
+                if GhostOrb then
+                    Tp(HumRSelf, GhostOrb.CFrame);
+                    twait(0.5);
+                    Tp(HumRSelf, GhostOrb.CFrame * CFr(0, 10, 0));
                 end;
             elseif where == "Heart/Run" then
                 ForceFloat = true; Tp(HumRSelf, CFr(-101, 42, -395), 0.3);
@@ -1437,9 +1498,15 @@ return {
                     end;
                 end;
 
-                local DodoMeki = W.Section2.Monster.Dodomeki.Head; repeat 
+                local Monster = FindFirstChild(W.Section2, "Monster");
+                local Dodomeki = Monster and FindFirstChild(Monster, "Dodomeki");
+                local DodoMeki = Dodomeki and FindFirstChild(Dodomeki, "Head");
+
+                local DodoDead = function()
+                    return not DodoMeki or not DodoMeki.Parent or DodoMeki.Position.Y <= 60;
+                end; repeat 
                     local AllCompleted = true;
-                        local CHs = GetChildren(Bells); for i=1, #CHs do
+                    local CHs = GetChildren(Bells); for i=1, #CHs do
                         local v=CHs[i]; if v.Parent then
                             local Obj2 = FindFirstChild(v, "2");
                             local HandMinions = FindFirstChild(v, "HandMinions");
@@ -1450,7 +1517,7 @@ return {
                             
                             if Prompt and Hitbox and GetAttribute(HandMinions, "Health") > 0 then
                                 AllCompleted = false; while GetAttribute(HandMinions, "Health") > 0 and v.Parent do
-                                    if DodoMeki.CFrame.Position.Y <= 60 then return; end;
+                                    if DodoDead() then return; end;
                                     if not GetAttribute(HandMinions, "CanDamage") then
                                         Tp(HumRSelf, Base.CFrame, 0.5);
                                         if Prompt.Enabled then
@@ -1467,7 +1534,7 @@ return {
                             end;
                         end;
                     end; twait(1);
-                until DodoMeki.Head.CFrame.Position.Y <= 60 or AllCompleted;
+                until DodoDead() or AllCompleted;
             elseif where == "Bell/Puzzle" then
                 local CHs=GetChildren(W.Section2.PuzzleDoor.Doors); for i=1, #CHs do
                     local v=CHs[i]; if v.Parent then
@@ -1506,7 +1573,13 @@ return {
                     end;
                 end;
             elseif where == "Bell/Run" then
-                Tp(HumRSelf, CFr(-3888, -55, -2289));
+                Tp(HumRSelf, CFr(-3888, -55, -2289), 0.5);
+                local s25 = WaitForChild(W, "Section2.5", 10);
+                local chase = s25 and WaitForChild(s25, "ChaseSequence", 10);
+                local endChase = chase and WaitForChild(chase, "EndChase", 10);
+                if endChase then
+                    Tp(HumRSelf, endChase.CFrame, 1);
+                end;
             elseif where == "Enzukai/Enter" then
                 local CHs = { W["Section2.5"].MindGame.Intro.Trigger, W["Section2.5"].MindGame.Intro.Trigger2 };
                 for i=1, #CHs do
@@ -1549,6 +1622,7 @@ return {
             elseif where == "Mud" then
                 Tp(HumRSelf, W["Section4.5"].TeleportToSection5.CFrame);
             elseif where == "Yurei/House" then
+                self.OneRunHouseClicked = {};
                 local CHs = GetChildren(W.Section5.ISPY.Houses); for i=1, #CHs do
                     local v=CHs[i]; if v.Parent then
                         local Player = FindFirstChild(v, "Player");
@@ -1612,10 +1686,27 @@ return {
                             Tp(HumRSelf, v.CFrame * CFr(15,0,0), 0.3);
                             fireproximityprompt(v.ProximityPrompt); CO+=1;
                         end; ForceFloat = "None";
-                    end; Functions:B2C3Func("Boss/TpSafe");
+                    end; self:B2C3Func("Boss/TpSafe");
                 end;
             elseif where == "Hell/Run" then
                 Tp(HumRSelf, CFr(-1697, 246, 7806));
+            elseif where == "Heart/ForceSpin" then
+                local Puzzle = W.Section1.Puzzle;
+                local Door = FindFirstChild(Puzzle, "OpenDoor");
+                local SpinModel = FindFirstChild(Puzzle, "SpinModel");
+                while SpinModel and SpinModel.Parent do
+                    local arm = FindFirstChild(SpinModel, "armscare2");
+                    local hasBeatingHeart = arm and FindFirstChild(arm, "BeatingHeart");
+                    if Door and GetAttribute(Door, "Open") then break; end;
+                    if not Door and not hasBeatingHeart then break; end;
+                    local Top = FindFirstChild(SpinModel, "Top");
+                    if Top then Tp(HumRSelf, Top.CFrame, 0.3); end;
+                    local Prox = FindFirstChild(SpinModel, "ProximityPrompt");
+                    if Prox then
+                        Prox.Enabled = true;
+                        fireproximityprompt(Prox);
+                    end; twait(0.5);
+                end;
             end;
         end;
         Functions.B2C3ESP = function(self, where, state)
@@ -3330,6 +3421,16 @@ return {
                     }};
                 };
             });
+            PackATF = {
+                Tabs = {
+                    {Tab={at="ATF", Title="Full Auto Play", Icon="smile", Path="AFKPlays"}, Data={
+                        {type="Dropdown", EN="Select Chapter", EN2="Select a chapter to do a full auto play.", TH1="เลือกด่าน", TH2="เลือกด่านที่จะออโต้เล่น", Path="SelectChapter", Values={"C1", "C2", "C3", "C4", "J3"}};
+                        {type="Toggle", EN="Make It Nightmare", EN2="Play in nightmare mode.", TH1="สลับเป็นฝันร้าน", TH2="เริ่มเกมด้วยโหมดฝันร้าย", Path="NightmareMode"};
+                        {type="Toggle", EN="Auto Join Chapter", EN2="Auto start the game in singleplayer mode.", TH1="ออโต้เริ่มเกม", TH2="ออโต้เข้าด่านนั้นๆแบบผู้เล่นเดี่ยว", Path="AutoJoinChapter"};
+                        {type="Toggle", EN="Full Auto Play", EN2="Auto play the game and you can afk, including auto press W A S D.", TH1="ออโต้เล่นเกม", TH2="ออโต้ทำทุกอย่างแม้แต่การกด W A S D", Path="FullAutoPlay"};
+                    }};
+                };
+            };
             PackJigoku = (Chapter == "Lobby" and {
                 Tabs={
                     {Tab={at="Jigoku", Title="Jigoku", Icon="skull", Path="Jigoku"}, Data={
@@ -3436,8 +3537,8 @@ return {
                     }};
                 }) or ((PlaceId == 7251867574 or PlaceId == 7265397848) and {
                     {Tab={at="B1C4", Title="Map 4", Icon="book-open", Path="B1C4"}, Data={
-                        {type="Toggle", EN="Auto Kill Sama", EN2="Automatically destroy hearts.", TH1="ออโต้ทำลายหัวใจ", TH2="ทำลายหัวใจผี", Path="Map4/AutoKillSama"};
-                        {type="Toggle", EN="Auto Kill Saigomo", EN2="Automatically kill saigomo.", TH1="ออโต้ฆ่า Saigomo", TH2="ออโต้ฆ่าผี", Path="Map4/AutoKillSaigomo"};
+                        {type="Toggle", EN="Auto Kill Sama", EN2="Automatically destroy hearts.", TH1="ออโต้ทำลายหัวใจ", TH2="ทำลายหัวใจผี", Global="SAMA_TOGGLE", Path="Map4/AutoKillSama"};
+                        {type="Toggle", EN="Auto Kill Saigomo", EN2="Automatically kill saigomo.", TH1="ออโต้ฆ่า Saigomo", TH2="ออโต้ฆ่าผี", Global="SAIGOMO_TOGGLE", Path="Map4/AutoKillSaigomo"};
                         {type="Toggle", EN="ESP Monsters", EN2="Show monster's hitbox & name", Path="Map4/ESP/Monsters", TH1="ESP ผี", TH2="มองเห็นผี", Callback=Functions.ESPMonsterBook1};
                         {type="Toggle", EN="ESP Hearts", EN2="Show item's box & name", Path="Map4/ESP/Items", TH1="ESP ไอเทม", TH2="มองเห็นไอเทม", Callback=Functions.ESPItemsBook1}; {type="Space"};
                     }};
@@ -4083,6 +4184,46 @@ return {
             });
         }; end))();
 
+        CoruTask.New("ATF@Global", function()
+            warn(pcall(function() while true do
+                if CoreDestroyed then CoruTask.Close("ATF@Global"); end;
+                if not AFKCon.FullAutoPlay or not HumRSelf.Parent then
+                    twait(1); continue;
+                elseif Chapter == "Lobby" then
+                    if AFKCon.AutoJoinChapter then
+                        Functions.JoinChapter(
+                            AFKCon.SelectChapter,
+                            true
+                        );
+                    end;
+                elseif QUEUE_INFO.ATFPlay then
+                    if Chapter == "B1C1" or Chapter == "B1C2" or Chapter == "B1C3" then
+                        local Session = Functions:GetGameProcess();
+                        if not Session then twait(1); continue; end;
+                        
+                        QueuePack.SetInfo(Chapter, true);
+                        QueuePack.SetInfo("ATFPlay", true); QueuePack.Init();
+                        Functions.AutoCompleteBook1(); twait(3); continue;
+                    elseif Chapter == "B1C4" then
+                        local Session = Functions:GetGameProcess();
+                        if not Session then twait(1); continue; end;
+
+                        local SAMA_TOGGLE = ScriptCache.SAMA_TOGGLE;
+                        local SAIGOMO_TOGGLE = ScriptCache.SAIGOMO_TOGGLE;
+
+                        if Session == "InstantWin" then
+                            Functions.AutoCompleteBook1(); twait(3);
+                            QueuePack.SetInfo(Chapter, true);
+                            QueuePack.SetInfo("ATFPlay", true); QueuePack.Init(); continue;
+                        elseif Session == "Sama" and not B1C4Con.Map4.AutoKillSama and SAMA_TOGGLE then
+                            SAMA_TOGGLE:Set(true);
+                        elseif Session == "Saigomo" and not B1C4Con.Map4.AutoKillSaigomo and SAIGOMO_TOGGLE then
+                            SAIGOMO_TOGGLE:Set(true);
+                        end;
+                    end; 
+                end; twait(0.1);
+            end; end));
+        end);
         CoruTask.New("B1C4@Sama", function()
             if PlaceId ~= 7251867574 and PlaceId ~= 7265397848 then
                 return;
@@ -4675,6 +4816,7 @@ return {
                 Placeholder = if ScriptData.AutoData.PlaceholderTab then Window:Tab({ Title = "Information", Icon = "star" }) else false,
                 NMCS = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackNMCS),
                 Ken = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackKen),
+                ATF = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackATF),
                 Jigoku = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackJigoku),
                 Egao = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackEgao),
                 B1C1 = Windy:CreateDynamic(Window, Tabs, ScriptData.AutoData.PackB1C1),
@@ -4769,6 +4911,7 @@ return {
                         if YenCon.ESP or YenCon.Aura or YenCon.Auto then
                             CoruTask.Handle("UNIFIED-Yen");
                         end;
+                        CoruTask.Handle("ATF@Global");
                         twait(0.1);
                     end;
                 end);
@@ -4810,6 +4953,8 @@ return {
                     HumRSelf = WaitForChild(char, "HumanoidRootPart", 9e9);
                     Functions:GameValidate(); if Chapter ~= "B3C1" then
                         ClientPackage:WalkSpeedC(HumSelf);
+                    end; if Functions.MetaFair then
+                        Functions.MetaFair.HumRSelf = HumRSelf;
                     end;
                 end);
                 CoreConnection[4] = H.RenderStepped:Connect(function()
@@ -4854,6 +4999,9 @@ return {
                         if name == "Paintings" then
                             Functions.Paints = value.Paints;
                             Functions.PaintPoses = value.Poses;
+                        elseif name == "ATF@B2C3" then
+                            Functions.ATFB2C3 = value.Start;
+                            Functions.MetaFair = value.MetaFair;
                         end; WindUI:Notify({
                             Title = "<font color='rgb(0,255,0)'>Installer [IMPORTANT]</font>",
                             Content = "Download completed: "..name,
@@ -4865,7 +5013,11 @@ return {
                     if Chapter == "B2C4" then
                         if DownloadPackage.Download(true, "Paintings") then
                             DownloadPackage.Download(false, "Paintings");
-                        end; 
+                        end;
+                    elseif Chapter == "B2C3" then
+                         if DownloadPackage.Download(true, "ATF@B2C3") then
+                            DownloadPackage.Download(false, "ATF@B2C3");
+                        end;
                     end;
 
                     tk.delay(3, function()
@@ -4873,6 +5025,29 @@ return {
                             Functions:JigokuFunc("AutoFind");
                         elseif QUEUE_INFO.Egao then
                             Functions.EgaoFunc("AutoFind");
+                        elseif QUEUE_INFO.C4 then
+                            Functions.SAMASPAWN = Vec3(1089, 142, 1499);
+                        elseif QUEUE_INFO.J3 then
+                            local ATFB2C3 = Functions.ATFB2C3;
+                            if ATFB2C3 then
+                                Functions.MetaFair.HumRSelf = HumRSelf;
+                                ATFB2C3({
+                                    Functions = Functions;
+                                    ScriptCache = ScriptCache;
+                                    Configs = Config;
+                                    QUEUE_INFO = QUEUE_INFO;
+                                    dist = dist;
+                                    Tp = Tp;
+                                    PSG = PSG;
+                                });
+                            else
+                                WindUI:Notify({
+                                    Title = "<font color='rgb(255,255,0)'>Full Auto Play [IMPORTANT]</font>",
+                                    Content = "Please download the the assets 'ATF@B2C3' from the 'Core Settings' and rejoin.",
+                                    Icon = "circle-alert",
+                                    Duration = 11,
+                                });
+                            end;
                         end;
                     end);
 
