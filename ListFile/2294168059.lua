@@ -190,7 +190,7 @@ Config.HalloweenTrial.ESP = Config.HalloweenTrial.ESP or {};
 Config.AFKPlays = Config.AFKPlays or {};
 
 return {
-    Version = "TheMimicV3.D16";
+    Version = "TheMimicV3.D17";
     Function = function(CorePackage, WindLib, IntroLib, Windy, ClientPackage, CoruTask, CommonF, ESPF, PromptPackage, DownloadPackage, QueuePack)
         local CoreConnection    = {};
         local CoreDestroyed     = false;
