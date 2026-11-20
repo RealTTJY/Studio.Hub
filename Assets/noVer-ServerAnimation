@@ -282,7 +282,7 @@ local Components = {
 	listening = false;
 	W = 1920; H = 1080; scrX = 1920; scrY = 1080; compact = false;
 	railX = 28; areaLeft = 28; areaW = 1864;
-	TITLE_Y = 108; DOCK_Y = 88; CTRL_Y = 152; LIB_Y = 204; PAGE_Y = 152; PAGE_BAR_H = 38; LIB_OFFSET = 242;
+	TITLE_Y = 108; DOCK_Y = 88; CTRL_Y = 152; LIB_Y = 140; PAGE_Y = 140; PAGE_BAR_H = 38; LIB_OFFSET = 178;
 	PILL_SHOWN = UDim2n(0.5, 0, 1, -36); PILL_HIDDEN = UDim2n(0.5, 0, 1, 80);
 	previews = setmetatable({}, {__mode = "k"}); hoverState = nil;
 	pageOrder = setmetatable({}, {__mode = "k"});
@@ -948,7 +948,8 @@ Functions.layout = function()
 	Components.searchFrame.Size = UDim2Offset(Components.compact and 190 or 250, 34);
 	Components.favBtn.Position = UDim2n(1, -208, 0, Components.CTRL_Y);
 	Components.seg.Position = UDim2n(1, -6, 0, Components.CTRL_Y);
-		Components.pageBar.Position = UDim2Offset(0, Components.LIB_Y);
+	Components.LIB_OFFSET = Components.LIB_Y + Components.PAGE_BAR_H;
+	Components.pageBar.Position = UDim2Offset(0, Components.LIB_Y);
 	Components.lib.Position = UDim2Offset(0, Components.LIB_OFFSET);
 	Components.lib.Size = UDim2n(1, 0, 1, -Components.LIB_OFFSET);
 	Components.emptyLabel.Position = UDim2n(0.5, 0, 0, Components.LIB_OFFSET + 60);
