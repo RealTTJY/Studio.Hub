@@ -1,0 +1,1425 @@
+--[[
+    ████████╗████████╗░░░░░██╗██╗░░░██╗  ░██████╗████████╗██╗░░░██╗██████╗░██╗░█████╗░
+    ╚══██╔══╝╚══██╔══╝░░░░░██║╚██╗░██╔╝  ██╔════╝╚══██╔══╝██║░░░██║██╔══██╗██║██╔══██╗
+    ░░░██║░░░░░░██║░░░░░░░░██║░╚████╔╝░  ╚█████╗░░░░██║░░░██║░░░██║██║░░██║██║██║░░██║
+    ░░░██║░░░░░░██║░░░██╗░░██║░░╚██╔╝░░  ░╚═══██╗░░░██║░░░██║░░░██║██║░░██║██║██║░░██║
+    ░░░██║░░░░░░██║░░░╚█████╔╝░░░██║░░░  ██████╔╝░░░██║░░░╚██████╔╝██████╔╝██║╚█████╔╝
+    ░░░╚═╝░░░░░░╚═╝░░░░╚════╝░░░░╚═╝░░░  ╚═════╝░░░░╚═╝░░░░╚═════╝░╚═════╝░╚═╝░╚════╝░
+
+    v3.0.2  |  2026-07-16  |  Roblox Script
+    
+    Author: TTJY Studio
+    License: ND ( No Derivatives )
+
+     █████╗ ██╗   ██╗████████╗██╗  ██╗  ██████╗
+    ██╔══██╗██║   ██║╚══██╔══╝██║  ██║  ╚════██╗
+    ███████║██║   ██║   ██║   ███████║   █████╔╝
+    ██╔══██║██║   ██║   ██║   ██╔══██║   ╚═══██╗
+    ██║  ██║╚██████╔╝   ██║   ██║  ██║  ██████╔╝
+    ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝  ╚═════╝
+
+    v3.4.1  |  2025-XX-XX  | Private Whitelist Service
+
+    Author: TTJY
+    License: ND ( No Derivatives )
+--]]
+
+local GetService = game.GetService;
+local fromRGB = Color3.fromRGB;
+local fromName = Font.fromName;
+
+local TweenService = GetService(game, "TweenService");
+local UIS = GetService(game, "UserInputService");
+local Lighting = GetService(game, "Lighting");
+local Players = GetService(game, "Players");
+local H = GetService(game, "RunService");
+local W = GetService(game, "Workspace");
+
+local Instancen = Instance.new;
+local Vec2 = Vector2.new;
+local Vec3 = Vector3.new;
+local CFr = CFrame.new;
+local TwInfo = TweenInfo.new;
+local UDimn = UDim.new;
+local UDim2n = UDim2.new;
+local UDim2Offset = UDim2.fromOffset;
+local UDim2Scale = UDim2.fromScale;
+local strfind = string.find;
+local strformat = string.format;
+local strlower = string.lower;
+local strupper = string.upper;
+local strmatch = string.match;
+local tblein = table.insert;
+local tbleclr = table.clear;
+local tblesort = table.sort;
+local twait = task.wait;
+local tdelay = task.delay;
+local tspawn = task.spawn;
+local IsA = game.IsA;
+local FindFirstChild = game.FindFirstChild;
+local FindFirstChildOfClass = game.FindFirstChildOfClass;
+local WaitForChild = game.WaitForChild;
+
+local EMPTY_OBJECT = {Parent=nil, SeatPart=nil};
+local selff = Players.LocalPlayer;
+local PSG = selff:WaitForChild("PlayerGui");
+local selc = selff.Character or EMPTY_OBJECT;
+local HumSelf = (selc.Parent and FindFirstChildOfClass(selc, "Humanoid")) or EMPTY_OBJECT;
+local HumRSelf = HumSelf.RootPart or EMPTY_OBJECT;
+local WEIGHT = Enum.FontWeight;
+local FONT = "Montserrat";
+local DIM_TXT = fromRGB(190, 190, 200);
+local DOCK_SEL = fromRGB(236, 236, 240);
+local CARD_BG = fromRGB(18, 18, 18);
+local CARD_LINE = fromRGB(220, 220, 220);
+
+local KEYPATH = {
+	Swim     = {"swim", "Swim"};
+	Run      = {"run", "RunAnim"};
+	Walk     = {"walk", "WalkAnim"};
+	Fall     = {"fall", "FallAnim"};
+	Jump     = {"jump", "JumpAnim"};
+	Climb    = {"climb", "ClimbAnim"};
+	Idle1    = {"idle", "Animation1"};
+	Idle2    = {"idle", "Animation2"};
+	Idle3    = {"idle", "Animation3"};
+	IdleSwim = {"swimidle", "SwimIdle"};
+};
+
+local COLORS = {
+	text   = fromRGB(246, 246, 250);
+	sub    = fromRGB(165, 165, 175);
+	accent = fromRGB(235, 35, 70);
+	off    = fromRGB(62, 62, 68);
+	good   = fromRGB(120, 225, 160);
+	paid   = fromRGB(245, 205, 120);
+	gold   = fromRGB(255, 200, 70);
+	white  = fromRGB(255, 255, 255);
+	black  = fromRGB(0, 0, 0);
+};
+
+local Emotes = {
+	{A = "507770239"; N = "Wave"; V = "Free"};
+	{A = "507770453"; N = "Point"; V = "Free"};
+	{A = "507770677"; N = "Cheer"; V = "Free"};
+	{A = "507770818"; N = "Laugh"; V = "Free"};
+	{A = "507771019"; N = "Dance 1"; V = "Free"};
+	{A = "507776043"; N = "Dance 2"; V = "Free"};
+	{A = "507777268"; N = "Dance 3"; V = "Free"};
+	{A = "110608537478486"; N = "TOC TOC MIDAS"; V = "67676767 Robux"};
+	{A = "110867657198010"; N = "Dead Hard"; V = "55 Robux"};
+	{A = "88130117312312v"; N = "R15 Death (Acurated)"; V = "55 Robux"};
+	{A = "72769478118287"; N = "Gangnam Style Shuffle - PSY (KPOP)"; V = "75 Robux"};
+	{A = "121443272243188"; N = "Head Peak Pose"; V = "55 Robux"};
+	{A = "107966862814515"; N = "♡⸝⸝ skittl bouncy emote pop ა"; V = "55 Robux"};
+	{A = "113377742829148"; N = "Cute Kawaii Needy Kitty Dance"; V = "55 Robux"};
+	{A = "129115715729473"; N = "cute dancy dance"; V = "55 Robux"};
+	{A = "134779790675079"; N = "Floating Aura Pose"; V = "55 Robux"};
+	{A = "70884050715970"; N = "Iuno Moon Goddess Intro Idle | Wuthering WuWa"; V = "55 Robux"};
+	{A = "113552946147205"; N = "♡ : cute sitting idle pose"; V = "55 Robux"};
+	{A = "77906334495137"; N = "Scenario"; V = "55 Robux"};
+	{A = "71112973269174"; N = "cute sitting with legs out"; V = "55 Robux"};
+	{A = "111138470711385"; N = "Harley Dance"; V = "55 Robux"};
+};
+
+local Bundles = {
+	{
+		N = "Adidas"; V = "??? Robux"; P = "Walk"; A = {
+			Walk = "122150855457006"; Run = "82598234841035"; Fall = "98600215928904";
+			Jump = "75290611992385"; Climb = "88763136693023"; Swim = "133308483266208";
+			IdleSwim = "109346520324160"; Idle1 = "122257458498464"; Idle2 = "102357151005774";
+		};
+	};
+	{
+		N = "Endless Aura Floating"; V = "??? Robux"; P = "Idle1"; A = {
+			Walk = "84782014405060"; Run = "84782014405060"; Fall = nil;
+			Jump = "140300561900880"; Climb = nil; Swim = nil;
+			IdleSwim = nil; Idle1 = "133226513780673"; Idle2 = "133226513780673";
+		};
+	};
+	{
+		N = "Christmas Nonchalant Ice Skating"; V = "300 Robux"; P = "Walk"; A = {
+			Walk = "128900487498941"; Run = "128900487498941"; Fall = nil;
+			Jump = "126349690225759"; Climb = nil; Swim = nil;
+			IdleSwim = nil; Idle1 = "133226513780673"; Idle2 = "100221409582971";
+		};
+	};
+	{
+		N = "Vampire Animation"; V = "??? Robux"; P = "Walk"; A = {
+			Walk = "10921326949"; Run = "10921320299"; Fall = "10921321317";
+			Jump = "10921322186"; Climb = "10921314188"; Swim = "10921324408";
+			IdleSwim = "10921325443"; Idle1 = "10921315373"; Idle2 = "10921316709";
+			Pose = "10921317792";
+		};
+	};
+	{
+		N = "Ninja Animation"; V = "??? Robux"; P = "Walk"; A = {
+			Walk = "10921162768"; Run = "10921157929"; Fall = "10921159222";
+			Jump = "10921160088"; Climb = "10921154678"; Swim = "10921161002";
+			IdleSwim = "10922757002"; Idle1 = "10921155160"; Idle2 = "10921155867";
+			Pose = "10921156883";
+		};
+	};
+};
+
+local LIB = {Emotes = Emotes; ["Core Movement"] = Bundles;};
+
+local Configs = {
+	Blur        = true;
+	BlurSize    = 22;
+	Toasts      = true;
+	Sort        = "Default";
+	HoverSpin   = true;
+	StopOnMove  = true;
+	Keybind     = Enum.KeyCode.K;
+	PreviewMode = "Silhouette";
+	NavPosition = "Bottom Dock";
+};
+
+local SORTS         = {"Default", "Name (A-Z)", "Free first", "Price: Low to High"};
+local PREVIEWS      = {"Silhouette", "My Character", "Off"};
+local NAV_POSITIONS = {"Bottom Dock", "Top Left"};
+local RAIL          = {{id = "Emotes"; label = "Emotes"}; {id = "Core Movement"; label = "Core Movement"}; {id = "Settings"; label = "Settings"};};
+
+local FormatFont = function(w, italic)
+	return fromName(FONT, w or WEIGHT.Medium, italic and Enum.FontStyle.Italic or Enum.FontStyle.Normal);
+end;
+local Tween = function(o, props, t, style, dir)
+	local Tw = TweenService:Create(o, TwInfo(t or 0.25, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), props);
+	Tw:Play();
+	return Tw;
+end;
+
+local Library = {
+	activeTab      = "Emotes";
+	filter         = "All";
+	favOnly        = false;
+	open           = false;
+	current        = nil;
+	equipped       = nil;
+	favs           = {};
+	cards          = {};
+	speed          = 1;
+	renderToken    = 0;
+	accentHooks    = {};
+	repaints       = {};
+	currentPage    = 1;
+	PAGE_SIZE      = 12;
+	filteredList   = {};
+	defaultAnimIds = setmetatable({}, {__mode = "k"});
+};
+
+Library.new = function(class, props, children)
+	local o = Instancen(class);
+	for k, v in pairs(props or {}) do
+		if k ~= "Parent" then o[k] = v; end;
+	end;
+	for _, c in ipairs(children or {}) do c.Parent = o; end;
+	if props and props.Parent then o.Parent = props.Parent; end;
+	return o;
+end;
+Library.corner = function(self, r)
+	return self.new("UICorner", {CornerRadius = UDimn(0, r)});
+end;
+Library.stroke = function(self, col, th, tr)
+	return self.new("UIStroke", {
+		Color = col or COLORS.white;
+		Thickness = th or 1;
+		Transparency = tr or 0.85;
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+	});
+end;
+Library.padXY = function(self, x, y)
+	return self.new("UIPadding", {
+		PaddingLeft = UDimn(0, x);
+		PaddingRight = UDimn(0, x);
+		PaddingTop = UDimn(0, y or 0);
+		PaddingBottom = UDimn(0, y or 0);
+	});
+end;
+Library.Shadow = function(parent)
+	pcall(function()
+		local s = Instancen("UIShadow");
+		s.Color = COLORS.black;
+		s.Parent = parent;
+	end);
+end;
+Library.Label = function(self, props)
+	props = props or {};
+	props.BackgroundTransparency = 1;
+	props.TextSize = props.TextSize or 14;
+	props.TextColor3 = props.TextColor3 or COLORS.text;
+	props.FontFace = props.FontFace or FormatFont(WEIGHT.Medium);
+	props.TextXAlignment = props.TextXAlignment or Enum.TextXAlignment.Left;
+	return self.new("TextLabel", props);
+end;
+Library.onAccent = function(self, fn)
+	fn(COLORS.accent);
+	tblein(self.accentHooks, fn);
+end;
+Library.accProp = function(self, inst, prop)
+	inst[prop] = COLORS.accent;
+	tblein(self.accentHooks, function(c)
+		if inst.Parent then Tween(inst, {[prop] = c}, 0.25); end;
+	end);
+end;
+Library.isPress = function(i)
+	return i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch;
+end;
+Library.isMove = function(i)
+	return i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch;
+end;
+local Components = {
+	gui = nil; blur = nil; dim = nil; root = nil; uiScale = nil; handle = nil;
+	rail = nil; railItems = {}; area = nil; titleLabel = nil; searchFrame = nil; searchBox = nil;
+	seg = nil; segPill = nil; segBtns = {}; favBtn = nil; favStroke = nil;
+	pageBar = nil; prevBtn = nil; pageLabel = nil; nextBtn = nil;
+	lib = nil; grid = nil; libPad = nil; emptyLabel = nil; popup = nil; popBack = nil;
+	pill = nil; eq = nil; pillName = nil; pillStop = nil;
+	settingsPage = nil; settingsPad = nil; colsLayout = nil; columns = nil; leftCol = nil; rightCol = nil;
+	keyBtn = nil; mixPlaying = nil; mixBundle = nil;
+	toastFrame = nil; toastStroke = nil; toastLabel = nil; toastToken = 0; ring = {};
+	listening = false;
+	W = 1920; H = 1080; scrX = 1920; scrY = 1080; compact = false;
+	railX = 28; areaLeft = 28; areaW = 1864;
+	TITLE_Y = 108; DOCK_Y = 88; CTRL_Y = 152; LIB_Y = 204; PAGE_Y = 152; PAGE_BAR_H = 38; LIB_OFFSET = 242;
+	PILL_SHOWN = UDim2n(0.5, 0, 1, -36); PILL_HIDDEN = UDim2n(0.5, 0, 1, 80);
+	previews = setmetatable({}, {__mode = "k"}); hoverState = nil;
+	pageOrder = setmetatable({}, {__mode = "k"});
+};
+local Functions = {};
+Functions.normId = function(id)
+	id = tostring(id);
+	if strfind(id, "rbxassetid://", 1, true) or strfind(id, "http", 1, true) then return id; end;
+	return "rbxassetid://" .. id;
+end;
+Functions.getAnimator = function()
+	local char = selff.Character;
+	local hum = char and FindFirstChildOfClass(char, "Humanoid");
+	if not hum then return; end;
+	return FindFirstChildOfClass(hum, "Animator") or Instancen("Animator", hum);
+end;
+Functions.stopCurrent = function()
+	local current = Library.current;
+	if current then
+		local trk = current.track;
+		pcall(function() trk:Stop(0.15); end);
+		tdelay(0.2, function() pcall(function() trk:Destroy(); end); end);
+		Library.current = nil;
+	end;
+	if Functions.refreshState then Functions.refreshState(); end;
+end;
+Functions.useEmote = function(self, item)
+	local current = Library.current;
+	local itemName = item.N or item.Name;
+	if current and (current.item == item or (current.item.N or current.item.Name) == itemName) then
+		return self.stopCurrent();
+	end;
+	self.stopCurrent();
+	local Animator = self.getAnimator();
+	if not Animator then return; end;
+	local Anim = Instancen("Animation");
+	Anim.AnimationId = self.normId(item.A or item.Anim);
+	local ok, track = pcall(function() return Animator:LoadAnimation(Anim); end);
+	if not ok or not track then return self.toast("Couldn't load " .. itemName); end;
+	track.Priority = Enum.AnimationPriority.Action4;
+	track.Looped = item.Loop ~= false;
+	track:Play(0.2);
+	track:AdjustSpeed(Library.speed);
+	Library.current = {item = item; track = track;};
+	track.Stopped:Connect(function()
+		if Library.current and Library.current.track == track then
+			Library.current = nil;
+			self.refreshState();
+		end;
+	end);
+	self.refreshState();
+	self.toast("Playing  " .. itemName);
+end;
+Functions.findAnim = function(animate, path)
+	local o = animate;
+	for _, name in ipairs(path) do o = o and FindFirstChild(o, name); end;
+	return (o and IsA(o, "Animation")) and o or nil;
+end;
+Functions.cacheDefaults = function(char, animate)
+	local defs = Library.defaultAnimIds[char];
+	if defs then return defs; end;
+	defs = {};
+	for key, path in pairs(KEYPATH) do
+		local anim = Functions.findAnim(animate, path);
+		if anim and IsA(anim, "Animation") and anim.AnimationId ~= "" then
+			defs[key] = anim.AnimationId;
+		end;
+	end;
+	if next(defs) then Library.defaultAnimIds[char] = defs; end;
+	return defs;
+end;
+Functions.stopAllTracks = function(char)
+	if Library.current then
+		local trk = Library.current.track;
+		pcall(function() trk:Stop(0); trk:Destroy(); end);
+		Library.current = nil;
+	end;
+	local hum = char and FindFirstChildOfClass(char, "Humanoid");
+	local animator = hum and FindFirstChildOfClass(hum, "Animator");
+	if animator then
+		for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+			pcall(function() track:Stop(0); track:Destroy(); end);
+		end;
+	end;
+	if hum then
+		pcall(function()
+			for _, track in ipairs(hum:GetPlayingAnimationTracks()) do
+				pcall(function() track:Stop(0); track:Destroy(); end);
+			end;
+		end);
+	end;
+end;
+Functions.restartAnimate = function(char, animate)
+	local hum = char and FindFirstChildOfClass(char, "Humanoid");
+	if not hum then return; end;
+	Functions.stopAllTracks(char);
+	pcall(function()
+		local env = getsenv(animate);
+		if type(env) == "table" and type(env.stopAllAnimations) == "function" then
+			env.stopAllAnimations();
+		end;
+	end);
+	if hum.Health > 0 then
+		local prevState = hum:GetState();
+		pcall(function() hum:ChangeState(Enum.HumanoidStateType.PlatformStanding); end);
+		twait(0.22);
+		pcall(function()
+			local resumeState = prevState == Enum.HumanoidStateType.PlatformStanding and Enum.HumanoidStateType.Running or prevState;
+			hum:ChangeState(resumeState);
+		end);
+	end;
+end;
+Functions.setBundle = function(char, bundle)
+	local animate = FindFirstChild(char, "Animate") or WaitForChild(char, "Animate", 8);
+	if not animate then return false; end;
+	Functions.stopCurrent();
+	local defs = Functions.cacheDefaults(char, animate);
+	for key, path in pairs(KEYPATH) do
+		local anim = Functions.findAnim(animate, path);
+		if anim and defs[key] then anim.AnimationId = defs[key]; end;
+	end;
+	local anims = bundle and (bundle.A or bundle.Anims);
+	if bundle and anims then
+		for key, id in pairs(anims) do
+			if id then
+				local path = KEYPATH[key];
+				local anim = path and Functions.findAnim(animate, path);
+				if anim then anim.AnimationId = Functions.normId(id); end;
+			end;
+		end;
+		if anims.Idle1 and not anims.Idle3 then
+			local anim3 = Functions.findAnim(animate, KEYPATH.Idle3);
+			if anim3 then anim3.AnimationId = Functions.normId(anims.Idle1); end;
+		end;
+	end;
+	Functions.restartAnimate(char, animate);
+	return true;
+end;
+Functions.toggleBundle = function(item)
+	local char = selff.Character;
+	if not char then return; end;
+	local name = item.N or item.Name;
+	if Library.equipped == item then
+		Library.equipped = nil;
+		Functions.setBundle(char, nil);
+		Functions.toast("Removed  " .. name);
+	else
+		Library.equipped = item;
+		if Functions.setBundle(char, item) then
+			Functions.toast("Applied  " .. name);
+		else
+			Library.equipped = nil;
+		end;
+	end;
+	Functions.refreshState();
+end;
+Functions.useItem = function(item)
+	if item.A and type(item.A) == "table" or item.Anims then
+		tspawn(Functions.toggleBundle, item);
+	else
+		Functions:useEmote(item);
+	end;
+end;
+Functions.closePopup = function()
+	Components.popup.Visible = false;
+	Components.popBack.Visible = false;
+end;
+Functions.openDropdown = function(anchor, options, selected, cb)
+	for _, ch in ipairs(Components.popup:GetChildren()) do if IsA(ch, "TextButton") then ch:Destroy(); end; end;
+	for i, opt in ipairs(options) do
+		local base = (opt == selected) and 0.88 or 1;
+		local b = Library.new("TextButton", {
+			Size = UDim2n(1, 0, 0, 34); BackgroundColor3 = COLORS.white; BackgroundTransparency = base;
+			Text = ""; AutoButtonColor = false; ZIndex = 62; LayoutOrder = i; Parent = Components.popup;
+		}, {Library:corner(9)});
+		Library:Label({
+			Text = opt; TextSize = 14; Position = UDim2Offset(12, 0); Size = UDim2n(1, -24, 1, 0);
+			ZIndex = 63; Parent = b;
+		});
+		b.MouseEnter:Connect(function() Tween(b, {BackgroundTransparency = 0.86}, 0.1); end);
+		b.MouseLeave:Connect(function() Tween(b, {BackgroundTransparency = base}, 0.1); end);
+		b.Activated:Connect(function() cb(opt); Functions.closePopup(); end);
+	end;
+	local sc = Components.uiScale.Scale;
+	local ap, asz = anchor.AbsolutePosition / sc, anchor.AbsoluteSize / sc;
+	local w, h = math.max(asz.X, 190), #options * 36 + 8;
+	local x = math.clamp(ap.X + asz.X - w, 8, math.max(8, Components.W - w - 8));
+	local y = ap.Y + asz.Y + 6;
+	if y + h > Components.H - 8 then y = ap.Y - h - 6; end;
+	Components.popup.Size = UDim2Offset(w, h);
+	Components.popup.Position = UDim2Offset(math.floor(x), math.floor(y));
+	Components.popup.Visible, Components.popBack.Visible = true, true;
+end;
+Functions.makeSlider = function(parent, o)
+	local f = Library.new("Frame", {Size = UDim2Offset(o.width or 220, 28); BackgroundTransparency = 1; Parent = parent;});
+	local val = Library:Label({TextSize = 14; TextXAlignment = Enum.TextXAlignment.Right; Size = UDim2Offset(46, 28); Parent = f;});
+	local track = Library.new("Frame", {
+		AnchorPoint = Vec2(0, 0.5); Position = UDim2n(0, 58, 0.5, 0); Size = UDim2n(1, -74, 0, 4);
+		BackgroundColor3 = fromRGB(80, 80, 88); BorderSizePixel = 0; Parent = f;
+	}, {Library:corner(2)});
+	local fill = Library.new("Frame", {Size = UDim2Scale(0, 1); BorderSizePixel = 0; Parent = track;}, {Library:corner(2)});
+	Library:accProp(fill, "BackgroundColor3");
+	local knob = Library.new("Frame", {
+		AnchorPoint = Vec2(0.5, 0.5); Position = UDim2Scale(0, 0.5); Size = UDim2Offset(32, 20);
+		BackgroundColor3 = COLORS.white; Parent = track;
+	}, {Library:corner(10)});
+	local hit = Library.new("TextButton", {Size = UDim2Scale(1, 1); BackgroundTransparency = 1; Text = ""; ZIndex = 3; Parent = f;});
+	local function set(v, silent)
+		v = math.clamp(v, o.min, o.max);
+		if o.step then v = math.floor(v / o.step + 0.5) * o.step; end;
+		local a = (v - o.min) / (o.max - o.min);
+		fill.Size = UDim2Scale(a, 1);
+		knob.Position = UDim2Scale(a, 0.5);
+		val.Text = o.fmt and o.fmt(v) or tostring(v);
+		if not silent and o.onChange then o.onChange(v); end;
+	end;
+	local function fromX(x)
+		set(o.min + math.clamp((x - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1), 0, 1) * (o.max - o.min));
+	end;
+	local dragging, scroller = false, nil;
+	hit.InputBegan:Connect(function(i)
+		if Library.isPress(i) then
+			dragging = true;
+			scroller = hit:FindFirstAncestorWhichIsA("ScrollingFrame");
+			if scroller then scroller.ScrollingEnabled = false; end;
+			fromX(i.Position.X);
+		end;
+	end);
+	UIS.InputChanged:Connect(function(i) if dragging and Library.isMove(i) then fromX(i.Position.X); end; end);
+	UIS.InputEnded:Connect(function(i)
+		if dragging and Library.isPress(i) then
+			dragging = false;
+			if scroller then scroller.ScrollingEnabled = true; end;
+		end;
+	end);
+	set(o.default, true);
+	return {frame = f; set = set;};
+end;
+Functions.makePage = function(y)
+	local p = Library.new("UIPadding", {
+		PaddingLeft = UDimn(0, 6); PaddingRight = UDimn(0, 12);
+		PaddingBottom = UDimn(0, 100); PaddingTop = UDimn(0, 6);
+	});
+	local f = Library.new("ScrollingFrame", {
+		Position = UDim2Offset(0, y); Size = UDim2n(1, 0, 1, -y); BackgroundTransparency = 1;
+		BorderSizePixel = 0; ScrollBarThickness = 3; VerticalScrollBarInset = Enum.ScrollBarInset.None;
+		CanvasSize = UDim2n(); AutomaticCanvasSize = Enum.AutomaticSize.Y; Visible = false; Parent = Components.area;
+	}, {
+		Library.new("UIListLayout", {Padding = UDimn(0, 14); SortOrder = Enum.SortOrder.LayoutOrder;}); p;
+	});
+	return f, p;
+end;
+Functions.group = function(parent)
+	Components.pageOrder[parent] = (Components.pageOrder[parent] or 0) + 1;
+	return Library.new("Frame", {
+		Size = UDim2n(1, 0, 0, 0); AutomaticSize = Enum.AutomaticSize.Y; BackgroundColor3 = fromRGB(18, 18, 18);
+		BackgroundTransparency = 0.35; LayoutOrder = Components.pageOrder[parent]; Parent = parent;
+	}, {
+		Library:corner(18); Library:stroke(fromRGB(220, 220, 220), 2, 0.7);
+		Library.new("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder;});
+	});
+end;
+Functions.row = function(g, title, desc, ctrlW)
+	local n = (g:GetAttribute("n") or 0) + 1;
+	g:SetAttribute("n", n);
+	ctrlW = ctrlW or 140;
+	local r = Library.new("Frame", {Size = UDim2n(1, 0, 0, 78); BackgroundTransparency = 1; LayoutOrder = n; Parent = g;});
+	if n > 1 then
+		Library.new("Frame", {
+			Position = UDim2Offset(16, 0); Size = UDim2n(1, -32, 0, 1); BackgroundColor3 = COLORS.white;
+			BackgroundTransparency = 0.9; BorderSizePixel = 0; Parent = r;
+		});
+	end;
+	Library:Label({
+		Text = title; FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 16; Position = UDim2Offset(20, 14);
+		Size = UDim2n(1, -(ctrlW + 48), 0, 22); TextTruncate = Enum.TextTruncate.AtEnd; Parent = r;
+	});
+	Library:Label({
+		Text = desc or ""; TextSize = 13; TextColor3 = COLORS.sub; Position = UDim2Offset(20, 38);
+		Size = UDim2n(1, -(ctrlW + 48), 0, 34); TextWrapped = true; TextYAlignment = Enum.TextYAlignment.Top; Parent = r;
+	});
+	return r;
+end;
+Functions.pillButton = function(parent, text, cb)
+	local b = Library.new("TextButton", {
+		AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -20, 0.5, 0); Size = UDim2Offset(0, 36);
+		AutomaticSize = Enum.AutomaticSize.X; BackgroundColor3 = COLORS.white; BackgroundTransparency = 0.9;
+		Text = text; TextColor3 = COLORS.text; FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 14;
+		AutoButtonColor = false; Parent = parent;
+	}, {Library:corner(11); Library:padXY(18)});
+	b.MouseEnter:Connect(function() Tween(b, {BackgroundTransparency = 0.82}, 0.12); end);
+	b.MouseLeave:Connect(function() Tween(b, {BackgroundTransparency = 0.9}, 0.12); end);
+	b.Activated:Connect(cb);
+	return b;
+end;
+Functions.dropdownBtn = function(parent, options, get, set)
+	local b = Library.new("TextButton", {
+		AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -20, 0.5, 0); Size = UDim2Offset(180, 38);
+		BackgroundColor3 = COLORS.white; BackgroundTransparency = 0.92; Text = ""; AutoButtonColor = false; Parent = parent;
+	}, {Library:corner(11)});
+	local t = Library:Label({
+		Text = get(); TextSize = 14; Position = UDim2Offset(14, 0); Size = UDim2n(1, -40, 1, 0);
+		TextTruncate = Enum.TextTruncate.AtEnd; Parent = b;
+	});
+	Library:Label({
+		Text = "⌄"; TextSize = 18; TextColor3 = COLORS.sub; TextXAlignment = Enum.TextXAlignment.Right;
+		Size = UDim2n(1, -12, 1, -2); Parent = b;
+	});
+	b.Activated:Connect(function()
+		Functions.openDropdown(b, options, get(), function(opt) set(opt); t.Text = get(); end);
+	end);
+end;
+Functions.toggle = function(g, title, desc, key, cb)
+	local r = Functions.row(g, title, desc, 60);
+	local sw = Library.new("TextButton", {
+		AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -20, 0.5, 0); Size = UDim2Offset(56, 32);
+		Text = ""; AutoButtonColor = false; Parent = r;
+	}, {Library:corner(16)});
+	local knob = Library.new("Frame", {
+		Size = UDim2Offset(26, 26); BackgroundColor3 = COLORS.white; Parent = sw;
+	}, {Library:corner(13)});
+	local function paint(instant)
+		local on = Configs[key];
+		local t = instant and 0 or 0.2;
+		Tween(sw, {BackgroundColor3 = on and COLORS.accent or COLORS.off}, t);
+		Tween(knob, {Position = on and UDim2n(1, -29, 0.5, -13) or UDim2n(0, 3, 0.5, -13)}, t);
+	end;
+	paint(true);
+	tblein(Library.repaints, paint);
+	sw.Activated:Connect(function()
+		Configs[key] = not Configs[key];
+		paint();
+		if cb then cb(Configs[key]); end;
+	end);
+end;
+Functions.makeSilhouette = function(model)
+	for _, d in ipairs(model:GetDescendants()) do
+		if IsA(d, "BasePart") then
+			d.Color = fromRGB(212, 212, 218);
+			d.Material = Enum.Material.SmoothPlastic;
+			if IsA(d, "MeshPart") then pcall(function() d.TextureID = ""; end); end;
+		elseif IsA(d, "SpecialMesh") then
+			pcall(function() d.TextureId = ""; end);
+		elseif IsA(d, "Decal") or IsA(d, "Texture") or IsA(d, "Shirt") or IsA(d, "Pants") or IsA(d, "ShirtGraphic")
+			or IsA(d, "BodyColors") or IsA(d, "SurfaceAppearance") then
+			d:Destroy();
+		end;
+	end;
+end;
+Functions.previewAnimId = function(item)
+	if item.A and type(item.A) == "string" then return item.A; end;
+	if item.Anim then return item.Anim; end;
+	local key = item.P or item.Preview or "Walk";
+	local anims = item.A or item.Anims or {};
+	return anims[key] or anims.Idle1 or anims.Walk or "";
+end;
+Functions.buildPreview = function(vp, item)
+	vp:ClearAllChildren();
+	local char = selff.Character;
+	if not char then return; end;
+	char.Archivable = true;
+	local ok, clone = pcall(function() return char:Clone(); end);
+	if not ok or not clone then return; end;
+	for _, d in ipairs(clone:GetDescendants()) do
+		if IsA(d, "BaseScript") then d:Destroy(); end;
+	end;
+	local root_ = FindFirstChild(clone, "HumanoidRootPart");
+	local hum = FindFirstChildOfClass(clone, "Humanoid");
+	if not root_ or not hum then clone:Destroy(); return; end;
+	hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None;
+	if Configs.PreviewMode == "Silhouette" then Functions.makeSilhouette(clone); end;
+	local wm = Library.new("WorldModel", {Parent = vp});
+	clone.Parent = wm;
+	clone:PivotTo(CFr(0, 0, 0));
+	root_.Anchored = true;
+	local cam = Library.new("Camera", {FieldOfView = 45; Parent = vp;});
+	cam.CFrame = CFrame.lookAt(Vec3(0, 0.1, -8.6), Vec3(0, -0.15, 0));
+	vp.CurrentCamera = cam;
+	Components.previews[vp] = {clone = clone; angle = 0;};
+	pcall(function()
+		local animator = FindFirstChildOfClass(hum, "Animator") or Instancen("Animator", hum);
+		local anim = Instancen("Animation");
+		anim.AnimationId = Functions.normId(Functions.previewAnimId(item));
+		local track = animator:LoadAnimation(anim);
+		track.Looped = true;
+		track:Play();
+	end);
+end;
+Functions.isFree = function(item)
+	return (item.V or item.Value) == "Free";
+end;
+Functions.price = function(item)
+	if Functions.isFree(item) then return 0; end;
+	return tonumber(strmatch(item.V or item.Value or "", "%d+")) or 0;
+end;
+Functions.passes = function(item)
+	if Library.favOnly and not Library.favs[item] then return false; end;
+	if Library.filter == "Free" and not Functions.isFree(item) then return false; end;
+	if Library.filter == "Paid" and Functions.isFree(item) then return false; end;
+	local q = strlower(Components.searchBox.Text);
+	local name = item.N or item.Name or "";
+	local val = item.V or item.Value or "";
+	if q ~= "" and not strfind(strlower(name .. " " .. val), q, 1, true) then return false; end;
+	return true;
+end;
+Functions.isActive = function(item)
+	if (item.A and type(item.A) == "table") or item.Anims then
+		return Library.equipped == item;
+	end;
+	return Library.current ~= nil and Library.current.item == item;
+end;
+Functions.makeCard = function(item, order)
+	local kind = ((item.A and type(item.A) == "table") or item.Anims) and "bundle" or "emote";
+	local itemName = item.N or item.Name;
+	local itemVal = item.V or item.Value;
+	local card = Library.new("Frame", {
+		BackgroundColor3 = CARD_BG; BackgroundTransparency = 0.35; LayoutOrder = order; Parent = Components.lib;
+	}, {Library:corner(18)});
+	local st = Library:stroke(CARD_LINE, 2, 0.62);
+	st.Parent = card;
+	local thumb = Library.new("Frame", {
+		Position = UDim2Offset(10, 10); Size = UDim2Offset(104, 104); BackgroundColor3 = fromRGB(8, 8, 8);
+		BackgroundTransparency = 0.3; ClipsDescendants = true; Parent = card;
+	}, {Library:corner(14); Library:stroke(COLORS.white, 1, 0.8)});
+	local vp = nil;
+	if Configs.PreviewMode ~= "Off" then
+		vp = Library.new("ViewportFrame", {
+			Size = UDim2Scale(1, 1); BackgroundTransparency = 1; Ambient = fromRGB(175, 175, 182);
+			LightColor = COLORS.white; Parent = thumb;
+		});
+	else
+		Library:Label({
+			Text = strupper(string.sub(itemName, 1, 1)); FontFace = FormatFont(WEIGHT.Bold); TextSize = 40;
+			TextColor3 = COLORS.sub; TextXAlignment = Enum.TextXAlignment.Center; Size = UDim2Scale(1, 1); Parent = thumb;
+		});
+	end;
+	Library:Label({
+		Text = itemName; FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 15; Position = UDim2Offset(126, 14);
+		Size = UDim2n(1, -(126 + 44), 0, 22); TextTruncate = Enum.TextTruncate.AtEnd; Parent = card;
+	});
+	Library:Label({
+		Text = kind == "bundle" and (itemVal .. "  •  Bundle") or itemVal; FontFace = FormatFont(WEIGHT.Medium);
+		TextSize = 13; TextColor3 = Functions.isFree(item) and COLORS.good or COLORS.paid; Position = UDim2Offset(126, 38);
+		Size = UDim2n(1, -140, 0, 18); Parent = card;
+	});
+	local fav = Library.new("TextButton", {
+		AnchorPoint = Vec2(1, 0); Position = UDim2n(1, -14, 0, 12); Size = UDim2Offset(24, 24);
+		BackgroundTransparency = 1; Text = "★"; FontFace = FormatFont(WEIGHT.Bold); TextSize = 18;
+		TextColor3 = Library.favs[item] and COLORS.gold or fromRGB(95, 95, 105); Parent = card;
+	});
+	fav.Activated:Connect(function()
+		Library.favs[item] = not Library.favs[item] or nil;
+		Tween(fav, {TextColor3 = Library.favs[item] and COLORS.gold or fromRGB(95, 95, 105)}, 0.15);
+		Functions.toast(Library.favs[item] and ("★  Added " .. itemName) or ("Removed " .. itemName .. " from favorites"));
+		Functions.applyFilter();
+	end);
+	local btn = Library.new("TextButton", {
+		AnchorPoint = Vec2(1, 1); Position = UDim2n(1, -10, 1, -10); Size = UDim2Offset(0, 30);
+		AutomaticSize = Enum.AutomaticSize.X; BackgroundColor3 = COLORS.black; BackgroundTransparency = 0.35;
+		Text = "USE"; TextColor3 = COLORS.white; FontFace = FormatFont(WEIGHT.Bold); TextSize = 12;
+		AutoButtonColor = false; Parent = card;
+	}, {Library:corner(9); Library:padXY(14)});
+	btn.MouseEnter:Connect(function() Tween(btn, {BackgroundTransparency = 0.1}, 0.12); end);
+	btn.MouseLeave:Connect(function() Tween(btn, {BackgroundTransparency = 0.35}, 0.12); end);
+	btn.Activated:Connect(function() Functions.useItem(item); end);
+	card.MouseEnter:Connect(function()
+		Tween(card, {BackgroundTransparency = 0.25}, 0.15);
+		if vp then Components.hoverState = Components.previews[vp]; end;
+	end);
+	card.MouseLeave:Connect(function()
+		Tween(card, {BackgroundTransparency = 0.35}, 0.2);
+		local ps = vp and Components.previews[vp];
+		if ps and ps == Components.hoverState then
+			Components.hoverState = nil;
+			ps.angle = 0;
+			pcall(function() ps.clone:PivotTo(CFr(0, 0, 0)); end);
+		end;
+	end);
+	local entry = {item = item; kind = kind; frame = card; btn = btn; st = st; vp = vp;};
+	tblein(Library.cards, entry);
+	return entry;
+end;
+Functions.updateGrid = function()
+	local gap, minW = 12, 420;
+	local padW = 18;
+	local w = Components.areaW - padW;
+	local cols = math.max(1, math.floor((w + gap) / (minW + gap)));
+	Components.grid.CellSize = UDim2Offset(math.floor((w - gap * (cols - 1)) / cols), 124);
+end;
+Functions.totalPages = function()
+	return math.max(1, math.ceil(#Library.filteredList / Library.PAGE_SIZE));
+end;
+Functions.updatePageBar = function()
+	local tp = Functions.totalPages();
+	Components.pageLabel.Text = Library.currentPage .. " / " .. tp;
+	Components.prevBtn.TextColor3 = Library.currentPage > 1 and COLORS.text or COLORS.sub;
+	Components.nextBtn.TextColor3 = Library.currentPage < tp and COLORS.text or COLORS.sub;
+	Components.prevBtn.BackgroundTransparency = Library.currentPage > 1 and 0.5 or 0.7;
+	Components.nextBtn.BackgroundTransparency = Library.currentPage < tp and 0.5 or 0.7;
+	Components.pageBar.Visible = tp > 1 or #Library.filteredList > 0;
+end;
+Functions.applyFilter = function()
+	if not LIB[Library.activeTab] then return; end;
+	local raw = {};
+	for idx, item in ipairs(LIB[Library.activeTab]) do
+		tblein(raw, {item = item; i = idx;});
+	end;
+	tblesort(raw, function(x, y)
+		local s = Configs.Sort;
+		if s == "Name (A-Z)" then
+			local nx, ny = x.item.N or x.item.Name, y.item.N or y.item.Name;
+			if nx ~= ny then return nx < ny; end;
+		elseif s == "Free first" then
+			local fx, fy = Functions.isFree(x.item), Functions.isFree(y.item);
+			if fx ~= fy then return fx; end;
+		elseif s == "Price: Low to High" then
+			local px, py = Functions.price(x.item), Functions.price(y.item);
+			if px ~= py then return px < py; end;
+		end;
+		return x.i < y.i;
+	end);
+	Library.filteredList = {};
+	for _, e in ipairs(raw) do
+		if Functions.passes(e.item) then tblein(Library.filteredList, e); end;
+	end;
+	Library.currentPage = math.clamp(Library.currentPage, 1, Functions.totalPages());
+	Functions.updatePageBar();
+	Functions.renderCards();
+end;
+Functions.renderCards = function()
+	if not LIB[Library.activeTab] then return; end;
+	Library.renderToken = Library.renderToken + 1;
+	local token = Library.renderToken;
+	for _, ch in ipairs(Components.lib:GetChildren()) do
+		if IsA(ch, "Frame") then ch:Destroy(); end;
+	end;
+	tbleclr(Library.cards);
+	Components.hoverState = nil;
+	Components.lib.CanvasPosition = Vec2(0, 0);
+	Functions.updateGrid();
+	local startI = (Library.currentPage - 1) * Library.PAGE_SIZE + 1;
+	local endI   = math.min(startI + Library.PAGE_SIZE - 1, #Library.filteredList);
+	local empty = #Library.filteredList == 0;
+	Components.emptyLabel.Visible = empty;
+	if empty then
+		Components.emptyLabel.Text = Library.favOnly and next(Library.favs) == nil
+			and "No favorites yet.\nTap ★ on a card to pin it."
+			or "Nothing found.";
+		return;
+	end;
+	local pending = {};
+	for order = startI, endI do
+		local e = Library.filteredList[order];
+		local entry = Functions.makeCard(e.item, order - startI + 1);
+		if entry.vp then tblein(pending, entry); end;
+	end;
+	Functions.refreshState();
+	tspawn(function()
+		for _, e in ipairs(pending) do
+			if token ~= Library.renderToken or not Library.open then return; end;
+			pcall(Functions.buildPreview, e.vp, e.item);
+			twait();
+		end;
+	end);
+end;
+Functions.refreshState = function()
+	for _, c in ipairs(Library.cards) do
+		local active = Functions.isActive(c.item);
+		c.btn.Text = active and (c.kind == "bundle" and "REMOVE" or "STOP") or "USE";
+		Tween(c.btn, {BackgroundColor3 = active and COLORS.accent or COLORS.black; BackgroundTransparency = active and 0.1 or 0.35;}, 0.15);
+		Tween(c.st, {Color = active and COLORS.accent or CARD_LINE; Transparency = active and 0.05 or 0.62;}, 0.2);
+	end;
+	local current = Library.current;
+	if current then
+		Components.pillName.Text = current.item.N or current.item.Name;
+		Tween(Components.pill, {Position = Components.PILL_SHOWN}, 0.45, Enum.EasingStyle.Back);
+	else
+		Tween(Components.pill, {Position = Components.PILL_HIDDEN}, 0.3);
+	end;
+	if Components.mixPlaying then Components.mixPlaying.Text = current and (current.item.N or current.item.Name) or "Nothing"; end;
+	if Components.mixBundle then Components.mixBundle.Text = Library.equipped and (Library.equipped.N or Library.equipped.Name) or "Default"; end;
+end;
+Functions.showTab = function(name)
+	Library.activeTab = name;
+	Library.currentPage = 1;
+	Functions.closePopup();
+	local isLib = LIB[name] ~= nil;
+	Components.lib.Visible = isLib;
+	Components.pageBar.Visible = false;
+	Components.settingsPage.Visible = name == "Settings";
+	Components.searchFrame.Visible, Components.favBtn.Visible, Components.seg.Visible = isLib, isLib, isLib;
+	Components.titleLabel.Text = name;
+	Components.emptyLabel.Visible = false;
+	Functions.styleRail(false);
+	if isLib and Library.open then Functions.applyFilter(); end;
+	Functions.refreshState();
+end;
+Functions.toast = function(text)
+	if not Configs.Toasts then return; end;
+	Components.toastToken = Components.toastToken + 1;
+	local my = Components.toastToken;
+	Components.toastLabel.Text = text;
+	Components.toastFrame.Visible = true;
+	Components.toastFrame.Position = UDim2n(0.5, 0, 0, 68);
+	Tween(Components.toastFrame, {Position = UDim2n(0.5, 0, 0, 84); BackgroundTransparency = 0.08;}, 0.35, Enum.EasingStyle.Back);
+	Tween(Components.toastLabel, {TextTransparency = 0}, 0.25);
+	Tween(Components.toastStroke, {Transparency = 0.8}, 0.25);
+	tdelay(2, function()
+		if my ~= Components.toastToken then return; end;
+		Tween(Components.toastFrame, {BackgroundTransparency = 1}, 0.3);
+		Tween(Components.toastLabel, {TextTransparency = 1}, 0.3);
+		Tween(Components.toastStroke, {Transparency = 1}, 0.3);
+		tdelay(0.32, function() if my == Components.toastToken then Components.toastFrame.Visible = false; end; end);
+	end);
+end;
+Functions.layout = function()
+	local s = Components.gui.AbsoluteSize;
+	if s.X < 100 then s = W.CurrentCamera.ViewportSize; end;
+	Components.scrX, Components.scrY = s.X, s.Y;
+	local sc = (Components.scrY >= 2160) and 2 or 1;
+	Components.uiScale.Scale = sc;
+	Components.W, Components.H = math.ceil(Components.scrX / sc), math.ceil(Components.scrY / sc);
+	Components.root.Size = UDim2Offset(Components.W, Components.H);
+	Components.compact = Components.W < 980;
+	Components.railX = Components.compact and 14 or 28;
+	Components.areaLeft = Components.railX;
+	Components.areaW = Components.W - Components.areaLeft * 2;
+	if Configs.NavPosition == "Bottom Dock" then
+		Components.CTRL_Y = 88;
+		Components.LIB_Y = 140;
+		Components.PAGE_Y = 140;
+		Components.PILL_SHOWN = UDim2n(0.5, 0, 1, -92);
+		Components.PILL_HIDDEN = UDim2n(0.5, 0, 1, 100);
+		Components.rail.AnchorPoint = Vec2(0.5, 1);
+		Components.rail.Position = UDim2n(0.5, 0, 1, -26);
+		Components.libPad.PaddingBottom = UDimn(0, 100);
+		Components.settingsPad.PaddingBottom = UDimn(0, 100);
+	else
+		Components.CTRL_Y = 152;
+		Components.LIB_Y = 204;
+		Components.PAGE_Y = 152;
+		Components.PILL_SHOWN = UDim2n(0.5, 0, 1, -36);
+		Components.PILL_HIDDEN = UDim2n(0.5, 0, 1, 80);
+		Components.rail.AnchorPoint = Vec2(0, 0);
+		Components.rail.Position = UDim2Offset(Components.railX, Components.DOCK_Y);
+		Components.libPad.PaddingBottom = UDimn(0, 40);
+		Components.settingsPad.PaddingBottom = UDimn(0, 40);
+	end;
+	if Components.colsLayout then
+		if Components.compact then
+			Components.colsLayout.FillDirection = Enum.FillDirection.Vertical;
+			Components.leftCol.Size = UDim2n(1, 0, 0, 0);
+			Components.rightCol.Size = UDim2n(1, 0, 0, 0);
+		else
+			Components.colsLayout.FillDirection = Enum.FillDirection.Horizontal;
+			Components.leftCol.Size = UDim2n(0.5, -8, 0, 0);
+			Components.rightCol.Size = UDim2n(0.5, -8, 0, 0);
+		end;
+	end;
+	Components.area.Position = UDim2Offset(Components.areaLeft, 0);
+	Components.area.Size = UDim2Offset(Components.areaW, Components.H);
+	Components.searchFrame.Position = UDim2Offset(6, Components.CTRL_Y);
+	Components.searchFrame.Size = UDim2Offset(Components.compact and 190 or 250, 34);
+	Components.favBtn.Position = UDim2n(1, -208, 0, Components.CTRL_Y);
+	Components.seg.Position = UDim2n(1, -6, 0, Components.CTRL_Y);
+		Components.pageBar.Position = UDim2Offset(0, Components.LIB_Y);
+	Components.lib.Position = UDim2Offset(0, Components.LIB_OFFSET);
+	Components.lib.Size = UDim2n(1, 0, 1, -Components.LIB_OFFSET);
+	Components.emptyLabel.Position = UDim2n(0.5, 0, 0, Components.LIB_OFFSET + 60);
+	Components.settingsPage.Position = UDim2Offset(0, Components.PAGE_Y);
+	Components.settingsPage.Size = UDim2n(1, 0, 1, -Components.PAGE_Y);
+	if Library.current then Components.pill.Position = Components.PILL_SHOWN; else Components.pill.Position = Components.PILL_HIDDEN; end;
+	Functions.updateGrid();
+	Functions.styleRail(true);
+end;
+Functions.setOpen = function(state)
+	if state == Library.open then return; end;
+	Library.open = state;
+	Library.renderToken = Library.renderToken + 1;
+	if state then
+		Functions.layout();
+		Components.dim.Visible = true;
+		Components.root.Visible = true;
+		Components.dim.BackgroundTransparency = 1;
+		Components.blur.Size = 0;
+		Tween(Components.dim, {BackgroundTransparency = 0.5}, 0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
+		Tween(Components.blur, {Size = Configs.Blur and Configs.BlurSize or 0}, 0.32, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
+		Components.area.Position = UDim2n(0, Components.areaLeft, 0, 36);
+		Tween(Components.area, {Position = UDim2Offset(Components.areaLeft, 0)}, 0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out);
+		Components.handle.Position = UDim2n(0.5, 0, 0, -40);
+		Tween(Components.handle, {Position = UDim2n(0.5, 0, 0, 30)}, 0.32, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
+		if Configs.NavPosition == "Bottom Dock" then
+			Components.rail.Position = UDim2n(0.5, 0, 1, 80);
+			Tween(Components.rail, {Position = UDim2n(0.5, 0, 1, -26)}, 0.38, Enum.EasingStyle.Back, Enum.EasingDirection.Out);
+		else
+			Components.rail.Position = UDim2Offset(Components.railX, Components.DOCK_Y - 16);
+			Tween(Components.rail, {Position = UDim2Offset(Components.railX, Components.DOCK_Y)}, 0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
+		end;
+		tdelay(0.1, function()
+			if Library.open and LIB[Library.activeTab] then
+				Library.currentPage = 1;
+				Functions.applyFilter();
+			end;
+		end);
+	else
+		Functions.closePopup();
+		Components.hoverState = nil;
+		Tween(Components.area, {Position = UDim2n(0, Components.areaLeft, 1, 60)}, 0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In);
+		Tween(Components.handle, {Position = UDim2n(0.5, 0, 0, -50)}, 0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In);
+		if Configs.NavPosition == "Bottom Dock" then
+			Tween(Components.rail, {Position = UDim2n(0.5, 0, 1, 80)}, 0.20, Enum.EasingStyle.Quad, Enum.EasingDirection.In);
+		else
+			Tween(Components.rail, {Position = UDim2Offset(Components.railX, -60)}, 0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In);
+		end;
+		if Library.current then
+			Tween(Components.pill, {Position = Components.PILL_HIDDEN}, 0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In);
+		end;
+		Tween(Components.dim, {BackgroundTransparency = 1}, 0.26, Enum.EasingStyle.Quad, Enum.EasingDirection.In);
+		Tween(Components.blur, {Size = 0}, 0.26, Enum.EasingStyle.Quad, Enum.EasingDirection.In);
+		tdelay(0.26, function()
+			if Library.open then return; end;
+			Components.root.Visible = false;
+			Components.dim.Visible = false;
+			Components.area.Position = UDim2Offset(Components.areaLeft, 0);
+			for _, ch in ipairs(Components.lib:GetChildren()) do
+				if IsA(ch, "Frame") then ch:Destroy(); end;
+			end;
+			tbleclr(Library.cards);
+		end);
+	end;
+end;
+Components.gui = Library.new("ScreenGui", {
+	Name = "AnimHub"; IgnoreGuiInset = true; ResetOnSpawn = false;
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling; DisplayOrder = 100;
+});
+pcall(function() Components.gui.ScreenInsets = Enum.ScreenInsets.None; end);
+Components.gui.Parent = (gethui and gethui()) or PSG;
+Components.blur = FindFirstChild(Lighting, "AnimHubBlur") or Library.new("BlurEffect", {Name = "AnimHubBlur"; Size = 0; Parent = Lighting;});
+Components.dim = Library.new("TextButton", {
+	Size = UDim2Scale(1, 1); BackgroundColor3 = COLORS.black;
+	BackgroundTransparency = 1; Text = ""; AutoButtonColor = false; Visible = false; Parent = Components.gui;
+});
+Components.dim.Activated:Connect(function() Functions.setOpen(false); end);
+Components.root = Library.new("Frame", {BackgroundTransparency = 1; Visible = false; Parent = Components.gui;});
+Components.uiScale = Library.new("UIScale", {Parent = Components.root;});
+Components.handle = Library.new("TextButton", {
+	AnchorPoint = Vec2(0.5, 0); Position = UDim2n(0.5, 0, 0, 30);
+	Size = UDim2Offset(240, 40); BackgroundTransparency = 1; Text = ""; Parent = Components.root;
+});
+Library.new("Frame", {
+	AnchorPoint = Vec2(0.5, 0.5); Position = UDim2Scale(0.5, 0.5); Size = UDim2Offset(160, 6);
+	BackgroundColor3 = COLORS.white; BackgroundTransparency = 0.72; BorderSizePixel = 0; Parent = Components.handle;
+}, {Library:corner(3)});
+Components.handle.Activated:Connect(function() Functions.setOpen(false); end);
+Components.rail = Library.new("Frame", {
+	AnchorPoint = Vec2(0.5, 1); Position = UDim2n(0.5, 0, 1, -26); Size = UDim2Offset(0, 48);
+	AutomaticSize = Enum.AutomaticSize.X; BackgroundColor3 = fromRGB(16, 16, 20); BackgroundTransparency = 0.25; ZIndex = 20; Parent = Components.root;
+}, {
+	Library:corner(24); Library:stroke(COLORS.white, 1.5, 0.8); Library:padXY(5, 5);
+	Library.new("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal; Padding = UDimn(0, 6);
+		SortOrder = Enum.SortOrder.LayoutOrder; VerticalAlignment = Enum.VerticalAlignment.Center;
+	});
+});
+Library.Shadow(Components.rail);
+for i, t in ipairs(RAIL) do
+	local b = Library.new("TextButton", {
+		Size = UDim2Offset(0, 38); AutomaticSize = Enum.AutomaticSize.X; BackgroundColor3 = DOCK_SEL;
+		BackgroundTransparency = 1; Text = ""; AutoButtonColor = false; LayoutOrder = i; ZIndex = 21; Parent = Components.rail;
+	}, {Library:corner(19); Library:padXY(18, 0)});
+	local tx = Library:Label({
+		Text = t.label; FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 14; AutomaticSize = Enum.AutomaticSize.X;
+		Size = UDim2n(0, 0, 1, 0); TextXAlignment = Enum.TextXAlignment.Center; TextYAlignment = Enum.TextYAlignment.Center;
+		ZIndex = 22; Parent = b;
+	});
+	tblein(Components.railItems, {id = t.id; btn = b; text = tx;});
+	b.MouseEnter:Connect(function()
+		if Library.activeTab ~= t.id then Tween(b, {BackgroundTransparency = 0.9}, 0.12); end;
+	end);
+	b.MouseLeave:Connect(function()
+		if Library.activeTab ~= t.id then Tween(b, {BackgroundTransparency = 1}, 0.12); end;
+	end);
+	b.Activated:Connect(function() Functions.showTab(t.id); end);
+end;
+Functions.styleRail = function(instant)
+	for _, it in ipairs(Components.railItems) do
+		local sel = it.id == Library.activeTab;
+		local bgT = sel and 0.04 or 1;
+		local fg = sel and fromRGB(18, 18, 18) or DIM_TXT;
+		if instant then it.btn.BackgroundTransparency = bgT;
+		else Tween(it.btn, {BackgroundTransparency = bgT}, 0.25); end;
+		it.text.TextColor3 = fg;
+		it.text.FontFace = FormatFont(sel and WEIGHT.Bold or WEIGHT.SemiBold);
+	end;
+end;
+Components.area = Library.new("Frame", {BackgroundTransparency = 1; Parent = Components.root;});
+Components.titleLabel = Library:Label({
+	Text = "Emotes"; FontFace = FormatFont(WEIGHT.Bold); TextSize = 24; Position = UDim2Offset(0, Components.TITLE_Y);
+	Size = UDim2n(1, 0, 0, 34); Visible = false; Parent = Components.area;
+});
+Components.searchFrame = Library.new("Frame", {
+	Position = UDim2Offset(6, Components.CTRL_Y); Size = UDim2Offset(250, 34);
+	BackgroundColor3 = COLORS.black; BackgroundTransparency = 0.5; Parent = Components.area;
+}, {Library:corner(12); Library:stroke(COLORS.white, 1, 0.82)});
+Components.searchBox = Library.new("TextBox", {
+	Position = UDim2Offset(14, 0); Size = UDim2n(1, -28, 1, 0); BackgroundTransparency = 1;
+	Text = ""; PlaceholderText = "Search"; PlaceholderColor3 = COLORS.sub; TextColor3 = COLORS.text;
+	FontFace = FormatFont(WEIGHT.Medium); TextSize = 13; TextXAlignment = Enum.TextXAlignment.Left;
+	ClearTextOnFocus = false; Parent = Components.searchFrame;
+});
+Components.seg = Library.new("Frame", {
+	AnchorPoint = Vec2(1, 0); Position = UDim2n(1, -6, 0, Components.CTRL_Y); Size = UDim2Offset(190, 34);
+	BackgroundColor3 = COLORS.black; BackgroundTransparency = 0.5; Parent = Components.area;
+}, {Library:corner(17); Library:stroke(COLORS.white, 1, 0.82)});
+Components.segPill = Library.new("Frame", {
+	Position = UDim2Offset(3, 3); Size = UDim2Offset(61, 28);
+	BackgroundColor3 = fromRGB(242, 242, 242); BorderSizePixel = 0; Parent = Components.seg;
+}, {Library:corner(14)});
+for i, name in ipairs({"All", "Free", "Paid"}) do
+	local b = Library.new("TextButton", {
+		Position = UDim2Offset(3 + (i - 1) * 61, 3); Size = UDim2Offset(61, 28);
+		BackgroundTransparency = 1; Text = name; FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 13;
+		TextColor3 = (name == "All") and fromRGB(15, 15, 15) or COLORS.white; AutoButtonColor = false; ZIndex = 2; Parent = Components.seg;
+	});
+	Components.segBtns[name] = b;
+	b.Activated:Connect(function()
+		Library.filter = name;
+		for n, bb in pairs(Components.segBtns) do
+			Tween(bb, {TextColor3 = (n == name) and fromRGB(15, 15, 15) or COLORS.white}, 0.2);
+		end;
+		Tween(Components.segPill, {Position = UDim2Offset(3 + (i - 1) * 61, 3)}, 0.3);
+		Library.currentPage = 1;
+		Functions.applyFilter();
+	end);
+end;
+Components.favBtn = Library.new("TextButton", {
+	AnchorPoint = Vec2(1, 0); Position = UDim2n(1, -208, 0, Components.CTRL_Y); Size = UDim2Offset(100, 34);
+	BackgroundColor3 = COLORS.black; BackgroundTransparency = 0.5; Text = "Favorites"; TextColor3 = COLORS.text;
+	FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 13; AutoButtonColor = false; Parent = Components.area;
+}, {Library:corner(17)});
+Components.favStroke = Library:stroke(COLORS.white, 1.5, 0.75);
+Components.favStroke.Parent = Components.favBtn;
+Functions.paintFav = function()
+	Tween(Components.favStroke, {Color = Library.favOnly and COLORS.accent or COLORS.white; Transparency = Library.favOnly and 0 or 0.75;}, 0.2);
+	Tween(Components.favBtn, {
+		BackgroundColor3 = Library.favOnly and COLORS.accent or COLORS.black;
+		BackgroundTransparency = Library.favOnly and 0.7 or 0.5;
+	}, 0.2);
+end;
+tblein(Library.repaints, Functions.paintFav);
+Components.favBtn.Activated:Connect(function()
+	Library.favOnly = not Library.favOnly;
+	Library.currentPage = 1;
+	Functions.paintFav();
+	Functions.applyFilter();
+end);
+Components.pageBar = Library.new("Frame", {
+	Position = UDim2Offset(0, Components.LIB_Y); Size = UDim2n(1, 0, 0, Components.PAGE_BAR_H);
+	BackgroundTransparency = 1; Visible = false; Parent = Components.area;
+});
+Components.prevBtn = Library.new("TextButton", {
+	Size = UDim2Offset(84, 30); AnchorPoint = Vec2(0, 0.5); Position = UDim2n(0, 6, 0.5, 0);
+	BackgroundColor3 = COLORS.black; BackgroundTransparency = 0.5; Text = "← Prev"; TextColor3 = COLORS.text;
+	FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 13; AutoButtonColor = false; Parent = Components.pageBar;
+}, {Library:corner(10)});
+Components.pageLabel = Library:Label({
+	Text = "1 / 1"; TextSize = 13; TextColor3 = COLORS.sub;
+	AnchorPoint = Vec2(0.5, 0.5); Position = UDim2n(0.5, 0, 0.5, 0); Size = UDim2Offset(120, 30);
+	TextXAlignment = Enum.TextXAlignment.Center; Parent = Components.pageBar;
+});
+Components.nextBtn = Library.new("TextButton", {
+	Size = UDim2Offset(84, 30); AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -6, 0.5, 0);
+	BackgroundColor3 = COLORS.black; BackgroundTransparency = 0.5; Text = "Next →"; TextColor3 = COLORS.text;
+	FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 13; AutoButtonColor = false; Parent = Components.pageBar;
+}, {Library:corner(10)});
+for _, b in ipairs({Components.prevBtn, Components.nextBtn}) do
+	b.MouseEnter:Connect(function() Tween(b, {BackgroundTransparency = 0.3}, 0.12); end);
+	b.MouseLeave:Connect(function() Tween(b, {BackgroundTransparency = 0.5}, 0.12); end);
+end;
+Components.lib = Library.new("ScrollingFrame", {
+	Position = UDim2Offset(0, Components.LIB_OFFSET); Size = UDim2n(1, 0, 1, -Components.LIB_OFFSET);
+	BackgroundTransparency = 1; BorderSizePixel = 0; ScrollBarThickness = 3; VerticalScrollBarInset = Enum.ScrollBarInset.None;
+	CanvasSize = UDim2n(); AutomaticCanvasSize = Enum.AutomaticSize.Y; Parent = Components.area;
+});
+Library:accProp(Components.lib, "ScrollBarImageColor3");
+Components.grid = Library.new("UIGridLayout", {
+	CellSize = UDim2Offset(500, 124); CellPadding = UDim2Offset(12, 12);
+	SortOrder = Enum.SortOrder.LayoutOrder; Parent = Components.lib;
+});
+Components.libPad = Library.new("UIPadding", {
+	PaddingTop = UDimn(0, 6); PaddingBottom = UDimn(0, 40);
+	PaddingLeft = UDimn(0, 6); PaddingRight = UDimn(0, 12); Parent = Components.lib;
+});
+Components.emptyLabel = Library:Label({
+	Text = ""; TextSize = 15; TextColor3 = COLORS.sub; TextXAlignment = Enum.TextXAlignment.Center;
+	AnchorPoint = Vec2(0.5, 0); Position = UDim2n(0.5, 0, 0, Components.LIB_OFFSET + 60); Size = UDim2Offset(420, 60);
+	TextWrapped = true; Visible = false; Parent = Components.area;
+});
+Components.popup = Library.new("Frame", {
+	Visible = false; BackgroundColor3 = fromRGB(20, 20, 20); BackgroundTransparency = 0.04;
+	ZIndex = 61; Parent = Components.root;
+}, {
+	Library:corner(14); Library:stroke(COLORS.white, 1.5, 0.8); Library:padXY(5, 5);
+	Library.new("UIListLayout", {Padding = UDimn(0, 2); SortOrder = Enum.SortOrder.LayoutOrder;});
+});
+Library.Shadow(Components.popup);
+Components.popBack = Library.new("TextButton", {
+	Size = UDim2Scale(1, 1); BackgroundTransparency = 1; Text = ""; Visible = false;
+	ZIndex = 60; Parent = Components.root;
+});
+Components.popBack.Activated:Connect(function() Functions.closePopup(); end);
+Components.pill = Library.new("Frame", {
+	AnchorPoint = Vec2(0.5, 1); Position = Components.PILL_HIDDEN; Size = UDim2Offset(360, 54);
+	BackgroundColor3 = fromRGB(16, 16, 16); BackgroundTransparency = 0.15; ZIndex = 5; Parent = Components.root;
+}, {Library:corner(27); Library:stroke(COLORS.white, 1.5, 0.82)});
+Library.Shadow(Components.pill);
+Components.eq = Library.new("Frame", {
+	Position = UDim2n(0, 22, 0.5, -10); Size = UDim2Offset(22, 20); BackgroundTransparency = 1; Parent = Components.pill;
+});
+for i = 1, 4 do
+	local b = Library.new("Frame", {
+		AnchorPoint = Vec2(0, 1); Position = UDim2n(0, (i - 1) * 6, 1, 0); Size = UDim2Offset(4, 6);
+		BorderSizePixel = 0; Parent = Components.eq;
+	}, {Library:corner(2)});
+	Library:accProp(b, "BackgroundColor3");
+	TweenService:Create(b, TwInfo(0.32 + i * 0.07, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+		{Size = UDim2Offset(4, 20 - i * 2)}):Play();
+end;
+Components.pillName = Library:Label({
+	FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 15; Position = UDim2Offset(58, 0);
+	Size = UDim2n(1, -150, 1, 0); TextTruncate = Enum.TextTruncate.AtEnd; Parent = Components.pill;
+});
+Components.pillStop = Library.new("TextButton", {
+	AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -12, 0.5, 0); Size = UDim2Offset(72, 34);
+	BackgroundColor3 = COLORS.white; BackgroundTransparency = 0.88; Text = "STOP"; TextColor3 = COLORS.text;
+	FontFace = FormatFont(WEIGHT.Bold); TextSize = 12; AutoButtonColor = false; Parent = Components.pill;
+}, {Library:corner(17)});
+Components.pillStop.Activated:Connect(function() Functions.stopCurrent(); end);
+Components.settingsPage, Components.settingsPad = Functions.makePage(Components.PAGE_Y);
+Components.colsLayout = Library.new("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal; Padding = UDimn(0, 16);
+	SortOrder = Enum.SortOrder.LayoutOrder; VerticalAlignment = Enum.VerticalAlignment.Top;
+});
+Components.columns = Library.new("Frame", {
+	Size = UDim2n(1, -12, 0, 0); AutomaticSize = Enum.AutomaticSize.Y; BackgroundTransparency = 1; Parent = Components.settingsPage;
+}, {Components.colsLayout});
+Components.leftCol = Library.new("Frame", {
+	Size = UDim2n(0.5, -8, 0, 0); AutomaticSize = Enum.AutomaticSize.Y; BackgroundTransparency = 1;
+	LayoutOrder = 1; Parent = Components.columns;
+}, {Library.new("UIListLayout", {Padding = UDimn(0, 14); SortOrder = Enum.SortOrder.LayoutOrder;})});
+Components.rightCol = Library.new("Frame", {
+	Size = UDim2n(0.5, -8, 0, 0); AutomaticSize = Enum.AutomaticSize.Y; BackgroundTransparency = 1;
+	LayoutOrder = 2; Parent = Components.columns;
+}, {Library.new("UIListLayout", {Padding = UDimn(0, 14); SortOrder = Enum.SortOrder.LayoutOrder;})});
+do
+	local g = Functions.group(Components.leftCol);
+	local r = Functions.row(g, "Open / Close Keybind", "Click the button, then press any key. Esc cancels.", 150);
+	Components.keyBtn = Library.new("TextButton", {
+		AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -20, 0.5, 0); Size = UDim2Offset(130, 38);
+		BackgroundColor3 = COLORS.white; BackgroundTransparency = 0.92; Text = Configs.Keybind.Name; TextColor3 = COLORS.text;
+		FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 14; AutoButtonColor = false; Parent = r;
+	}, {Library:corner(11)});
+	Components.keyBtn.Activated:Connect(function() Components.listening = true; Components.keyBtn.Text = "Press a key..."; end);
+	local rNav = Functions.row(g, "Navigation Position", "Dock at bottom center or bar at top-left.", 190);
+	Functions.dropdownBtn(rNav, NAV_POSITIONS, function() return Configs.NavPosition; end, function(v)
+		Configs.NavPosition = v;
+		Functions.layout();
+		Functions.refreshState();
+	end);
+end;
+do
+	local g = Functions.group(Components.leftCol);
+	local r1 = Functions.row(g, "Preview Model", "Silhouette, your own character, or no preview.", 200);
+	Functions.dropdownBtn(r1, PREVIEWS, function() return Configs.PreviewMode; end, function(v)
+		Configs.PreviewMode = v;
+		if Library.open then Library.currentPage = 1; Functions.applyFilter(); end;
+	end);
+	Functions.toggle(g, "Hover Spin", "Rotate the preview while hovering a card.", "HoverSpin");
+	local r2 = Functions.row(g, "Sort Order", "How cards are arranged.", 200);
+	Functions.dropdownBtn(r2, SORTS, function() return Configs.Sort; end, function(v)
+		Configs.Sort = v;
+		if Library.open then Library.currentPage = 1; Functions.applyFilter(); end;
+	end);
+end;
+do
+	local g = Functions.group(Components.leftCol);
+	Functions.toggle(g, "Background Blur", "Blur the game behind the menu.", "Blur", function()
+		if Library.open then Tween(Components.blur, {Size = Configs.Blur and Configs.BlurSize or 0}, 0.3); end;
+	end);
+	local r = Functions.row(g, "Blur Strength", "How strong the blur is.", 260);
+	local s = Functions.makeSlider(r, {
+		min = 0; max = 56; step = 1; default = Configs.BlurSize; width = 240;
+		onChange = function(v)
+			Configs.BlurSize = v;
+			if Library.open and Configs.Blur then Tween(Components.blur, {Size = v}, 0.15); end;
+		end;
+	});
+	s.frame.AnchorPoint = Vec2(1, 0.5);
+	s.frame.Position = UDim2n(1, -20, 0.5, 0);
+		local r2 = Functions.row(g, "Accent Color", "Recolors the interface instantly.", 250);
+	local box = Library.new("Frame", {
+		AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -20, 0.5, 0); Size = UDim2Offset(234, 30);
+		BackgroundTransparency = 1; Parent = r2;
+	}, {
+		Library.new("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal; Padding = UDimn(0, 8);
+			HorizontalAlignment = Enum.HorizontalAlignment.Right; VerticalAlignment = Enum.VerticalAlignment.Center;
+		});
+	});
+	Functions.applyAccent = function(col)
+		COLORS.accent = col;
+		for _, fn in ipairs(Library.accentHooks) do pcall(fn, col); end;
+		for _, p in ipairs(Library.repaints) do pcall(p); end;
+		for c, st in pairs(Components.ring) do st.Transparency = (c == col) and 0 or 1; end;
+		Functions.refreshState();
+	end;
+	for _, col in ipairs({fromRGB(235, 35, 70), fromRGB(128, 96, 255), fromRGB(60, 190, 255), fromRGB(60, 210, 140), fromRGB(255, 170, 60), fromRGB(230, 230, 238)}) do
+		local b = Library.new("TextButton", {
+			Size = UDim2Offset(28, 28); BackgroundColor3 = col; Text = ""; AutoButtonColor = false; Parent = box;
+		}, {Library:corner(14)});
+		local st = Library:stroke(COLORS.white, 2, col == COLORS.accent and 0 or 1);
+		st.Parent = b;
+		Components.ring[col] = st;
+		b.Activated:Connect(function() Functions.applyAccent(col); end);
+	end;
+end;
+do
+	local g = Functions.group(Components.leftCol);
+	Functions.toggle(g, "Stop Emotes When Moving", "Cancel the emote as soon as you walk.", "StopOnMove");
+	Functions.toggle(g, "Notifications", "Small toasts when you play, favorite or rebind.", "Toasts");
+end;
+do
+	local g1 = Functions.group(Components.rightCol);
+	local r1 = Functions.row(g1, "Now Playing", "The emote that is currently running.", 200);
+	Components.mixPlaying = Library:Label({
+		Text = "Nothing"; FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 15; TextColor3 = COLORS.sub;
+		TextXAlignment = Enum.TextXAlignment.Right; AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -20, 0.5, 0);
+		Size = UDim2Offset(180, 24); Parent = r1;
+	});
+	local r2 = Functions.row(g1, "Playback Speed", "Speed of the emote that is playing.", 250);
+	local s = Functions.makeSlider(r2, {
+		min = 0.25; max = 3; step = 0.05; default = 1; width = 230;
+		fmt = function(v) return strformat("%.2fx", v); end;
+		onChange = function(v)
+			Library.speed = v;
+			if Library.current then pcall(function() Library.current.track:AdjustSpeed(v); end); end;
+		end;
+	});
+	s.frame.AnchorPoint = Vec2(1, 0.5);
+	s.frame.Position = UDim2n(1, -20, 0.5, 0);
+	local r3 = Functions.row(g1, "Stop Emote", "Stops the emote that is playing.", 110);
+	Functions.pillButton(r3, "Stop", function() Functions.stopCurrent(); end);
+	local g2 = Functions.group(Components.rightCol);
+	local r4 = Functions.row(g2, "Equipped Bundle", "Movement bundle applied to your Animate script.", 200);
+	Components.mixBundle = Library:Label({
+		Text = "Default"; FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 15; TextColor3 = COLORS.sub;
+		TextXAlignment = Enum.TextXAlignment.Right; AnchorPoint = Vec2(1, 0.5); Position = UDim2n(1, -20, 0.5, 0);
+		Size = UDim2Offset(180, 24); Parent = r4;
+	});
+	local r5 = Functions.row(g2, "Reset Bundle", "Restores your default animations.", 110);
+	Functions.pillButton(r5, "Reset", function()
+		if Library.equipped then tspawn(Functions.toggleBundle, Library.equipped); end;
+	end);
+end;
+Components.toastFrame = Library.new("Frame", {
+	AnchorPoint = Vec2(0.5, 0); Position = UDim2n(0.5, 0, 0, 84); Size = UDim2Offset(0, 40);
+	AutomaticSize = Enum.AutomaticSize.X; BackgroundColor3 = fromRGB(16, 16, 16); BackgroundTransparency = 1;
+	Visible = false; ZIndex = 80; Parent = Components.gui;
+}, {Library:corner(20); Library:padXY(22)});
+Components.toastStroke = Library:stroke(COLORS.white, 1.5, 1);
+Components.toastStroke.Parent = Components.toastFrame;
+Components.toastLabel = Library:Label({
+	FontFace = FormatFont(WEIGHT.SemiBold); TextSize = 14; AutomaticSize = Enum.AutomaticSize.X;
+	Size = UDim2n(0, 0, 1, 0); TextTransparency = 1; ZIndex = 81; Parent = Components.toastFrame;
+});
+Library.Shadow(Components.toastFrame);
+H.Heartbeat:Connect(function(dt)
+	if Components.hoverState and Configs.HoverSpin and Components.hoverState.clone.Parent then
+		Components.hoverState.angle = Components.hoverState.angle + dt * 1.8;
+		Components.hoverState.clone:PivotTo(CFrame.Angles(0, Components.hoverState.angle, 0));
+	end;
+end);
+Components.searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+	Library.currentPage = 1;
+	Functions.applyFilter();
+end);
+Components.prevBtn.Activated:Connect(function()
+	if Library.currentPage > 1 then
+		Library.currentPage = Library.currentPage - 1;
+		Functions.updatePageBar();
+		Functions.renderCards();
+	end;
+end);
+Components.nextBtn.Activated:Connect(function()
+	if Library.currentPage < Functions.totalPages() then
+		Library.currentPage = Library.currentPage + 1;
+		Functions.updatePageBar();
+		Functions.renderCards();
+	end;
+end);
+UIS.InputBegan:Connect(function(input, gp)
+	if Components.listening then
+		if input.UserInputType == Enum.UserInputType.Keyboard then
+			Components.listening = false;
+			if input.KeyCode ~= Enum.KeyCode.Escape then
+				Configs.Keybind = input.KeyCode;
+				Functions.toast("Keybind set to " .. input.KeyCode.Name);
+			end;
+			Components.keyBtn.Text = Configs.Keybind.Name;
+		end;
+		return;
+	end;
+	if gp or UIS:GetFocusedTextBox() then return; end;
+	if input.KeyCode == Configs.Keybind then Functions.setOpen(not Library.open); end;
+end);
+Functions.onChar = function(char)
+	selc = char;
+	Library.current = nil;
+	local hum = WaitForChild(char, "Humanoid", 10);
+	if not hum then return; end;
+	HumSelf = hum;
+	HumRSelf = hum.RootPart or EMPTY_OBJECT;
+	hum.Running:Connect(function(spd)
+		if Configs.StopOnMove and spd > 0.5 and Library.current then Functions.stopCurrent(); end;
+	end);
+	if Library.equipped then
+		tspawn(function()
+			Functions.setBundle(char, Library.equipped);
+			Functions.refreshState();
+		end);
+	end;
+	twait(0.5);
+	Functions.refreshState();
+	if Library.open and LIB[Library.activeTab] then Functions.applyFilter(); end;
+end;
+selff.CharacterAdded:Connect(Functions.onChar);
+if selff.Character then tspawn(Functions.onChar, selff.Character); end;
+Components.gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() Functions.layout(); end);
+Functions.layout();
+Functions.showTab("Emotes");
